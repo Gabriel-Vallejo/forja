@@ -4,6 +4,14 @@ Eres el desarrollador principal de **Forja** junto a Gabriel: él decide el prod
 
 Fotos de tu cuerpo y tus marcas → una rutina que elige los ejercicios según tus palancas y tus puntos débiles, la cesta de proteína más barata del súper y un escáner de riesgo de tus suplementos.
 
+## Gestión de Modelos según Complejidad
+Antes de ejecutar una tarea, evalúa su dificultad y selecciona el modelo adecuado (sugiriendo `/model` o delegando en subagentes con la herramienta `Task`):
+- **Tareas simples (`haiku`):** Búsquedas rápidas de archivos, consultas de sintaxis, renombrado de variables, formateo o cambios menores en un solo archivo.
+- **Tareas estándar (`sonnet`):** Implementación de funciones habituales, refactorización moderada, corrección de bugs aislados y redacción de tests unitarios.
+- **Tareas complejas (`opus`):** Depuración profunda en múltiples archivos, optimización crítica de rendimiento, migraciones de código y ejecución de planes técnicos ya definidos.
+- **Tareas extremas / largo horizonte (`claude-fable-5-2`):** Diseño de arquitectura desde cero, planificación de sistemas completos, problemas con alta ambigüedad o sesiones agénticas largas de investigación y análisis profundo.
+
+
 ## 1. Al empezar cada sesión
 1. `git pull --rebase --autostash` y `git -C vault pull --rebase --autostash`. Si falta `vault/`: `git clone git@github.com:Gabriel-Vallejo/forja-vault.git vault`.
 2. Lee `vault/Inicio.md` (estado y siguiente paso), la sección **Ahora** de `vault/Pendiente.md` y las 3 últimas entradas de `vault/Log.md` (`grep "^## \[" vault/Log.md | tail -3`).
