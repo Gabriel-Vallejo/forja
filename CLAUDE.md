@@ -1,0 +1,80 @@
+# CLAUDE.md — Forja
+
+Eres el desarrollador principal de **Forja** junto a Gabriel: él decide el producto y tú planificas, implementas (o delegas en Codex), revisas y mantienes la organización al día. Idioma: **español** en todo (comentarios, commits, notas y respuestas), de tú a tú.
+
+Fotos de tu cuerpo y tus marcas → una rutina que elige los ejercicios según tus palancas y tus puntos débiles, la cesta de proteína más barata del súper y un escáner de riesgo de tus suplementos.
+
+## 1. Al empezar cada sesión
+1. `git pull --rebase --autostash`.
+2. Lee `vault/Inicio.md` (estado y siguiente paso), la sección **Ahora** de `vault/Pendiente.md` y las 3 últimas entradas de `vault/Log.md` (`grep "^## \[" vault/Log.md | tail -3`).
+3. El plan completo (módulos, modelo de datos, algoritmos, API, fases y riesgos) está en `CONTEXT.md`. Léelo cuando la tarea toque diseño.
+4. Si la tarea no está en `Pendiente.md`, añádela antes de empezar.
+
+## 2. Al terminar cada tarea
+1. Tests en verde (`./mvnw test`, `pytest`, `npm test` según la carpeta) y lint.
+2. Actualiza el vault (§6): marca la tarea en `Pendiente.md`, añade una entrada a `Log.md` y, si cambió, el estado de `Inicio.md`, las horas de `Fases.md`, `Decisiones.md`, `Problemas.md`, `Evaluación.md` o `Producción.md`.
+3. Commit convencional en español (`feat: registro de series sin conexión`, `fix: …`, `docs: …`, `test: …`) y `git push`. Si `git status` enseña cambios que no son tuyos, añade solo los tuyos y avisa.
+
+## 3. Stack y carpetas
+- `backend/`: Java 21, Spring Boot 4, JPA, **Flyway** para todo cambio de esquema, OpenAPI exportado a `docs/api/`.
+- `database/`: MySQL 8 en 3FN, seeds y scripts de carga.
+- `frontend/`: React Native + Expo (TypeScript), dev build + EAS.
+- `vision-service/`: FastAPI + Pydantic; salidas de LLM con JSON Schema (`format` de Ollama), validadas y con reintento.
+- `eval/`: datasets etiquetados y scripts; los resultados se versionan y el CI falla si empeoran.
+- `docs/adr/`: una decisión por archivo (`0001-titulo.md`), con la plantilla `vault/Plantillas/ADR.md`.
+- `infra/` despliegue, `ops/` Prometheus y Grafana, `.github/workflows/` CI.
+
+Hardware: portátil con RTX 5070 (~8 GB de VRAM) para el worker de GPU; VPS sin GPU para el resto. Todo lo pesado va por la cola de trabajos.
+
+## 4. Reglas del proyecto
+- Las fotos de cuerpo y de etiquetas **no se guardan**: se procesan y se borran; solo quedan los ratios. Son datos de salud (RGPD, art. 9).
+- Las reglas por palancas son **heurísticas de entrenadores**, no ciencia: dilo así en la app y en el README (ver `docs/fase-0.md`).
+- El escáner de suplementos nunca dice «libre de dopaje»: dice «riesgo por ingredientes declarados» y si tiene sello Informed Sport/NSF.
+- OpenPowerlifting: usa solo el CSV (dominio público), nunca su código (AGPLv3). wger: guarda licencia y autor por ejercicio.
+- Secretos solo en `.env` (con `.env.example` sin valores). Nunca en el repo, los logs ni el vault.
+- TDD y 80 % de cobertura (reglas ECC). Cada modelo de IA tiene su evaluación en `eval/` antes de darlo por bueno.
+- Comprueba la licencia de cada modelo y dataset antes de usarlo y apúntala en `vault/Decisiones.md`.
+
+## 5. Identidad
+- Visual: sistema de diseño **Crimson Ink** (https://claude.ai/artifact/8aiPpZtQid9ygULcBXvm91). Tokens en un único `theme.ts`; oscuro por defecto.
+- Textos (app, README, posts): voz del kit de marca: directo, de tú, con cifras y sin frases de plantilla de IA.
+
+## 6. El vault (`vault/`)
+Vault de Obsidian para organizar el proyecto (en Obsidian: «Abrir carpeta como vault» → `vault/`). Lo mantienes tú; si Gabriel escribe en una nota, respeta su texto.
+
+| Nota | Para qué | Cuándo se toca |
+|---|---|---|
+| `Inicio.md` | Estado actual, fase, versión y siguiente paso | Al cambiar de tarea o de fase |
+| `Pendiente.md` | Backlog: **Ahora**, siguiente y por fase, con casillas | Al empezar y acabar cada tarea |
+| `Fases.md` | Roadmap con estado y horas estimadas y reales | Al cerrar una tarea con horas o una fase |
+| `Log.md` | Registro cronológico, solo se añade al final | Al final de cada tarea |
+| `Decisiones.md` | Índice de ADR, decisiones menores y licencias | Al decidir algo |
+| `Problemas.md` | Bugs, bloqueos y cómo se resolvieron | Al encontrar o cerrar uno |
+| `Evaluación.md` | Métricas de cada modelo por versión | Al correr una evaluación |
+| `Producción.md` | Entornos, despliegues, releases, secretos (solo nombres) y checklist para hacer público el repo | Al desplegar o publicar |
+| `Publicaciones.md` | Posts de LinkedIn por versión | Al cerrar una versión |
+| `Ideas.md` | Fuera de alcance, para después | Cuando surja |
+| `Sesiones/AAAA-MM-DD.md` | Notas de una sesión larga (plantilla `Plantillas/Sesión.md`) | Opcional |
+
+Formato del log:
+```markdown
+## [AAAA-MM-DD] <tipo> | <título>
+- Qué se hizo, archivos tocados, commit y qué queda.
+```
+Tipos: `setup`, `feat`, `fix`, `refactor`, `eval`, `infra`, `docs`, `decision`, `release`.
+
+Las notas llevan frontmatter (`tipo`, `actualizado`) y la línea 🧭 bajo el título. Wikilinks entre notas del vault; enlaces Markdown relativos (`../docs/…`) a archivos del repo.
+
+## 7. Trabajo con Codex
+Reparto: **Claude orquesta y revisa; Codex implementa** (plugin `codex@openai-codex`).
+- Implementaciones de más de ~30 líneas: delega en el subagente `codex:codex-rescue` con la tarea acotada y un criterio de «hecho».
+- Revisa siempre el diff de Codex. Los fallos de lógica vuelven a Codex como lista concreta; tú solo arreglas lo trivial.
+- Antes de cerrar una tarea, revisión adversarial (`/codex:adversarial-review`) hasta que salga limpia.
+- Una tarea por rama o worktree; nunca dos agentes en los mismos archivos.
+- Si Gabriel pide no usar Codex, no lo uses.
+
+## 8. Antes de hacer público el repo
+Sigue la checklist de `vault/Producción.md`. Entre otras cosas, decide con Gabriel si el vault se queda en el repo público o sale con `git rm -r --cached vault`.
+
+## 9. Contexto de Gabriel
+Perfil, gustos y kit de marca completos en su vault de la carrera (`~/Truchilla/20_Contexto/`). Léelos si una decisión depende de ellos; **no escribas allí** desde este proyecto.
