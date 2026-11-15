@@ -48,7 +48,7 @@ Contexto para agentes y para mí. Sale del plan de desarrollo del 2026-11-15.
 **B. Dieta (ProteEuro)**
 1. **Objetivos:**
    - Gasto energético con Mifflin-St Jeor por factor de actividad, ajustado con tu peso real semana a semana. Si la tendencia no cuadra, se recalcula.
-   - Proteína por kg (el metaanálisis de Morton 2018 sitúa la meseta en ~1,6 g/kg con IC hasta ~2,2 **[verificar cita]**).
+   - Proteína por kg: el metaanálisis de Morton 2018 sitúa la meseta en 1,62 g/kg/día de ingesta total (IC del 95 %: 1,03-2,20) y propone ~2,2 para quien quiera maximizar. Verificado: [referencias](docs/referencias.md#proteína).
    - Tope de carbohidratos netos para tu low-carb.
 2. **Catálogo:**
    - Mercadona vía mercaapi o mercapy (no oficial; en línea el 2026-11-15, MIT, y se puede alojar con su `docker-compose`) + Open Food Facts.
@@ -64,7 +64,7 @@ Contexto para agentes y para mí. Sale del plan de desarrollo del 2026-11-15.
 2. **Cruce con la lista prohibida de la AMA**, con sinónimos (por ejemplo, la DMAA tiene muchos nombres), y con las **alertas de CELAD y AESAN**, que se ingieren de sus PDF.
 3. **Ficha de riesgo con motivos.** Nunca dice «apto»: dice «sin señales en lo que se puede leer», porque ni Global DRO certifica complementos.
 4. **Stack del usuario:** lo que tomas. Push si sale una alerta que afecta a algo de tu stack.
-5. **(Opcional)** Dosis frente a la evidencia, por ejemplo creatina 3-5 g/día según la posición de la ISSN **[verificar cita]**.
+5. **(Opcional)** Dosis frente a la evidencia, por ejemplo creatina 3-5 g/día (o carga de ~0,3 g/kg/día durante 5-7 días) según la posición de la ISSN (Kreider 2017). Verificado: [referencias](docs/referencias.md#creatina).
 
 ### 1.3 Qué hace cada carpeta
 
@@ -104,8 +104,8 @@ Los ejercicios iniciales salen de un catálogo abierto: free-exercise-db (Unlice
   - `x[d][e]`: el ejercicio e va el día d (booleana).
   - `s[d][e]`: series del ejercicio e el día d (entera).
 - **Restricciones duras:**
-  - Series semanales por músculo dentro de un rango según el objetivo. Las series de los músculos secundarios cuentan a medias.
-  - Frecuencia ≥ 2 por músculo y semana.
+  - Series semanales por músculo dentro de un rango según el objetivo. Las series de los músculos secundarios cuentan a medias (método «fraccional», el de más respaldo en Pelland 2026).
+  - Frecuencia ≥ 2 por músculo y semana. **Es una heurística práctica, no evidencia:** con el volumen igualado, la frecuencia no cambia la hipertrofia (Schoenfeld 2019). Ver [referencias](docs/referencias.md#frecuencia-de-entreno).
   - Duración máxima por sesión.
   - Material disponible y contraindicaciones por lesión.
   - Un máximo de ejercicios por patrón y día.
@@ -118,7 +118,7 @@ Los ejercicios iniciales salen de un catálogo abierto: free-exercise-db (Unlice
 - **Salida:** plan + **traza de por qué**: qué restricción o término del objetivo decidió cada elección. Eso es lo que el LLM convierte en texto.
 - **Tests:** propiedades del tipo «nunca supera la duración», «todo músculo prioritario aparece ≥ 2 veces» y «con lesión de hombro no hay press por encima de la cabeza». Se pueden hacer con jqwik (property-based testing en Java).
 
-Los rangos de volumen y frecuencia salen de la literatura: los metaanálisis de Schoenfeld sobre volumen (dosis-respuesta) y frecuencia, y las guías de volumen tipo MEV/MAV/MRV de Renaissance Periodization **[verificar citas exactas]**. Van en un ADR con sus referencias. Las heurísticas de palancas son **tuyas** y se presentan como heurísticas, no como ciencia.
+Los rangos de volumen y frecuencia salen de la literatura: Schoenfeld 2017 y Pelland 2026 para volumen, y Schoenfeld 2016 y 2019 y Pelland 2026 para frecuencia. Las cifras MEV/MAV/MRV de Renaissance Periodization son de un libro de entrenadores, no revisado por pares, y se tratan como heurística. Citas verificadas en [docs/referencias.md](docs/referencias.md); van al ADR con sus referencias. Las heurísticas de palancas son **tuyas** y se presentan como heurísticas, no como ciencia.
 
 **Progresión:** la doble progresión y el deload son una máquina de estados por ejercicio (`acumulando`, `subir_carga`, `estancado`, `deload`), con tests de cada transición.
 
