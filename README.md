@@ -46,7 +46,7 @@ La app llega con la v0.1. Lo que ya se puede levantar en local:
 cp .env.example .env   # rellena los valores
 docker compose --profile dev up -d   # dev: MySQL 8.4
 docker compose --profile obs up -d   # obs: Prometheus (9090) y Grafana (3000)
-docker compose --profile gpu up -d   # gpu: Ollama; necesita NVIDIA Container Toolkit
+docker compose --profile gpu up -d   # gpu: Ollama en contenedor (puerto 11435), solo si no tienes Ollama nativo; necesita NVIDIA Container Toolkit
 ```
 
 ## Licencia

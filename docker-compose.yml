@@ -1,6 +1,7 @@
 # Perfiles:
 #   dev  -> MySQL 8.4 (backend, vision-service y frontend se añadirán aquí cuando existan).
-#   gpu  -> Ollama con la GPU NVIDIA (necesita NVIDIA Container Toolkit).
+#   gpu  -> Ollama en contenedor con la GPU NVIDIA (necesita NVIDIA Container Toolkit). Solo para
+#           máquinas sin Ollama nativo; en el portátil de desarrollo se usa el nativo (127.0.0.1:11434).
 #   obs  -> Prometheus + Grafana.
 # Todos los puertos van atados a 127.0.0.1.
 name: forja
@@ -31,7 +32,7 @@ services:
     volumes:
       - ollama-modelos:/root/.ollama
     ports:
-      - "127.0.0.1:11434:11434"
+      - "127.0.0.1:${OLLAMA_PUERTO:-11435}:11434"
     deploy:
       resources:
         reservations:
