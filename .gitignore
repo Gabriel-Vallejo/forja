@@ -10,3 +10,6 @@
 
 # El APK se publica como GitHub Release, no en el repo (~80 MB por versión)
 *.apk
+
+# Vault de Obsidian: repo privado aparte (forja-vault), nunca en este
+vault/
