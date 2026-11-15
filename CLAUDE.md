@@ -76,7 +76,7 @@ Reparto: **Claude orquesta y revisa; Codex implementa** (plugin `codex@openai-co
 ## 8. Publicación
 Al terminar solo se publica **la app**, como Style & Scent Engine: el código de este repo y, en GitHub Releases, el **APK** (EAS) y la **versión de PC**, con enlaces de descarga en el README. El vault nunca se publica.
 
-El vault estuvo en el historial de este repo hasta el commit «chore: el vault pasa a su propio repo privado». Antes de hacerlo público hay que borrarlo del historial (`git filter-repo --path vault --invert-paths` y push forzado, con el visto bueno de Gabriel). El resto de pasos, en la checklist de `vault/Producción.md`.
+El historial de este repo está limpio de `vault/` (purgado el 2026-11-15). Si alguna vez se cuela, hay que reescribir el historial antes de publicar, con el visto bueno de Gabriel. El resto de pasos, en la checklist de `vault/Producción.md`.
 
 ## 9. Contexto de Gabriel
 Perfil, gustos y kit de marca completos en su vault de la carrera (`~/Truchilla/20_Contexto/`). Léelos si una decisión depende de ellos; **no escribas allí** desde este proyecto.
