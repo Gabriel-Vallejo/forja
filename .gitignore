@@ -12,4 +12,4 @@
 *.apk
 
 # Vault de Obsidian: repo privado aparte (forja-vault), nunca en este
-vault/
+vault
