@@ -1,0 +1,69 @@
+# Perfiles:
+#   dev  -> MySQL 8.4 (backend, vision-service y frontend se añadirán aquí cuando existan).
+#   gpu  -> Ollama con la GPU NVIDIA (necesita NVIDIA Container Toolkit).
+#   obs  -> Prometheus + Grafana.
+# Todos los puertos van atados a 127.0.0.1.
+name: forja
+
+services:
+  mysql:
+    image: mysql:8.4
+    profiles: [dev]
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?falta MYSQL_DATABASE en .env}
+      MYSQL_USER: ${MYSQL_USER:?falta MYSQL_USER en .env}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?falta MYSQL_PASSWORD en .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?falta MYSQL_ROOT_PASSWORD en .env}
+    volumes:
+      - mysql-datos:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  ollama:
+    image: ollama/ollama:0.40.16
+    profiles: [gpu]
+    volumes:
+      - ollama-modelos:/root/.ollama
+    ports:
+      - "127.0.0.1:11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  prometheus:
+    image: prom/prometheus:v3.16.0
+    profiles: [obs]
+    volumes:
+      - ./ops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-datos:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+
+  grafana:
+    image: grafana/grafana:13.2.6
+    profiles: [obs]
+    depends_on:
+      - prometheus
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?falta GRAFANA_ADMIN_PASSWORD en .env}
+    volumes:
+      - ./ops/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana-datos:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3000:3000"
+
+volumes:
+  mysql-datos:
+  ollama-modelos:
+  prometheus-datos:
+  grafana-datos:

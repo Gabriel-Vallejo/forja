@@ -41,7 +41,13 @@ Lo que se mide (los resultados estarán en `eval/`):
 Con la v1.0: APK para Android y versión de PC en [Releases](https://github.com/Gabriel-Vallejo/forja/releases).
 
 ## ◆ Arrancar
-Llega con la v0.1.
+La app llega con la v0.1. Lo que ya se puede levantar en local:
+```bash
+cp .env.example .env   # rellena los valores
+docker compose --profile dev up -d   # dev: MySQL 8.4
+docker compose --profile obs up -d   # obs: Prometheus (9090) y Grafana (3000)
+docker compose --profile gpu up -d   # gpu: Ollama; necesita NVIDIA Container Toolkit
+```
 
 ## Licencia
 [MIT](LICENSE)

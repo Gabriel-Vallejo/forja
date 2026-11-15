@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Una sola ejecución por rama: la nueva cancela la anterior.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Crear .env con valores ficticios
+        # Rellena cada línea CLAVE= vacía (sin tocar comentarios ni líneas con valor).
+        run: |
+          cp .env.example .env
+          sed -i -E 's/^([A-Za-z_][A-Za-z0-9_]*)=$/\1=ficticio/' .env
+      - name: Validar docker-compose.yml con todos los perfiles
+        run: docker compose --profile dev --profile gpu --profile obs config -q
+
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: actionlint
+        run: docker run --rm -v "$PWD":/repo -w /repo rhysd/actionlint:1.7.12 -no-color
+
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - name: Comprobar si hay código
+        id: codigo
+        working-directory: .
+        run: |
+          if [ -f backend/pom.xml ]; then
+            echo "existe=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "existe=false" >> "$GITHUB_OUTPUT"
+            echo "backend: sin código todavía" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/setup-java@v6
+        if: steps.codigo.outputs.existe == 'true'
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Verificar
+        if: steps.codigo.outputs.existe == 'true'
+        run: ./mvnw -B verify
+
+  vision-service:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vision-service
+    steps:
+      - uses: actions/checkout@v7
+      - name: Comprobar si hay código
+        id: codigo
+        working-directory: .
+        run: |
+          if [ -f vision-service/pyproject.toml ]; then
+            echo "existe=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "existe=false" >> "$GITHUB_OUTPUT"
+            echo "vision-service: sin código todavía" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/setup-python@v7
+        if: steps.codigo.outputs.existe == 'true'
+        with:
+          python-version: '3.12'
+      - name: Instalar dependencias
+        if: steps.codigo.outputs.existe == 'true'
+        run: pip install -e ".[dev]"
+      - name: Tests
+        if: steps.codigo.outputs.existe == 'true'
+        run: pytest
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - name: Comprobar si hay código
+        id: codigo
+        working-directory: .
+        run: |
+          if [ -f frontend/package.json ]; then
+            echo "existe=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "existe=false" >> "$GITHUB_OUTPUT"
+            echo "frontend: sin código todavía" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/setup-node@v7
+        if: steps.codigo.outputs.existe == 'true'
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Instalar dependencias
+        if: steps.codigo.outputs.existe == 'true'
+        run: npm ci
+      - name: Tests
+        if: steps.codigo.outputs.existe == 'true'
+        run: npm test --if-present
