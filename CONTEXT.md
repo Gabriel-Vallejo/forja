@@ -61,7 +61,7 @@ Contexto para agentes y para mí. Sale del plan de desarrollo del 2026-11-15.
 
 **C. Suplementos (SuplementoLimpio)**
 1. Foto de la etiqueta → OCR → lista de ingredientes normalizada en JSON.
-2. **Cruce con la lista prohibida de la AMA**, con sinónimos (por ejemplo, la DMAA tiene muchos nombres), y con las **alertas de CELAD y AESAN**, que se ingieren de sus PDF.
+2. **Cruce con la lista de sustancias prohibidas** (la de la AMA, en su publicación del BOE: BOE-A-2025-25042 para 2026; ver [ADR 0005](docs/adr/0005-fuentes-de-datos.md)), con sinónimos (por ejemplo, la DMAA tiene muchos nombres), y con las **alertas de CELAD y AESAN**, que se ingieren de sus PDF.
 3. **Ficha de riesgo con motivos.** Nunca dice «apto»: dice «sin señales en lo que se puede leer», porque ni Global DRO certifica complementos.
 4. **Stack del usuario:** lo que tomas. Push si sale una alerta que afecta a algo de tu stack.
 5. **(Opcional)** Dosis frente a la evidencia, por ejemplo creatina 3-5 g/día (o carga de ~0,3 g/kg/día durante 5-7 días) según la posición de la ISSN (Kreider 2017). Verificado: [referencias](docs/referencias.md#creatina).
@@ -140,7 +140,7 @@ Los rangos de volumen y frecuencia salen de la literatura: Schoenfeld 2017 y Pel
 ### 1.7 API (principales)
 
 ```
-POST /api/v1/perfil/fotos            → 202 + trabajo (ratios)
+POST /api/v1/perfil/fotos            → 200 + ratios (síncrono, en memoria; la foto no se guarda)
 GET  /api/v1/perfil/ratios
 GET  /api/v1/estandares              → percentiles y mapa muscular
 POST /api/v1/rutinas/generar         → plan + traza de decisiones
@@ -149,7 +149,7 @@ POST /api/v1/sesiones                → registro (idempotente, sincronización 
 GET  /api/v1/progresion/{ejercicio}
 POST /api/v1/dieta/cesta/optimizar
 POST /api/v1/precios                 → foto de lineal (crowdsourcing)
-POST /api/v1/suplementos/escanear    → 202 + trabajo → ficha de riesgo
+POST /api/v1/suplementos/escanear    → OCR síncrono + 202 + trabajo (normalización) → ficha de riesgo
 GET  /api/v1/alertas
 ```
 
@@ -190,7 +190,7 @@ Igual que Style & Scent Engine, con cuatro añadidos (`docs/`, `eval/`, `infra/`
 ```
 <proyecto>/
 ├── backend/            Java 21 + Spring Boot 4 + JPA + Flyway
-├── database/           init de MySQL 8, seeds, scripts de carga de datos
+├── database/           init de MySQL 8.4 LTS, seeds, scripts de carga de datos
 ├── frontend/           React Native + Expo (TypeScript), dev build + EAS
 ├── vision-service/     FastAPI + modelos (o ai-service si no es visión)
 ├── eval/               datasets etiquetados, scripts de evaluación, resultados versionados
@@ -220,7 +220,7 @@ Igual que Style & Scent Engine, con cuatro añadidos (`docs/`, `eval/`, `infra/`
   - CORS cerrado.
   - Errores sin trazas (`ProblemDetail`, RFC 9457).
 - **Comunicación con el vision-service:** HTTP con timeout, reintentos con backoff y *circuit breaker* (Resilience4j). Si el modelo cae, la app degrada (entrada manual) en vez de romperse.
-- **Trabajos pesados:** tabla `trabajo` con `SELECT … FOR UPDATE SKIP LOCKED` (MySQL 8 lo soporta) como cola. No hace falta Redis ni Kafka. Un ADR explica por qué.
+- **Trabajos pesados:** tabla `trabajo` con `SELECT … FOR UPDATE SKIP LOCKED` (MySQL 8.0.1+ lo soporta; usamos 8.4 LTS) como cola. No hace falta Redis ni Kafka. Lo explica el [ADR 0003](docs/adr/0003-cola-de-trabajos-gpu.md).
 - **Tests:**
   - JUnit 5 + Mockito para las reglas.
   - **Testcontainers** con MySQL real para repositorios y migraciones.
@@ -228,8 +228,8 @@ Igual que Style & Scent Engine, con cuatro añadidos (`docs/`, `eval/`, `infra/`
   - Objetivo ≥ 80 % de cobertura de líneas en el dominio (JaCoCo), con informe en el CI.
 
 ### 0.3 Base de datos
-- MySQL 8 en Docker, 3FN y claves foráneas con `ON DELETE` pensado. Índices justificados en un ADR con `EXPLAIN`.
-- **Búsqueda vectorial:** MySQL Community **no** calcula distancias vectoriales (`DISTANCE()` solo existe en HeatWave y MySQL AI). Decisión común: los datos y el vector «oficial» se guardan en MySQL y el índice vive en **Qdrant** (Apache 2.0, un contenedor más). Un job reconstruye Qdrant desde MySQL, así MySQL sigue siendo la fuente de verdad. Esa decisión, con sus alternativas (MariaDB Vector, pgvector, FAISS), es un ADR que luce en la entrevista.
+- MySQL 8.4 LTS en Docker (imagen `mysql:8.4`; la 8.0 no tiene soporte desde abril de 2026, ver [ADR 0001](docs/adr/0001-stack.md)), 3FN y claves foráneas con `ON DELETE` pensado. Índices justificados en un ADR con `EXPLAIN`.
+- **Búsqueda vectorial:** MySQL Community **no** calcula distancias vectoriales (`DISTANCE()` solo existe en HeatWave y MySQL AI). Decisión común: los datos y el vector «oficial» se guardan en MySQL y el índice vive en **Qdrant** (Apache 2.0, un contenedor más). Un job reconstruye Qdrant desde MySQL, así MySQL sigue siendo la fuente de verdad. Esa decisión, con sus alternativas (MariaDB Vector, pgvector, FAISS), es un ADR que luce en la entrevista. **Forja no la usa:** el cruce de ingredientes va con Jaro-Winkler ([ADR 0001](docs/adr/0001-stack.md)).
 
 ### 0.4 Frontend (Expo)
 - **Dev build**, no Expo Go, porque hace falta cámara avanzada y módulos nativos. APK por EAS publicada en **GitHub Releases** y, si puedes, en **Google Play en prueba cerrada**: «está en Play Store» pesa más que «hay un APK».

@@ -1,6 +1,6 @@
 # 0005. Fuentes de datos y cómo se cargan
 
-- **Estado:** propuesta
+- **Estado:** aceptada (2026-11-15)
 - **Fecha:** 2026-11-15
 
 ## Contexto
@@ -44,7 +44,7 @@ Forja necesita cinco catálogos que no puede inventar: ejercicios, estándares d
 - **Gana:** todo dato tiene origen, licencia y versión, y se puede explicar en una entrevista o ante una reclamación. Además, la caída de una fuente no rompe la app.
 - **Cuesta:** scripts de carga y su mantenimiento anual (lista del BOE, actualización de OpenPowerlifting), la pantalla de atribución y las columnas de procedencia en el esquema.
 - **Riesgo que queda:** mercaapi tira de la API interna de Mercadona, que no es pública. Es una zona gris: se mantiene autoalojado y desactivable con un flag, y los precios de usuarios son el camino de largo plazo.
-- **A cambiar:** [CONTEXT.md](../../CONTEXT.md) §1.2.C dice «lista prohibida de la AMA». Pasa a «lista de sustancias prohibidas (la de la AMA, en su publicación del BOE)».
+- **Aplicado (2026-11-15):** [CONTEXT.md](../../CONTEXT.md) §1.2.C decía «lista prohibida de la AMA». Pasó a «lista de sustancias prohibidas (la de la AMA, en su publicación del BOE)».
 
 ## Fuentes
 - [Open Food Facts: licencias](https://openfoodfacts.github.io/openfoodfacts-server/api/tutorials/license-be-on-the-legal-side)

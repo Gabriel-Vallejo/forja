@@ -25,7 +25,7 @@ Antes de ejecutar una tarea, evalúa su dificultad y selecciona el modelo adecua
 
 ## 3. Stack y carpetas
 - `backend/`: Java 21, Spring Boot 4, JPA, **Flyway** para todo cambio de esquema, OpenAPI exportado a `docs/api/`.
-- `database/`: MySQL 8 en 3FN, seeds y scripts de carga.
+- `database/`: MySQL 8.4 LTS en 3FN, seeds y scripts de carga.
 - `frontend/`: React Native + Expo (TypeScript), dev build + EAS.
 - `vision-service/`: FastAPI + Pydantic; salidas de LLM con JSON Schema (`format` de Ollama), validadas y con reintento.
 - `eval/`: datasets etiquetados y scripts; los resultados se versionan y el CI falla si empeoran.

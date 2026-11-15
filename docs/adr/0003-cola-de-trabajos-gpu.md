@@ -1,6 +1,6 @@
 # 0003. Cola de trabajos en MySQL y worker de GPU en el portátil
 
-- **Estado:** propuesta
+- **Estado:** aceptada (2026-11-15)
 - **Fecha:** 2026-11-15
 
 ## Contexto

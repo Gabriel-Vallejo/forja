@@ -1,6 +1,6 @@
 # 0002. Generar la rutina con CP-SAT
 
-- **Estado:** propuesta
+- **Estado:** aceptada (2026-11-15)
 - **Fecha:** 2026-11-15
 
 ## Contexto

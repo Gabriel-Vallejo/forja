@@ -1,6 +1,6 @@
 # 0001. Stack y forma de la arquitectura
 
-- **Estado:** propuesta
+- **Estado:** aceptada (2026-11-15)
 - **Fecha:** 2026-11-15
 
 ## Contexto
@@ -40,7 +40,7 @@ Forja son tres módulos (entreno, dieta y suplementos) con un núcleo de algorit
 ## Consecuencias
 - **Gana:** cada lenguaje hace lo que mejor se le da, el backend se enseña en una entrevista de Java y el `vision-service` puede caerse sin tumbar la app (entrada manual como plan B, con Resilience4j).
 - **Cuesta:** dos runtimes, dos suites de tests y dos imágenes Docker, y hay que mantener los contratos entre ellos.
-- **A cambiar:** el plan y el README dicen «MySQL 8»: pasan a «MySQL 8.4 LTS» y la imagen Docker se fija a `mysql:8.4`.
+- **Aplicado (2026-11-15):** el plan y el README decían «MySQL 8»: pasaron a «MySQL 8.4 LTS» y la imagen Docker se fija a `mysql:8.4`.
 
 ## Fuentes
 - [Spring Boot 4.0.0 available now](https://spring.io/blog/2025/11/20/spring-boot-4-0-0-available-now/) (2025-11-20)

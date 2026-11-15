@@ -1,6 +1,6 @@
 # 0004. Privacidad de las fotos y los datos de salud
 
-- **Estado:** propuesta
+- **Estado:** aceptada (2026-11-15)
 - **Fecha:** 2026-11-15
 
 ## Contexto

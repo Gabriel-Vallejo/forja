@@ -14,7 +14,7 @@ Fotos de tu cuerpo y tus marcas → una rutina que elige los ejercicios según t
 - **IA explicable:** un LLM local solo explica las decisiones de las reglas; nunca escribe series.
 
 ## ◆ Stack
-- **Backend:** Java 21 · Spring Boot 4 · JPA · Flyway · MySQL 8
+- **Backend:** Java 21 · Spring Boot 4 · JPA · Flyway · MySQL 8.4 LTS
 - **App:** React Native · Expo (TypeScript) · EAS
 - **IA y visión:** FastAPI · OpenCV · modelos locales (Ollama) · worker de GPU con cola en MySQL
 - **Infra:** Docker Compose (perfiles `dev`, `gpu`, `obs`) · GitHub Actions · Prometheus + Grafana
