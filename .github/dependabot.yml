@@ -11,6 +11,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # MySQL se queda en la rama 8.4 LTS (ADR 0001): nada de saltos a versiones Innovation.
+    ignore:
+      - dependency-name: mysql
+        update-types: [version-update:semver-major, version-update:semver-minor]
     groups:
       imagenes:
         patterns: ['*']
