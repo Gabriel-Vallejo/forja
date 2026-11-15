@@ -52,6 +52,36 @@ BodyLeveling **dice** que elige por proporciones, pero no lo **demuestra**. Lo q
 ### Fuentes
 - [Web](https://bodyleveling.com/) · [Escaneo con IA](https://bodyleveling.com/ai-body-scan/) · [Inserciones musculares](https://bodyleveling.com/muscle-insertions/) · [Soporte](https://bodyleveling.com/support) · [Privacidad](https://bodyleveling.com/privacy)
 
+## Symmetry (España): la competencia más cercana en entreno
+
+**Análisis desde la web, 2026-11-15** ([symmetry.club/es](https://symmetry.club/es) y [rangos](https://symmetry.club/es/rangos)). Pendiente de probarla a mano en Android.
+
+### Qué hace
+- App española, gratis en **Android** e iOS. Según su web, más de 3 M de descargas, más de 1 M de usuarios activos y 4,8 de valoración.
+- **Rutina con IA:** la genera a partir de la experiencia, el objetivo, los días y el material. Sugiere pesos y repeticiones serie a serie, con sobrecarga progresiva.
+- **Registro de series:** historial, volumen por músculo, rachas y récords.
+- **Rangos por músculo** (nueve niveles, de Hierro a Simétrico) y **mapa muscular coloreado por rango**. Cada serie puntúa contra **su propia comunidad**, separada por sexo y ajustada al peso corporal con escalado alométrico. Los rangos de los ejercicios de un músculo se combinan «dando más peso a los ejercicios con más series».
+- Feed social y un chat con IA («Symmetry Intelligence»).
+- **Precio:** gratis; Pro (sugerencia de peso y repeticiones) a 12,99 €/mes o 39,99 €/año en la App Store de España.
+
+### Lo que no hace o no explica
+- **No usa proporciones corporales ni palancas** para elegir ejercicios. No pide fotos de cuerpo.
+- **No publica el método:** dice que la fórmula exacta no la publica. No da precisión, no cita estudios y no explica cómo reparte una serie entre músculos primarios y secundarios.
+- Ni dieta ni suplementos.
+
+### Qué significa para Forja
+- **El mapa muscular coloreado y la rutina con IA ya existen en España, gratis y en Android, con millones de usuarios.** No son diferenciales de Forja. El plan los citaba «como Symmetric Strength», pero la referencia real en el mercado español es Symmetry.
+- **Lo que sigue siendo de Forja:**
+  - **las palancas**, con el error medido frente a cinta;
+  - **reglas y estándares abiertos:** percentiles de OpenPowerlifting con fuente pública, series secundarias a 0,5 citado (Pelland 2026) y la traza del solver;
+  - **la dieta por precio** en España;
+  - **el escáner de suplementos.**
+- **Riesgo:** quien ya usa Symmetry no cambia de app por un mapa muscular. El gancho tiene que ser lo que Symmetry no tiene.
+
+## Symmetric Strength (web)
+- Calculadora web gratuita, sin app. Puntuación global de fuerza a partir de hasta 14 series, con **Wilks** y ajuste por edad; puntuación de simetría de 0 a 100; percentil frente a OpenPowerlifting; desequilibrios **por patrón de movimiento** (no por músculo) con correctivos. [Web](https://symmetricstrength.com/) · [Metodología](https://symmetricstrength.com/about#methodology)
+- Su web actual no muestra un mapa muscular. Interesa por su método publicado (Wilks + OpenPowerlifting), que es comparable con el de Forja.
+
 ## Gravl y Fitbod
 
 Pendiente: prueba a mano en Android (onboarding completo y cambio de datos físicos para ver si cambian los ejercicios).

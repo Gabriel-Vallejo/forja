@@ -34,7 +34,7 @@ Contexto para agentes y para mí. Sale del plan de desarrollo del 2026-11-15.
    - Registras tus marcas, o salen solas del registro de series (e1RM con Epley o Brzycki).
    - Percentiles de sentadilla, banca y peso muerto por sexo y peso corporal, calculados con el dataset de **OpenPowerlifting** (CSV en dominio público, código AGPLv3; comprobado en la fase 0). Ojo: son levantadores de competición, así que el percentil está sesgado hacia arriba. Se dice en la app.
    - Para los accesorios (press militar, remo, dominadas…), ratios frente a los básicos con heurísticas propias **[inferencia, documentarlas como tales]**.
-   - Resultado: **mapa muscular coloreado** (fuerte, en la media, débil), como Symmetric Strength.
+   - Resultado: **mapa muscular coloreado** (fuerte, en la media, débil). Ojo: Symmetry, española y con millones de usuarios en Android, ya lo hace gratis ([competencia](docs/competencia.md#symmetry-españa-la-competencia-más-cercana-en-entreno)). El diferencial de Forja son el método abierto con fuente pública y las palancas, no el mapa.
 4. **Generador de rutina:** en el backend, ver 1.5.
 5. **Registro de sesiones:**
    - Series, repes, peso y RIR, con temporizador de descanso, sin conexión.
