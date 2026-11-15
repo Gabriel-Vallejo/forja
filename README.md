@@ -48,6 +48,9 @@ docker compose --profile dev up -d   # dev: MySQL 8.4
 docker compose --profile obs up -d   # obs: Prometheus (9090) y Grafana (3000)
 docker compose --profile gpu up -d   # gpu: Ollama en contenedor (puerto 11435), solo si no tienes Ollama nativo; necesita NVIDIA Container Toolkit
 ```
+- `down` también necesita los perfiles (`docker compose --profile dev --profile obs down`).
+- Compose pide todas las variables del `.env` aunque solo arranques un perfil.
+- La contraseña de Grafana solo se aplica en el primer arranque del volumen.
 
 ## Licencia
 [MIT](LICENSE)

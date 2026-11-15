@@ -8,7 +8,7 @@ updates:
       actions:
         patterns: ['*']
   - package-ecosystem: docker-compose
-    directory: /
+    directories: ['/', '/.github/herramientas']
     schedule:
       interval: weekly
     # MySQL se queda en la rama 8.4 LTS (ADR 0001): nada de saltos a versiones Innovation.

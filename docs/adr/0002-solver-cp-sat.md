@@ -53,3 +53,9 @@ La dieta usa el mismo paquete (OR-Tools): GLOP para la programación lineal, o C
 - [CP-SAT Solver (OR-Tools)](https://developers.google.com/optimization/cp/cp_solver)
 - [CpModel.addAssumptions (Javadoc)](https://javadoc.io/static/com.google.ortools/ortools-java/9.10.4067/com/google/ortools/sat/CpModel.html) · [el núcleo de inviabilidad no es mínimo](https://groups.google.com/g/or-tools-discuss/c/qlVv2uSq1uo)
 - [docs/referencias.md](../referencias.md): volumen y frecuencia
+
+## Enmienda (2026-11-15, revisión)
+- **El máximo de volumen es duro.** La holgura vale solo para el **mínimo** de volumen y para la frecuencia. Si el máximo fuera blando, unos pesos mal ajustados podrían superarlo, y el máximo es la protección contra lesiones del plan. La propiedad de test pasa a ser «nunca supera el máximo de series por músculo», en lugar de «todo músculo prioritario ≥ 2 veces», que es falsa si el usuario baja la frecuencia a 1.
+- **Reproducible de verdad:** el límite es `max_deterministic_time`, no el tiempo de reloj, con un número fijo de workers. Una semilla fija con 5 s de reloj no da el mismo plan cuando se agota el tiempo.
+- **La traza dice si el plan es óptimo.** Guarda `OPTIMAL` o `FEASIBLE`. Si es `FEASIBLE`, la app no dice «el mejor plan», sino «un buen plan».
+- **«Por qué este y no aquel»:** para las 2-3 alternativas más cercanas a cada ejercicio elegido, se fuerza el cambio, se vuelve a resolver y se guarda la diferencia del objetivo, o la restricción que lo impide. Es lo que permite al LLM explicar la elección y no solo listar contribuciones.

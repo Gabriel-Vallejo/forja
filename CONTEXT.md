@@ -103,8 +103,8 @@ Los ejercicios iniciales salen de un catálogo abierto: free-exercise-db (Unlice
 - **Variables:**
   - `x[d][e]`: el ejercicio e va el día d (booleana).
   - `s[d][e]`: series del ejercicio e el día d (entera).
-- **Restricciones duras:**
-  - Series semanales por músculo dentro de un rango según el objetivo. Las series de los músculos secundarios cuentan a medias (método «fraccional», el de más respaldo en Pelland 2026).
+- **Restricciones duras** (y metas con holgura, ver [ADR 0002](docs/adr/0002-solver-cp-sat.md)):
+  - Series semanales por músculo dentro de un rango según el objetivo: el **máximo es duro** y el mínimo es meta con holgura. Las series de los músculos secundarios cuentan a medias (método «fraccional», el de más respaldo en Pelland 2026).
   - Frecuencia ≥ 2 por músculo y semana. **Es una heurística práctica, no evidencia:** con el volumen igualado, la frecuencia no cambia la hipertrofia (Schoenfeld 2019). Ver [referencias](docs/referencias.md#frecuencia-de-entreno).
   - Duración máxima por sesión.
   - Material disponible y contraindicaciones por lesión.
@@ -116,7 +116,7 @@ Los ejercicios iniciales salen de un catálogo abierto: free-exercise-db (Unlice
   - Preferencias del usuario.
   - Menos fatiga sistémica (cada ejercicio tiene un coste de fatiga).
 - **Salida:** plan + **traza de por qué**: qué restricción o término del objetivo decidió cada elección. Eso es lo que el LLM convierte en texto.
-- **Tests:** propiedades del tipo «nunca supera la duración», «todo músculo prioritario aparece ≥ 2 veces» y «con lesión de hombro no hay press por encima de la cabeza». Se pueden hacer con jqwik (property-based testing en Java).
+- **Tests:** propiedades del tipo «nunca supera la duración», «nunca supera el máximo de series por músculo» y «con lesión de hombro no hay press por encima de la cabeza». Se pueden hacer con jqwik (property-based testing en Java).
 
 Los rangos de volumen y frecuencia salen de la literatura: Schoenfeld 2017 y Pelland 2026 para volumen, y Schoenfeld 2016 y 2019 y Pelland 2026 para frecuencia. Las cifras MEV/MAV/MRV de Renaissance Periodization son de un libro de entrenadores, no revisado por pares, y se tratan como heurística. Citas verificadas en [docs/referencias.md](docs/referencias.md); van al ADR con sus referencias. Las heurísticas de palancas son **tuyas** y se presentan como heurísticas, no como ciencia.
 
@@ -143,14 +143,15 @@ Los rangos de volumen y frecuencia salen de la literatura: Schoenfeld 2017 y Pel
 POST /api/v1/perfil/fotos            → 200 + ratios (síncrono, en memoria; la foto no se guarda)
 GET  /api/v1/perfil/ratios
 GET  /api/v1/estandares              → percentiles y mapa muscular
-POST /api/v1/rutinas/generar         → plan + traza de decisiones
-POST /api/v1/rutinas/{id}/ajustar    → texto libre → intención → re-solve
+POST /api/v1/rutinas/generar         → plan + traza (síncrono, del solver) + trabajo para la explicación del LLM
+POST /api/v1/rutinas/{id}/ajustar    → texto libre → 202 + trabajo (intención con LLM) → re-solve
 POST /api/v1/sesiones                → registro (idempotente, sincronización sin conexión)
 GET  /api/v1/progresion/{ejercicio}
 POST /api/v1/dieta/cesta/optimizar
 POST /api/v1/precios                 → foto de lineal (crowdsourcing)
 POST /api/v1/suplementos/escanear    → OCR síncrono + 202 + trabajo (normalización) → ficha de riesgo
 GET  /api/v1/alertas
+GET  /api/v1/trabajos/{id}           → estado y resultado (solo del dueño)
 ```
 
 ### 1.8 Fases

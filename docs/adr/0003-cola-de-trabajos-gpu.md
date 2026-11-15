@@ -46,3 +46,21 @@ Además, las fotos de cuerpo y de etiquetas **no se guardan** ([CLAUDE.md](../..
   - sondear la tabla genera carga en MySQL; es despreciable a esta escala con el índice y el worker esperando 2-5 s entre sondeos vacíos;
   - el arrendamiento y la limpieza hay que escribirlos y probarlos (Testcontainers con dos workers que compiten).
 - **Límite:** si llegaran miles de trabajos por minuto, migrar a una cola dedicada. La interfaz `ColaTrabajos` del backend lo deja preparado sin tocar a quien la usa.
+
+## Enmienda (2026-11-15, revisión)
+1. **Las fotos tampoco tocan disco al subirlas.**
+   - Con la configuración por defecto, las dos subidas multipart escriben a temporal: Spring Boot tiene `file-size-threshold=0B`, así que todo va a disco, y Starlette pasa a disco a partir de 1 MiB.
+   - Las fotos viajan como cuerpo `application/octet-stream` en los dos saltos (app → backend → `vision-service`) y se leen enteras en memoria, con un tamaño máximo validado antes de leer.
+   - Además, `/tmp` de los contenedores va en `tmpfs`, y un test de integración falla si aparece un fichero temporal durante la petición.
+2. **Cada trabajo tiene dueño.**
+   - `trabajo.usuario_id`, con FK y `ON DELETE CASCADE`, y `GET /api/v1/trabajos/{id}` comprueba la propiedad (evita el IDOR).
+   - `carga` y `resultado` se cifran con el mismo convertidor que las columnas de salud ([0004](0004-privacidad-fotos-y-datos-de-salud.md)).
+   - Los trabajos en estado `hecho` se purgan a las 24 h.
+3. **Carreras del arrendamiento:**
+   - **Entrega:** un único `UPDATE … WHERE id = ? AND lease_token = ? AND estado = 'en_curso'`. Si se reentrega con el mismo token sobre un trabajo ya `hecho`, la respuesta es 200 y no hay efecto (idempotencia).
+   - **Limpieza:** al devolver un trabajo a `pendiente`, anula el `lease_token`.
+   - **Clave de idempotencia:** `clave_idempotencia` la genera el cliente.
+   - **Aislamiento:** el reclamo corre en `READ COMMITTED` para que `SKIP LOCKED` no bloquee huecos.
+4. **Respaldo de CPU sin esperar a ciegas:** el worker de GPU manda un latido. Si no hay latido reciente (60 s **[ajustable]**), el trabajo va directo al worker de CPU, en lugar de esperar 10 minutos.
+5. **Lo que no pasa por la cola:** `rutinas/generar` devuelve en síncrono el plan y su traza, que salen del solver y no de un LLM. Solo la explicación en texto llega por un trabajo.
+6. **Medir antes de dimensionar el VPS** (fase 1): la RAM de JVM + MySQL + Florence-2 + Ollama de CPU + MediaPipe + mercaapi + observabilidad, y el p95 del OCR en CPU.

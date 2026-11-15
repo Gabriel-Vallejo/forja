@@ -50,3 +50,14 @@ Forja necesita cinco catálogos que no puede inventar: ejercicios, estándares d
 - [Open Food Facts: licencias](https://openfoodfacts.github.io/openfoodfacts-server/api/tutorials/license-be-on-the-legal-side)
 - [BOE-A-2025-25042](https://www.boe.es/boe/dias/2025/12/09/pdfs/BOE-A-2025-25042.pdf)
 - [opl-data](https://gitlab.com/openpowerlifting/opl-data) · [free-exercise-db](https://github.com/yuhonas/free-exercise-db) · [mercaapi](https://github.com/m0wer/mercaapi)
+
+## Enmienda (2026-11-15, revisión)
+1. **Sinónimos de sustancias.** El BOE no trae sinónimos, y sin ellos la DMAA anunciada como «extracto de geranio» o «methylhexanamine» da un falso negativo, que es el fallo peligroso del módulo.
+   - Hace falta una fuente de sinónimos con licencia comprobada (PubChem es candidata **[verificar licencia en la fase 4]**).
+   - En `eval/` va un conjunto de falsos negativos conocidos.
+   - La ficha avisa de que las clases abiertas («y otras sustancias de estructura similar») no se detectan por nombre.
+2. **Open Food Facts sin mezclar.** Los datos de OFF y los de OCR propio van con su `fuente` en filas separadas; nunca se fusionan en una fila. Queda decidir si se ofrece el volcado de lo derivado de OFF en ODbL antes de la v1.0 pública. Interpretación propia, no asesoría legal.
+3. **Mercadona, con alcance mínimo.** La extracción masiva y continua de una base de datos ajena toca el derecho *sui generis* del fabricante de la base de datos (art. 133 LPI), no solo una «zona gris» (interpretación propia).
+   - Solo se piden los productos candidatos a la cesta proteica.
+   - El histórico no se redistribuye.
+   - El flag de mercaapi va **apagado por defecto** en la v1.0 pública. Lo principal son los precios aportados por usuarios.

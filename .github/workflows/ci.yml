@@ -12,13 +12,15 @@ permissions:
 # Una sola ejecución por rama: la nueva cancela la anterior.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   compose:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Crear .env con valores ficticios
         # Rellena cada línea CLAVE= vacía (sin tocar comentarios ni líneas con valor).
         run: |
@@ -31,6 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: actionlint
         run: docker run --rm -v "$PWD":/repo -w /repo rhysd/actionlint:1.7.12 -no-color
 
@@ -41,6 +45,8 @@ jobs:
         working-directory: backend
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Comprobar si hay código
         id: codigo
         working-directory: .
@@ -68,6 +74,8 @@ jobs:
         working-directory: vision-service
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Comprobar si hay código
         id: codigo
         working-directory: .
@@ -96,6 +104,8 @@ jobs:
         working-directory: frontend
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Comprobar si hay código
         id: codigo
         working-directory: .
@@ -117,4 +127,4 @@ jobs:
         run: npm ci
       - name: Tests
         if: steps.codigo.outputs.existe == 'true'
-        run: npm test --if-present
+        run: npm test

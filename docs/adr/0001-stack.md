@@ -16,8 +16,8 @@ Forja son tres módulos (entreno, dieta y suplementos) con un núcleo de algorit
 
 | Pieza | Tecnología | Por qué |
 |---|---|---|
-| `backend/` | Java 21 (LTS) · Spring Boot 4 · JPA · Flyway · springdoc | Lógica de negocio y solvers (OR-Tools tiene API Java). Spring Boot 4 salió el 2025-11-20 y recomienda Java 21 o superior. |
-| `database/` | **MySQL 8.4 LTS** · 3FN · Flyway | Fuente de verdad única. **8.4 y no 8.0:** MySQL 8.0 dejó de tener soporte en abril de 2026; 8.4 LTS lo tiene hasta 2032. |
+| `backend/` | Java 21 (LTS) · Spring Boot 4 · JPA · Flyway · springdoc | Lógica de negocio y solvers (OR-Tools tiene API Java). Spring Boot 4 salió el 2025-11-20; exige Java 17 como mínimo y da soporte de primera a Java 25. Elegimos la LTS 21 por lo extendida que está (decisión nuestra, no recomendación de Spring). |
+| `database/` | **MySQL 8.4 LTS** · 3FN · Flyway | Fuente de verdad única. **8.4 y no 8.0:** MySQL 8.0 dejó de tener soporte en abril de 2026; 8.4 LTS tiene soporte Premier hasta abril de 2029 y Extended hasta abril de 2032 (dato de fuentes secundarias; el PDF de Oracle no se pudo abrir). |
 | `vision-service/` | Python · FastAPI · Pydantic · Ollama | Pose, OCR y LLM. Sin estado y sin lógica de negocio. |
 | `frontend/` | React Native · Expo (TypeScript) · dev build · TanStack Query · Zod | Android primero, con modo sin conexión. Cliente generado desde el OpenAPI. |
 
@@ -32,7 +32,7 @@ Forja son tres módulos (entreno, dieta y suplementos) con un núcleo de algorit
 | Todo en Python (FastAPI + OR-Tools Python) | Un solo lenguaje, OR-Tools tiene la misma API | Pierde el gancho de Java para el CV; FastAPI no trae Flyway, seguridad ni capas tan maduras |
 | Kotlin + Spring | Más conciso, mismo ecosistema | Menos pedido en ofertas junior que Java |
 | Microservicios por módulo | Despliegue independiente | Tres servicios, red y trazas distribuidas para una sola persona: coste sin beneficio a esta escala |
-| PostgreSQL | pgvector, tipos más ricos | El resto de proyectos de Gabriel y la carrera usan MySQL; Forja no necesita lo que aporta Postgres |
+| PostgreSQL | pgvector, tipos más ricos | Los demás proyectos del autor usan MySQL; Forja no necesita lo que aporta Postgres |
 | MySQL 8.0 (lo que decía el plan) | Igual que en clase | Sin parches de seguridad desde abril de 2026 |
 | Java 25 (LTS) | La LTS más nueva, con soporte de primera en Spring Boot 4 | Java 21 está más extendido en ofertas y librerías; el cambio a 25 es trivial más adelante |
 | Flutter | Buen rendimiento | Dart no está en el stack de Gabriel; Expo ya está probado en Style & Scent Engine |
@@ -43,5 +43,5 @@ Forja son tres módulos (entreno, dieta y suplementos) con un núcleo de algorit
 - **Aplicado (2026-11-15):** el plan y el README decían «MySQL 8»: pasaron a «MySQL 8.4 LTS» y la imagen Docker se fija a `mysql:8.4`.
 
 ## Fuentes
-- [Spring Boot 4.0.0 available now](https://spring.io/blog/2025/11/20/spring-boot-4-0-0-available-now/) (2025-11-20)
+- [Spring Boot 4.0.0 available now](https://spring.io/blog/2025/11/20/spring-boot-4-0-0-available-now/) (2025-11-20) · [requisitos de sistema de Spring Boot 4.0](https://docs.spring.io/spring-boot/4.0/system-requirements.html)
 - [Versiones de MySQL Server (Oracle)](https://docs.oracle.com/en-us/iaas/mysql-database/doc/mysql-server-versions.html): fin de soporte de 8.0 en abril de 2026

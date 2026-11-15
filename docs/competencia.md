@@ -11,7 +11,7 @@ Ampliación de la sección 1 de [fase-0.md](fase-0.md). Cada app dice cómo se a
 - Calcula una puntuación global ponderada por objetivo: definición, masa, rendimiento o equilibrio.
 - El primer escaneo añade de 0 a 6 «rasgos estructurales» de tres tipos: inserción, estructura y proporción.
 - Te da de **3 a 7 ejercicios** priorizados por los músculos rezagados, con series y un rango de **8-15 repeticiones**, colocados en la división de entreno que ya sigues.
-- También da calorías y macros, alimentos a priorizar o limitar, 8 000 pasos al día y check-in semanal con fotos nuevas.
+- También da calorías y macros, alimentos a priorizar o limitar, 8 000 pasos al día y check-in semanal con tres fotos nuevas (según su FAQ).
 - Se integra con Yazio, MyFitnessPal y Cronometer.
 - **Precio:** el primer escaneo es gratis pero muestra solo una parte. Pro cuesta 7,99 €/mes o 24,99 €/año, a través del App Store.
 
@@ -30,7 +30,7 @@ Ampliación de la sección 1 de [fase-0.md](fase-0.md). Cada app dice cómo se a
 - **Cómo funciona por dentro:** su política de privacidad dice que manda las tres fotos y el perfil a **Google Gemini**. El escaneo es, por tanto, un LLM multimodal genérico que mira las fotos, no una medición de puntos del cuerpo.
 
 ### Privacidad
-- Las fotos pasan por AWS S3 de forma temporal y por Gemini. Se borran al guardar el análisis y no se usan para entrenar. El perfil y los resultados se guardan hasta que borras la cuenta o pasan 24 meses de inactividad.
+- Las fotos pasan por AWS S3 de forma temporal y por Gemini. Se borran al guardar el análisis; su FAQ añade que no se usan para entrenar modelos (la política de privacidad no lo dice). El perfil y los resultados se guardan hasta que borras la cuenta o pasan 24 meses de inactividad.
 - No pide cuenta: usa un identificador aleatorio del dispositivo (RevenueCat).
 - El responsable es un desarrollador individual en Francia. La política se apoya en la ejecución del contrato y **no menciona el art. 9 del RGPD** para fotos corporales ni datos de salud.
 

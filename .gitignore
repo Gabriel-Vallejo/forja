@@ -6,7 +6,12 @@
 
 # Credenciales y configuración local de Claude Code
 .env
+.env.*
+!.env.example
 .claude/settings.local.json
+
+# Worktrees de Claude Code (copias de trabajo temporales)
+.claude/worktrees/
 
 # El APK se publica como GitHub Release, no en el repo (~80 MB por versión)
 *.apk

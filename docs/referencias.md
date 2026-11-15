@@ -27,7 +27,7 @@ Verificadas el 2026-11-15 contra el resumen en PubMed (API E-utilities) y, cuand
 
 **Schoenfeld BJ, Ogborn D, Krieger JW (2017).** Dose-response relationship between weekly resistance training volume and increases in muscle mass: a systematic review and meta-analysis. *J Sports Sci* 35(11):1073-1082. [doi:10.1080/02640414.2016.1210197](https://doi.org/10.1080/02640414.2016.1210197) · PMID 27433992.
 
-- 15 estudios y 34 grupos. Cada serie semanal adicional suma un 0,37 % de ganancia. Hay una tendencia (p = 0,074) a favor de 10 o más series por músculo y semana frente a menos de 5 o 5-9.
+- 15 estudios y 34 grupos. Cada serie semanal adicional suma un 0,37 % de ganancia. Con las series agrupadas en menos de 5, 5-9 y 10 o más por músculo y semana, el efecto es solo una tendencia (p = 0,074); el resumen no dice qué grupo sale mejor y el texto completo no está en abierto.
 
 **Pelland JC, Remmert JF, Robinson ZP, Hinson SR, Zourdos MC (2026).** The resistance training dose response: meta-regressions exploring the effects of weekly volume and frequency on muscle hypertrophy and strength gains. *Sports Med* 56(2):481-505. [doi:10.1007/s40279-025-02344-w](https://doi.org/10.1007/s40279-025-02344-w) · PMID 41343037 · datos y código en [OSF](https://osf.io/6z3xu).
 

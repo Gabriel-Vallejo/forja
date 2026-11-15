@@ -7,7 +7,7 @@
 Al publicar, Forja sale en GitHub Releases como APK para Android y como **versión de PC** ([CLAUDE.md](../../CLAUDE.md) §8). El frontend es React Native + Expo (TypeScript, [0001](0001-stack.md)). Hace falta decidir cómo se convierte en una app de escritorio sin mantener otra base de código.
 
 En PC se usa sobre todo para planificar: ver y ajustar la rutina, el mapa muscular, la cesta semanal y la ficha de un suplemento. Las series se apuntan en el móvil, en el gimnasio. Pesan además estas restricciones:
-- **Plataformas:** Windows 11 (la de casi todo el mundo) y Linux (Gabriel usa CachyOS).
+- **Plataformas:** Windows 11 (la de casi todo el mundo) y Linux (el portátil de desarrollo usa CachyOS).
 - **Tamaño:** que el instalador sea pequeño, porque se descarga desde Releases.
 - **Mantenimiento:** que lo pueda llevar una sola persona.
 
@@ -54,3 +54,8 @@ En PC se usa sobre todo para planificar: ver y ajustar la rutina, el mapa muscul
 - [Expo + Tauri (Netguru)](https://netguru.com/blog/react-native-expo-tauri) · [caso Doodraw (Expo)](https://expo.dev/blog/doodraw-rust-gpu-engine-expo-config-plugin-100k-installs)
 - [Tauri vs Electron (Better Stack)](https://betterstack.com/community/guides/scaling-nodejs/tauri-vs-electron-vs-deno-vs-electrobun/)
 - [expo-sqlite: soporte web en alpha](https://docs.expo.dev/versions/latest/sdk/sqlite/)
+
+## Enmienda (2026-11-15, revisión)
+- **El llavero va por un plugin comunitario.** Tauri no tiene plugin **oficial** de llavero del sistema: solo Stronghold, que guarda en un archivo cifrado. Se permite un plugin comunitario revisado (por ejemplo `tauri-plugin-keyring-store`) y la excepción se apunta aquí. Si no hay Secret Service (Linux sin llavero), el plan B es Stronghold.
+- **Autenticación en escritorio:** token bearer en la cabecera, no cookies. El backend admite los orígenes de la webview (`tauri://localhost` y `http://tauri.localhost`), y la CSP de Tauri limita `connect-src` al dominio de la API. CORS no autentica nada aquí. Lo cierra el ADR de autenticación (pendiente para la fase 1).
+- **Horas:** la versión de PC no estaba en las 210 h. Se suman a la fase 5 **[estimación: 8-10 h]**.

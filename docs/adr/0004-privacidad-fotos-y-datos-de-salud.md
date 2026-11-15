@@ -53,3 +53,26 @@ La competencia directa (BodyLeveling, ver [competencia](../competencia.md)) mand
   1. Política de privacidad propia.
   2. Una evaluación de impacto (EIPD, art. 35) ligera aunque la escala sea pequeña.
   3. Revisar si hace falta registro de actividades de tratamiento.
+
+## Enmienda (2026-11-15, revisión)
+1. **Fotos en memoria de verdad:** ver la enmienda 1 del [0003](0003-cola-de-trabajos-gpu.md). Por defecto, Spring y Starlette escriben las subidas a disco.
+2. **Fotos de evaluación** (las 15-20 personas del gimnasio para medir el error de la pose):
+   - Consentimiento escrito y específico para la evaluación, con fecha de borrado.
+   - Las fotos viven cifradas **fuera del repo**. La evaluación de pose corre en local.
+   - El CI solo valida el fichero de métricas versionado, nunca las fotos.
+3. **Más tipos de consentimiento:** `lesiones` y `suplementos` se suman a `fotos_cuerpo` y `medidas_salud`.
+4. **Más columnas cifradas:** `stack_usuario` se suma a la lista, y también `trabajo.carga` y `trabajo.resultado`.
+5. **Desde la fase 1:** consentimiento, cifrado y borrado entran ya en la v0.1, porque el perfil manual guarda peso, lesiones y circunferencias.
+6. **Edad mínima de 18:** el alta valida la fecha de nacimiento completa, pero solo se guardan el año y un booleano `mayor_de_edad`.
+7. **«Nada sale a terceros» queda acotado.** Lo que se cumple es que **las fotos y las medidas no salen de nuestros servidores**. Hay encargados del tratamiento (art. 28): el VPS (Hostinger), Azure, el push (FCM/Expo) y GitHub para el feedback vía n8n.
+   - El push lleva texto genérico, sin nombrar el suplemento («hay una alerta nueva»).
+   - La política lista los encargados y la región, que es la UE.
+   - El formulario de feedback avisa de que va a GitHub.
+8. **Formato del cifrado:**
+   - Cada valor se guarda como `versión | id_clave | nonce aleatorio de 12 bytes | cifrado + tag`.
+   - La tabla, la columna y el id de la fila van como datos asociados, para que un valor cifrado no se pueda copiar a otra fila.
+   - Las columnas son `VARBINARY`, el descifrado acepta varias claves y la rotación se hace sin parada.
+9. **`evento_uso` es seudonimizada, no anónima.**
+   - Lleva un HMAC del usuario con un secreto, nunca un hash simple de un ID secuencial.
+   - Se borra o se desvincula al borrar la cuenta.
+10. **Restaurar una copia no resucita cuentas.** Se guarda un registro de los IDs borrados, que se vuelve a aplicar tras cada restauración.

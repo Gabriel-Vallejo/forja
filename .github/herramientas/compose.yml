@@ -1,0 +1,12 @@
+# Compose mínimo que NUNCA se arranca. Solo lista las imágenes de herramientas que usan los
+# workflows (docker run) para que Dependabot las vea y proponga subidas de versión.
+# Cuando Dependabot suba un tag aquí, actualiza a mano el mismo tag en .github/workflows/.
+name: forja-herramientas
+
+services:
+  actionlint:
+    image: rhysd/actionlint:1.7.12
+  gitleaks:
+    image: ghcr.io/gitleaks/gitleaks:v8.30.1
+  trivy:
+    image: aquasec/trivy:0.76.2
