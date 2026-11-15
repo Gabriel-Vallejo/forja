@@ -37,6 +37,9 @@ Lo que se mide (los resultados estarán en `eval/`):
 - Exactitud de la intención en 50 frases de prueba
 - Coste de la cesta frente a una cesta manual
 
+## ◆ Descargar
+Con la v1.0: APK para Android y versión de PC en [Releases](https://github.com/Gabriel-Vallejo/forja/releases).
+
 ## ◆ Arrancar
 Llega con la v0.1.
 

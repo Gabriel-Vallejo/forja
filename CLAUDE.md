@@ -5,7 +5,7 @@ Eres el desarrollador principal de **Forja** junto a Gabriel: él decide el prod
 Fotos de tu cuerpo y tus marcas → una rutina que elige los ejercicios según tus palancas y tus puntos débiles, la cesta de proteína más barata del súper y un escáner de riesgo de tus suplementos.
 
 ## 1. Al empezar cada sesión
-1. `git pull --rebase --autostash`.
+1. `git pull --rebase --autostash` y `git -C vault pull --rebase --autostash`. Si falta `vault/`: `git clone git@github.com:Gabriel-Vallejo/forja-vault.git vault`.
 2. Lee `vault/Inicio.md` (estado y siguiente paso), la sección **Ahora** de `vault/Pendiente.md` y las 3 últimas entradas de `vault/Log.md` (`grep "^## \[" vault/Log.md | tail -3`).
 3. El plan completo (módulos, modelo de datos, algoritmos, API, fases y riesgos) está en `CONTEXT.md`. Léelo cuando la tarea toque diseño.
 4. Si la tarea no está en `Pendiente.md`, añádela antes de empezar.
@@ -13,7 +13,7 @@ Fotos de tu cuerpo y tus marcas → una rutina que elige los ejercicios según t
 ## 2. Al terminar cada tarea
 1. Tests en verde (`./mvnw test`, `pytest`, `npm test` según la carpeta) y lint.
 2. Actualiza el vault (§6): marca la tarea en `Pendiente.md`, añade una entrada a `Log.md` y, si cambió, el estado de `Inicio.md`, las horas de `Fases.md`, `Decisiones.md`, `Problemas.md`, `Evaluación.md` o `Producción.md`.
-3. Commit convencional en español (`feat: registro de series sin conexión`, `fix: …`, `docs: …`, `test: …`) y `git push`. Si `git status` enseña cambios que no son tuyos, añade solo los tuyos y avisa.
+3. Commit convencional en español (`feat: registro de series sin conexión`, `fix: …`, `docs: …`, `test: …`) y `git push`. El vault es otro repo: `git -C vault add -A && git -C vault commit -m "<lo mismo>" && git -C vault push`. Si `git status` enseña cambios que no son tuyos, añade solo los tuyos y avisa.
 
 ## 3. Stack y carpetas
 - `backend/`: Java 21, Spring Boot 4, JPA, **Flyway** para todo cambio de esquema, OpenAPI exportado a `docs/api/`.
@@ -40,7 +40,7 @@ Hardware: portátil con RTX 5070 (~8 GB de VRAM) para el worker de GPU; VPS sin 
 - Textos (app, README, posts): voz del kit de marca: directo, de tú, con cifras y sin frases de plantilla de IA.
 
 ## 6. El vault (`vault/`)
-Vault de Obsidian para organizar el proyecto (en Obsidian: «Abrir carpeta como vault» → `vault/`). Lo mantienes tú; si Gabriel escribe en una nota, respeta su texto.
+Vault de Obsidian para organizar el proyecto (en Obsidian: «Abrir carpeta como vault» → `vault/`). **Es privado y no forma parte de la app:** vive en su propio repo privado (`Gabriel-Vallejo/forja-vault`) y este repo lo ignora en `.gitignore`. Nunca lo añadas aquí ni copies su contenido al código, al README ni a los commits. Lo mantienes tú; si Gabriel escribe en una nota, respeta su texto.
 
 | Nota | Para qué | Cuándo se toca |
 |---|---|---|
@@ -73,8 +73,10 @@ Reparto: **Claude orquesta y revisa; Codex implementa** (plugin `codex@openai-co
 - Una tarea por rama o worktree; nunca dos agentes en los mismos archivos.
 - Si Gabriel pide no usar Codex, no lo uses.
 
-## 8. Antes de hacer público el repo
-Sigue la checklist de `vault/Producción.md`. Entre otras cosas, decide con Gabriel si el vault se queda en el repo público o sale con `git rm -r --cached vault`.
+## 8. Publicación
+Al terminar solo se publica **la app**, como Style & Scent Engine: el código de este repo y, en GitHub Releases, el **APK** (EAS) y la **versión de PC**, con enlaces de descarga en el README. El vault nunca se publica.
+
+El vault estuvo en el historial de este repo hasta el commit «chore: el vault pasa a su propio repo privado». Antes de hacerlo público hay que borrarlo del historial (`git filter-repo --path vault --invert-paths` y push forzado, con el visto bueno de Gabriel). El resto de pasos, en la checklist de `vault/Producción.md`.
 
 ## 9. Contexto de Gabriel
 Perfil, gustos y kit de marca completos en su vault de la carrera (`~/Truchilla/20_Contexto/`). Léelos si una decisión depende de ellos; **no escribas allí** desde este proyecto.
