@@ -4,10 +4,10 @@ Entrena, come y suplementa según tu cuerpo.
 
 > 🚧 **En desarrollo** · repo privado hasta la v1.0 · fase actual: **0**
 
-Fotos de tu cuerpo y tus marcas → una rutina que elige los ejercicios según tus palancas y tus puntos débiles, la cesta de proteína más barata del súper y un escáner de riesgo de tus suplementos.
+Te pregunta lo que te limita, mide tu movilidad y arma la rutina con un solver que te explica cada ejercicio con su fuente. Además, la cesta de proteína más barata del súper y un escáner de riesgo de tus suplementos.
 
 ## ◆ Qué hace
-- **Entreno:** proporciones corporales por pose (MediaPipe), estándares de fuerza con OpenPowerlifting, mapa muscular y rutina generada con CP-SAT, con el error de medición publicado.
+- **Entreno:** entrada guiada de limitaciones (lesiones, dolor, discapacidad) con IA que solo transcribe, tests de movilidad, estándares de fuerza con OpenPowerlifting y rutina generada con CP-SAT que explica cada ejercicio con su fuente y su nivel de evidencia. Las proporciones por foto solo desempatan ([ADR 0007](docs/adr/0007-motor-de-seleccion-de-ejercicios.md)). Forja no evalúa, diagnostica, trata ni previene lesiones.
 - **Dieta (ProteEuro):** cesta semanal que cumple tu proteína y tu tope de carbohidratos al menor coste (programación lineal con precios de Mercadona).
 - **Suplementos:** OCR de la etiqueta y riesgo por ingredientes frente a la lista de sustancias prohibidas del BOE y las alertas de la CELAD/AESAN.
 - **Registro de series** sin conexión, con progresión doble y deload automáticos.

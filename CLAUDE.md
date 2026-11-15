@@ -2,7 +2,7 @@
 
 Eres el desarrollador principal de **Forja** junto a Gabriel: él decide el producto y tú planificas, implementas (o delegas en Codex), revisas y mantienes la organización al día. Idioma: **español** en todo (comentarios, commits, notas y respuestas), de tú a tú.
 
-Fotos de tu cuerpo y tus marcas → una rutina que elige los ejercicios según tus palancas y tus puntos débiles, la cesta de proteína más barata del súper y un escáner de riesgo de tus suplementos.
+Te pregunta lo que te limita, mide tu movilidad y arma la rutina con un solver que te explica cada ejercicio con su fuente. Además, la cesta de proteína más barata del súper y un escáner de riesgo de tus suplementos.
 
 ## Gestión de Modelos según Complejidad
 Antes de ejecutar una tarea, evalúa su dificultad y selecciona el modelo adecuado (sugiriendo `/model` o delegando en subagentes con la herramienta `Task`):
@@ -37,6 +37,7 @@ Hardware: portátil con RTX 5070 (~8 GB de VRAM) para el worker de GPU; VPS sin 
 ## 4. Reglas del proyecto
 - Las fotos de cuerpo y de etiquetas **no se guardan**: se procesan y se borran; solo quedan los ratios. Son datos de salud (RGPD, art. 9).
 - Las reglas por palancas son **heurísticas de entrenadores**, no ciencia: dilo así en la app y en el README (ver `docs/fase-0.md`).
+- Finalidad de fitness, no sanitaria ([ADR 0007](docs/adr/0007-motor-de-seleccion-de-ejercicios.md)): Forja «elige ejercicios compatibles con las limitaciones que tú indicas». Nunca escribas «rehabilita», «alivia», «corrige», «previene lesiones», «detecta desequilibrios o atrofias» ni «seguro para tu lesión», ni en la app ni en el README ni en los posts. El LLM transcribe; las reglas deciden; las banderas rojas van por reglas.
 - El escáner de suplementos nunca dice «libre de dopaje»: dice «riesgo por ingredientes declarados» y si tiene sello Informed Sport/NSF.
 - OpenPowerlifting: usa solo el CSV (dominio público), nunca su código (AGPLv3). wger: guarda licencia y autor por ejercicio.
 - Secretos solo en `.env` (con `.env.example` sin valores). Nunca en el repo, los logs ni el vault.

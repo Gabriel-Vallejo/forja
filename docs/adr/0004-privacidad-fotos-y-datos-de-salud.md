@@ -14,7 +14,7 @@ La competencia directa (BodyLeveling, ver [competencia](../competencia.md)) mand
 1. **Las fotos no se guardan.**
    - Las fotos de cuerpo se procesan **en memoria** en el `vision-service` (MediaPipe en CPU, síncrono; ver [0003](0003-cola-de-trabajos-gpu.md)) y se descartan al responder.
    - No se escriben en disco, ni en la base de datos, ni en la cola, ni en object storage, ni en los logs.
-   - Solo quedan los ratios en `ratio_corporal`, con su origen (`foto` o `manual`).
+   - Solo queda el tramo de cada proporción en `ratio_corporal`, con su confianza y su origen (`foto` o `manual`) ([0007](0007-motor-de-seleccion-de-ejercicios.md)).
    - Lo mismo con las fotos de etiquetas: solo queda el texto del OCR.
 2. **Nada sale a terceros.** Todos los modelos son locales (MediaPipe, Florence-2 y Ollama). No hay APIs de LLM externas ni analítica de terceros. Las métricas de uso van a `evento_uso`, propia y anónima.
 3. **Consentimiento explícito** (art. 9.2.a):
@@ -60,7 +60,7 @@ La competencia directa (BodyLeveling, ver [competencia](../competencia.md)) mand
    - Consentimiento escrito y específico para la evaluación, con fecha de borrado.
    - Las fotos viven cifradas **fuera del repo**. La evaluación de pose corre en local.
    - El CI solo valida el fichero de métricas versionado, nunca las fotos.
-3. **Más tipos de consentimiento:** `lesiones` y `suplementos` se suman a `fotos_cuerpo` y `medidas_salud`.
+3. **Más tipos de consentimiento:** `lesiones`, `limitaciones` ([0007](0007-motor-de-seleccion-de-ejercicios.md)) y `suplementos` se suman a `fotos_cuerpo` y `medidas_salud`.
 4. **Más columnas cifradas:** `stack_usuario` se suma a la lista, y también `trabajo.carga` y `trabajo.resultado`.
 5. **Desde la fase 1:** consentimiento, cifrado y borrado entran ya en la v0.1, porque el perfil manual guarda peso, lesiones y circunferencias.
 6. **Edad mínima de 18:** el alta valida la fecha de nacimiento completa, pero solo se guardan el año y un booleano `mayor_de_edad`.

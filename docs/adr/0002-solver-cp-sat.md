@@ -26,7 +26,7 @@ Además, cada elección tiene que poder explicarse («por qué hack y no barra b
    - Frecuencia ≥ 2 por músculo: **heurística práctica** con penalización alta por defecto, que el usuario puede bajar a 1. Con el volumen igualado, la evidencia no la exige (Schoenfeld 2019, ver [referencias](../referencias.md#frecuencia-de-entreno)).
 4. **Objetivo (maximizar)**, como suma de términos con pesos en configuración y no en código:
    - cobertura de los músculos débiles y prioritarios,
-   - encaje biomecánico por palancas,
+   - encaje por movilidad y, con peso bajo, por palancas en tramos (ver [0007](0007-motor-de-seleccion-de-ejercicios.md)),
    - preferencias,
    - menos fatiga,
    - menos holgura.

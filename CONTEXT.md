@@ -4,7 +4,7 @@ Contexto para agentes y para mí. Sale del plan de desarrollo del 2026-11-15.
 
 ## 1. Forja: entrena, come y suplementa según tu cuerpo
 
-**Frase de venta:** *Fotos de tu cuerpo y tus marcas → una rutina que elige los ejercicios según tus palancas y tus puntos débiles. Además, la cesta de proteína más barata del súper y un escáner de riesgo de tus suplementos.*
+**Frase de venta:** *Te pregunta lo que te limita, mide tu movilidad y arma la rutina con un solver que te explica cada ejercicio con su fuente. Además, la cesta de proteína más barata del súper y un escáner de riesgo de tus suplementos.*
 
 ### 1.1 Por qué llega a 24
 
@@ -24,24 +24,26 @@ Contexto para agentes y para mí. Sale del plan de desarrollo del 2026-11-15.
 1. **Perfil:**
    - Sexo, edad, altura, peso, experiencia, días por semana, material (gimnasio completo, casa…), lesiones y objetivo (hipertrofia, fuerza o recomposición).
    - Músculos prioritarios.
+   - **Entrada de limitaciones** ([ADR 0007](docs/adr/0007-motor-de-seleccion-de-ejercicios.md)): cribado con botones (tipo PAR-Q+), preguntas guiadas (zona, lado, dolor 0-10, cirugías, límites por patrón) y un «cuéntame» en texto libre (discapacidades, atrofias, hipertrofias, asimetrías…) que un LLM local **solo transcribe** a restricciones con cita literal y confirmación del usuario. Banderas rojas por reglas. Forja elige ejercicios compatibles con lo que declaras; no evalúa, diagnostica, trata ni previene lesiones.
+   - **Tests de movilidad caseros:** rodilla a la pared, rotación de cadera sentado y flexión de hombro tumbado.
    - Circunferencias con cinta (cuello, cintura, cadera) para estimar el % de grasa con la fórmula de la US Navy (pública).
-2. **Proporciones por foto:**
+2. **Proporciones por foto (solo desempate, [ADR 0007](docs/adr/0007-motor-de-seleccion-de-ejercicios.md)):**
    - Dos fotos estáticas en casa (de frente y de perfil, de cuerpo entero, ropa ajustada). Nada de grabarte en el gimnasio.
-   - MediaPipe Pose saca los puntos articulares. Con tu altura como escala se calculan segmentos y ratios: fémur/torso, brazo/torso, anchura de hombros/cadera, envergadura aproximada.
-   - Las fotos **no se guardan**: se procesan y se borran; solo quedan los ratios. Eso va escrito en la app y en el README (RGPD, datos de salud).
+   - MediaPipe Pose saca los puntos articulares. Con tu altura como escala, cada proporción (fémur/torso, brazo/torso, anchura de hombros/cadera, envergadura) se clasifica en **tres tramos** con su confianza, nunca como ratio exacto: el error de una foto 2D es del tamaño de la diferencia entre personas.
+   - Las fotos **no se guardan**: se procesan y se borran; solo quedan los tramos. Eso va escrito en la app y en el README (RGPD, datos de salud).
    - Si no quieres fotos, medidas manuales con cinta.
 3. **Estándares de fuerza y puntos débiles:**
    - Registras tus marcas, o salen solas del registro de series (e1RM con Epley o Brzycki).
    - Percentiles de sentadilla, banca y peso muerto por sexo y peso corporal, calculados con el dataset de **OpenPowerlifting** (CSV en dominio público, código AGPLv3; comprobado en la fase 0). Ojo: son levantadores de competición, así que el percentil está sesgado hacia arriba. Se dice en la app.
    - Para los accesorios (press militar, remo, dominadas…), ratios frente a los básicos con heurísticas propias **[inferencia, documentarlas como tales]**.
-   - Resultado: **mapa muscular coloreado** (fuerte, en la media, débil). Ojo: Symmetry, española y con millones de usuarios en Android, ya lo hace gratis ([competencia](docs/competencia.md#symmetry-españa-la-competencia-más-cercana-en-entreno)). El diferencial de Forja son el método abierto con fuente pública y las palancas, no el mapa.
+   - Resultado: **mapa muscular coloreado** (fuerte, en la media, débil). Ojo: Symmetry, española y con millones de usuarios en Android, ya lo hace gratis ([competencia](docs/competencia.md#symmetry-españa-la-competencia-más-cercana-en-entreno)). El diferencial de Forja es el método abierto con fuente pública y el porqué de cada ejercicio, no el mapa.
 4. **Generador de rutina:** en el backend, ver 1.5.
 5. **Registro de sesiones:**
    - Series, repes, peso y RIR, con temporizador de descanso, sin conexión.
    - **Progresión doble automática**: si completas el rango alto de repes a tu RIR objetivo, sube la carga.
    - Deload cuando el e1RM se estanca 2-3 semanas.
 6. **Explicación con LLM:**
-   - El LLM **solo explica** («te he puesto sentadilla hack en vez de barra baja porque tu ratio fémur/torso es alto»).
+   - El LLM **solo explica** («te he puesto sentadilla goblet con talonera porque tu tobillo está en el tramo bajo; regla con evidencia B»).
    - Traduce peticiones en lenguaje natural a una intención estructurada («me duele el hombro en el press» → `{restriccion: hombro, patron: empuje_horizontal}`).
    - Las reglas vuelven a resolver. El LLM nunca escribe series.
 
@@ -78,7 +80,7 @@ Contexto para agentes y para mí. Sale del plan de desarrollo del 2026-11-15.
 ### 1.4 Modelo de datos (resumen)
 
 **Entreno**
-- `usuario`, `perfil` (1:1), `medida_corporal` (histórico: fecha, tipo, valor), `ratio_corporal` (fecha, fémur/torso…, origen foto o manual)
+- `usuario`, `perfil` (1:1), `medida_corporal` (histórico: fecha, tipo, valor), `ratio_corporal` (fecha, proporción, tramo, confianza, origen foto o manual), `test_movilidad` (tipo, valor, tramo, fecha), `restriccion` (región, lado, patrón, tipo, parámetro, estado, origen, texto original)
 - `musculo`, `patron_movimiento`, `material`
 - `ejercicio`, `ejercicio_musculo` (N:M con rol primario/secundario y peso), `ejercicio_material`, `ejercicio_contraindicacion`
 - `estandar_fuerza` (ejercicio, sexo, rango de peso, percentiles), `marca_usuario`
@@ -112,7 +114,7 @@ Los ejercicios iniciales salen de un catálogo abierto: free-exercise-db (Unlice
   - No repetir un básico pesado en días consecutivos.
 - **Objetivo (maximizar):**
   - Cobertura de los músculos débiles y prioritarios (pesa más).
-  - Encaje biomecánico, por ejemplo una penalización a la sentadilla trasera barra baja si el ratio fémur/torso es alto.
+  - Encaje por movilidad (tests) y, con peso bajo, por palancas en tramos ([ADR 0007](docs/adr/0007-motor-de-seleccion-de-ejercicios.md)). Las restricciones de la entrada de limitaciones son duras o eligen variante en la escalera de sustitución.
   - Preferencias del usuario.
   - Menos fatiga sistémica (cada ejercicio tiene un coste de fatiga).
 - **Salida:** plan + **traza de por qué**: qué restricción o término del objetivo decidió cada elección. Eso es lo que el LLM convierte en texto.
@@ -159,8 +161,8 @@ GET  /api/v1/trabajos/{id}           → estado y resultado (solo del dueño)
 | Fase | Contenido | Entregable | Horas aprox. **[estimación]** |
 |---|---|---|---|
 | 0. Validación y diseño | Probar a fondo Fitbod, Alpha Progression, Dr. Muscle, Gravl, JuggernautAI, RP Hypertrophy y Hevy: ¿alguna usa proporciones corporales? Estado de mercaapi y licencia de la lista de la AMA. ADR 0001-0005. Plantilla `repo-base`. | Doc de competencia en `docs/` + repo con CI vacío en verde | 15 |
-| 1. Entreno MVP | Catálogo de ejercicios etiquetado, perfil manual, CP-SAT, registro de sesiones, progresión doble. Sin fotos todavía. | **v0.1** + post 1 («mi app me arma la rutina con un solver») | 60 |
-| 2. Cuerpo y estándares | MediaPipe, ratios, eval con cinta, percentiles OpenPowerlifting, mapa muscular, LLM explicador. | **v0.2** + post 2 (el mapa muscular y el error medido) | 40 |
+| 1. Entreno MVP | Catálogo de ejercicios etiquetado (con atributos de restricción y escalera de sustitución), perfil manual, entrada de limitaciones con botones y preguntas guiadas, tests de movilidad, CP-SAT, registro de sesiones con dolor 0-10, progresión doble. Sin fotos ni LLM todavía. | **v0.1** + post 1 («mi app me arma la rutina con un solver») | 60 |
+| 2. Cuerpo y estándares | LLM de entrada (extracción del texto libre, con eval), MediaPipe en tramos, eval con cinta, percentiles OpenPowerlifting, mapa muscular, LLM explicador. | **v0.2** + post 2 (el mapa muscular y el error medido) | 40 |
 | 3. Dieta | Catálogo, LP, precios por foto, avisos, recetas. | **v0.3** + post 3 («180 g de proteína por 3,40 €») | 40 |
 | 4. Suplementos | OCR + normalización, AMA, ingesta de CELAD, ficha de riesgo, push. | **v0.4** + post 4 (el pre-entreno escaneado) | 35 |
 | 5. Producción | Azure + IaC, observabilidad, ZAP, 20 usuarios del gimnasio, Play en prueba cerrada. | **v1.0** + post de cierre con métricas de uso | 20 |
@@ -171,7 +173,8 @@ GET  /api/v1/trabajos/{id}           → estado y resultado (solo del dueño)
 |---|---|
 | El alcance (tres apps) | Releases por módulo. Si te quedas sin tiempo, v0.2 ya es un proyecto completo. |
 | Datos de salud (fotos, medidas) | Las fotos no se guardan, consentimiento explícito, borrado de cuenta real y cifrado en reposo de las medidas. ADR de privacidad. |
-| Heurísticas de palancas sin base fuerte | Presentarlas como heurísticas, con la regla visible y desactivable. Nunca como diagnóstico. |
+| Heurísticas de palancas sin base fuerte | Confirmado en la investigación de fase 1: solo desempatan, con tramos y nivel de evidencia visible ([ADR 0007](docs/adr/0007-motor-de-seleccion-de-ejercicios.md)). |
+| Que la app se considere producto sanitario (MDR) | Finalidad de fitness: «compatible con lo que declaras»; prohibido «rehabilita, alivia, corrige, previene, detecta atrofias» ([ADR 0007](docs/adr/0007-motor-de-seleccion-de-ejercicios.md)). |
 | Que el usuario se fíe de «sin riesgo» en un suplemento | Lenguaje de riesgo y aviso fijo de que la app no certifica. |
 | mercaapi desaparece | Capa de adaptadores de fuente de precios; Open Food Facts y precios de usuarios como respaldo. |
 | Lesiones por una rutina mal generada | Restricciones de lesión duras, límites de volumen conservadores y aviso de consultar a un profesional. |
