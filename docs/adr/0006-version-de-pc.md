@@ -1,6 +1,6 @@
 # 0006. Versión de PC: Expo web empaquetada con Tauri 2
 
-- **Estado:** propuesta
+- **Estado:** aceptada (2026-11-15)
 - **Fecha:** 2026-11-15
 
 ## Contexto
