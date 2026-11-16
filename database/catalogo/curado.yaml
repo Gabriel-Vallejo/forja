@@ -1,0 +1,139 @@
+# Ejercicios básicos de gimnasio etiquetados A MANO sobre free-exercise-db (commit fijado en fuente.json).
+# Lo curado manda sobre lo derivado (derivar.py). Todo queda con origen_etiquetado=curado y
+# revisado=false: la revisión humana la hace Gabriel antes de fiarse de las etiquetas.
+#
+# Convenciones (las pone quien etiqueta; son decisiones propias, no de la fuente):
+#   carga_axial        la carga pasa por la columna en vertical (de pie o en bisagra). Sentado con
+#                      respaldo, tumbado y en máquina sin hombreras = false. Ante la duda, true.
+#   por_encima_cabeza  los brazos van por encima de la cabeza durante el movimiento o en su inicio.
+#   rango_movimiento   «reducido» = la variante limita el recorrido (tope mecánico, apoyo, altura).
+#   posicion_estirada  true solo con evidencia (ver «fuente» en cada caso); si no, false.
+#   regiones           si se omite, salen de patron + carga_axial (regiones_de en derivar.py).
+#   materiales         si se omite, es solo el implemento.
+# Referencias de posicion_estirada (ADR 0007, regla 3):
+#   [Maeo 2021]  Maeo S et al., Med Sci Sports Exerc 2021, PMID 33009197: curl femoral sentado frente a tumbado.
+#   [Maeo 2023a] Maeo S et al., Eur J Sport Sci 2023, PMID 35819335: tríceps con el brazo por encima de la cabeza.
+#   [Maeo 2023b] Maeo S et al., Front Physiol 2023, PMID 38156065: gemelo de pie frente a sentado.
+#   [Kassiano 2026] Kassiano W et al., J Strength Cond Res 2026, PMID 41379528: extensión de rodilla y recto femoral.
+#   [Curl 2026]  J Sports Sci 2026, PMID 42829982: curl inclinado frente a predicador (bíceps +22,1 % vs +18,9 %).
+#   [Pedrosa 2026] Pedrosa y cols., Sports Med Int Open 2026, PMID 41777276: la ventaja de las longitudes largas
+#                aparece cuando hay par externo relevante con el músculo estirado. Evidencia INDIRECTA (sin
+#                ensayo del ejercicio concreto): aperturas con mancuernas y peso muerto rumano.
+
+por_defecto:
+  carga_axial: false
+  impacto: false
+  agarre: ninguno
+  lateralidad: bilateral
+  por_encima_cabeza: false
+  posicion_estirada: false
+  rango_movimiento: completo
+  apto_fuerza: true
+
+ejercicios:
+  # --- sentadilla: barra -> frontal -> goblet -> hack -> prensa (cada paso, menos carga sobre la espalda) ---
+  - {id: Barbell_Squat, nombre_es: Sentadilla con barra, patron: sentadilla, mecanica: compuesto, familia_sustitucion: sentadilla, implemento: barra, carga_axial: true, musculos_primarios: [cuadriceps, gluteos], musculos_secundarios: [isquiotibiales, lumbares, gemelos]}
+  - {id: Front_Barbell_Squat, nombre_es: Sentadilla frontal con barra, patron: sentadilla, mecanica: compuesto, familia_sustitucion: sentadilla, implemento: barra, carga_axial: true, musculos_primarios: [cuadriceps], musculos_secundarios: [gluteos, isquiotibiales, abdominales]}
+  - {id: Goblet_Squat, nombre_es: Sentadilla goblet, patron: sentadilla, mecanica: compuesto, familia_sustitucion: sentadilla, implemento: kettlebell, carga_axial: true, musculos_primarios: [cuadriceps], musculos_secundarios: [gluteos, aductores, abdominales]}  # carga ligera y delantera, pero sigue cargando la columna: true por prudencia
+  - {id: Hack_Squat, nombre_es: Sentadilla hack en máquina, patron: sentadilla, mecanica: compuesto, familia_sustitucion: sentadilla, implemento: maquina, carga_axial: true, musculos_primarios: [cuadriceps], musculos_secundarios: [gluteos, isquiotibiales]}  # con hombreras la columna soporta parte de la carga
+  - {id: Leg_Press, nombre_es: Prensa de piernas, patron: sentadilla, mecanica: compuesto, familia_sustitucion: sentadilla, implemento: maquina, rango_movimiento: reducido, musculos_primarios: [cuadriceps, gluteos], musculos_secundarios: [isquiotibiales, aductores]}
+
+  # --- zancada ---
+  - {id: Barbell_Lunge, nombre_es: Zancada con barra, patron: zancada, mecanica: compuesto, familia_sustitucion: zancada, implemento: barra, carga_axial: true, lateralidad: unilateral, musculos_primarios: [cuadriceps, gluteos], musculos_secundarios: [isquiotibiales, aductores]}
+  - {id: Dumbbell_Lunges, nombre_es: Zancadas con mancuernas, patron: zancada, mecanica: compuesto, familia_sustitucion: zancada, implemento: mancuerna, carga_axial: true, agarre: ligero, lateralidad: unilateral, musculos_primarios: [cuadriceps, gluteos], musculos_secundarios: [isquiotibiales, aductores]}
+  - {id: Split_Squat_with_Dumbbells, nombre_es: Sentadilla dividida con mancuernas, patron: zancada, mecanica: compuesto, familia_sustitucion: zancada, implemento: mancuerna, carga_axial: true, agarre: ligero, lateralidad: unilateral, rango_movimiento: reducido, musculos_primarios: [cuadriceps, gluteos], musculos_secundarios: [isquiotibiales, aductores]}
+
+  # --- peso muerto ---
+  - {id: Barbell_Deadlift, nombre_es: Peso muerto convencional, patron: bisagra, mecanica: compuesto, familia_sustitucion: peso_muerto, implemento: barra, carga_axial: true, agarre: pesado, musculos_primarios: [gluteos, isquiotibiales, lumbares], musculos_secundarios: [cuadriceps, dorsales, trapecio, espalda_media, antebrazos]}
+  - {id: Sumo_Deadlift, nombre_es: Peso muerto sumo, patron: bisagra, mecanica: compuesto, familia_sustitucion: peso_muerto, implemento: barra, carga_axial: true, agarre: pesado, musculos_primarios: [gluteos, aductores, cuadriceps], musculos_secundarios: [isquiotibiales, lumbares, trapecio, espalda_media, antebrazos]}
+  - {id: Trap_Bar_Deadlift, nombre_es: Peso muerto con barra hexagonal, patron: bisagra, mecanica: compuesto, familia_sustitucion: peso_muerto, implemento: otro, carga_axial: true, agarre: pesado, rango_movimiento: reducido, musculos_primarios: [cuadriceps, gluteos], musculos_secundarios: [isquiotibiales, lumbares, trapecio, antebrazos]}
+
+  # --- peso muerto rumano: isquios alargados bajo carga (evidencia indirecta, Pedrosa 2026) ---
+  - {id: Romanian_Deadlift, nombre_es: Peso muerto rumano, patron: bisagra, mecanica: compuesto, familia_sustitucion: peso_muerto_rumano, implemento: barra, carga_axial: true, agarre: pesado, posicion_estirada: true, musculos_primarios: [isquiotibiales, gluteos], musculos_secundarios: [lumbares, antebrazos, trapecio]}  # fuente: [Pedrosa 2026], indirecta
+  - {id: Stiff-Legged_Dumbbell_Deadlift, nombre_es: Peso muerto con piernas rígidas con mancuernas, patron: bisagra, mecanica: compuesto, familia_sustitucion: peso_muerto_rumano, implemento: mancuerna, carga_axial: true, agarre: pesado, posicion_estirada: true, musculos_primarios: [isquiotibiales, gluteos], musculos_secundarios: [lumbares, antebrazos]}  # fuente: [Pedrosa 2026], indirecta
+
+  # --- puente de cadera ---
+  - {id: Barbell_Hip_Thrust, nombre_es: Hip thrust con barra, patron: bisagra, mecanica: compuesto, familia_sustitucion: puente_cadera, implemento: barra, musculos_primarios: [gluteos], musculos_secundarios: [isquiotibiales, cuadriceps, aductores]}
+  - {id: Single_Leg_Glute_Bridge, nombre_es: Puente de glúteo a una pierna, patron: bisagra, mecanica: aislamiento, familia_sustitucion: puente_cadera, implemento: peso_corporal, lateralidad: unilateral, rango_movimiento: reducido, musculos_primarios: [gluteos], musculos_secundarios: [isquiotibiales]}
+
+  # --- press horizontal ---
+  - {id: Barbell_Bench_Press_-_Medium_Grip, nombre_es: Press de banca plano con barra, patron: empuje_horizontal, mecanica: compuesto, familia_sustitucion: press_horizontal, implemento: barra, musculos_primarios: [pecho], musculos_secundarios: [triceps, hombros]}
+  - {id: Dumbbell_Bench_Press, nombre_es: Press de banca con mancuernas, patron: empuje_horizontal, mecanica: compuesto, familia_sustitucion: press_horizontal, implemento: mancuerna, musculos_primarios: [pecho], musculos_secundarios: [triceps, hombros]}
+  - {id: Machine_Bench_Press, nombre_es: Press de pecho en máquina, patron: empuje_horizontal, mecanica: compuesto, familia_sustitucion: press_horizontal, implemento: maquina, rango_movimiento: reducido, musculos_primarios: [pecho], musculos_secundarios: [triceps, hombros]}
+  - {id: Pushups, nombre_es: Flexiones, patron: empuje_horizontal, mecanica: compuesto, familia_sustitucion: press_horizontal, implemento: peso_corporal, musculos_primarios: [pecho], musculos_secundarios: [triceps, hombros, abdominales]}
+  - {id: Barbell_Incline_Bench_Press_-_Medium_Grip, nombre_es: Press inclinado con barra, patron: empuje_horizontal, mecanica: compuesto, familia_sustitucion: press_inclinado, implemento: barra, musculos_primarios: [pecho], musculos_secundarios: [hombros, triceps]}
+  - {id: Incline_Dumbbell_Press, nombre_es: Press inclinado con mancuernas, patron: empuje_horizontal, mecanica: compuesto, familia_sustitucion: press_inclinado, implemento: mancuerna, musculos_primarios: [pecho], musculos_secundarios: [hombros, triceps]}
+  - {id: Dips_-_Chest_Version, nombre_es: Fondos en paralelas (pecho), patron: empuje_horizontal, mecanica: compuesto, familia_sustitucion: fondos, implemento: peso_corporal, musculos_primarios: [pecho], musculos_secundarios: [triceps, hombros]}
+  - {id: Dips_-_Triceps_Version, nombre_es: Fondos en paralelas (tríceps), patron: empuje_horizontal, mecanica: compuesto, familia_sustitucion: fondos, implemento: peso_corporal, musculos_primarios: [triceps], musculos_secundarios: [pecho, hombros]}
+
+  # --- press vertical ---
+  - {id: Standing_Military_Press, nombre_es: Press militar de pie con barra, patron: empuje_vertical, mecanica: compuesto, familia_sustitucion: press_vertical, implemento: barra, carga_axial: true, por_encima_cabeza: true, musculos_primarios: [hombros], musculos_secundarios: [triceps, trapecio, abdominales]}
+  - {id: Seated_Dumbbell_Press, nombre_es: Press de hombros sentado con mancuernas, patron: empuje_vertical, mecanica: compuesto, familia_sustitucion: press_vertical, implemento: mancuerna, por_encima_cabeza: true, musculos_primarios: [hombros], musculos_secundarios: [triceps]}
+  - {id: Dumbbell_Shoulder_Press, nombre_es: Press de hombros con mancuernas, patron: empuje_vertical, mecanica: compuesto, familia_sustitucion: press_vertical, implemento: mancuerna, carga_axial: true, por_encima_cabeza: true, musculos_primarios: [hombros], musculos_secundarios: [triceps, trapecio]}
+  - {id: Leverage_Shoulder_Press, nombre_es: Press de hombros en máquina, patron: empuje_vertical, mecanica: compuesto, familia_sustitucion: press_vertical, implemento: maquina, por_encima_cabeza: true, rango_movimiento: reducido, musculos_primarios: [hombros], musculos_secundarios: [triceps]}
+
+  # --- tracción vertical ---
+  - {id: Pullups, nombre_es: Dominadas (agarre prono), patron: traccion_vertical, mecanica: compuesto, familia_sustitucion: traccion_vertical, implemento: peso_corporal, agarre: pesado, por_encima_cabeza: true, musculos_primarios: [dorsales], musculos_secundarios: [biceps, espalda_media, antebrazos]}
+  - {id: Chin-Up, nombre_es: Dominadas supinas, patron: traccion_vertical, mecanica: compuesto, familia_sustitucion: traccion_vertical, implemento: peso_corporal, agarre: pesado, por_encima_cabeza: true, musculos_primarios: [dorsales, biceps], musculos_secundarios: [espalda_media, antebrazos]}
+  - {id: Wide-Grip_Lat_Pulldown, nombre_es: Jalón al pecho con agarre ancho, patron: traccion_vertical, mecanica: compuesto, familia_sustitucion: traccion_vertical, implemento: polea, agarre: ligero, por_encima_cabeza: true, musculos_primarios: [dorsales], musculos_secundarios: [biceps, espalda_media, hombros]}
+  - {id: Underhand_Cable_Pulldowns, nombre_es: Jalón con agarre supino, patron: traccion_vertical, mecanica: compuesto, familia_sustitucion: traccion_vertical, implemento: polea, agarre: ligero, por_encima_cabeza: true, musculos_primarios: [dorsales, biceps], musculos_secundarios: [espalda_media]}
+
+  # --- tracción horizontal ---
+  - {id: Bent_Over_Barbell_Row, nombre_es: Remo con barra inclinado, patron: traccion_horizontal, mecanica: compuesto, familia_sustitucion: traccion_horizontal, implemento: barra, carga_axial: true, agarre: ligero, musculos_primarios: [espalda_media, dorsales], musculos_secundarios: [biceps, hombros, lumbares], regiones: [codo, hombro, columna_lumbar]}  # en bisagra: carga la columna
+  - {id: Seated_Cable_Rows, nombre_es: Remo sentado en polea, patron: traccion_horizontal, mecanica: compuesto, familia_sustitucion: traccion_horizontal, implemento: polea, agarre: ligero, musculos_primarios: [espalda_media, dorsales], musculos_secundarios: [biceps, hombros]}
+  - {id: One-Arm_Dumbbell_Row, nombre_es: Remo a una mano con mancuerna, patron: traccion_horizontal, mecanica: compuesto, familia_sustitucion: traccion_horizontal, implemento: mancuerna, agarre: ligero, lateralidad: unilateral, musculos_primarios: [espalda_media, dorsales], musculos_secundarios: [biceps, hombros]}
+  - {id: Leverage_Iso_Row, nombre_es: Remo en máquina con apoyo en el pecho, patron: traccion_horizontal, mecanica: compuesto, familia_sustitucion: traccion_horizontal, implemento: maquina, agarre: ligero, rango_movimiento: reducido, musculos_primarios: [dorsales, espalda_media], musculos_secundarios: [biceps]}
+
+  # --- deltoides posterior ---
+  - {id: Face_Pull, nombre_es: Face pull, patron: traccion_horizontal, mecanica: compuesto, familia_sustitucion: deltoide_posterior, implemento: polea, agarre: ligero, musculos_primarios: [hombros], musculos_secundarios: [espalda_media, trapecio]}
+  - {id: Reverse_Machine_Flyes, nombre_es: Pájaros en máquina (deltoides posterior), patron: traccion_horizontal, mecanica: aislamiento, familia_sustitucion: deltoide_posterior, implemento: maquina, rango_movimiento: reducido, musculos_primarios: [hombros], musculos_secundarios: [espalda_media]}
+
+  # --- elevaciones laterales ---
+  - {id: Side_Lateral_Raise, nombre_es: Elevaciones laterales con mancuernas, patron: aislamiento_brazo, mecanica: aislamiento, familia_sustitucion: elevacion_lateral, implemento: mancuerna, musculos_primarios: [hombros], musculos_secundarios: [trapecio]}
+  - {id: Cable_Seated_Lateral_Raise, nombre_es: Elevaciones laterales sentado en polea, patron: aislamiento_brazo, mecanica: aislamiento, familia_sustitucion: elevacion_lateral, implemento: polea, musculos_primarios: [hombros], musculos_secundarios: [trapecio]}
+
+  # --- aperturas ---
+  - {id: Dumbbell_Flyes, nombre_es: Aperturas con mancuernas, patron: empuje_horizontal, mecanica: aislamiento, familia_sustitucion: aperturas, implemento: mancuerna, posicion_estirada: true, musculos_primarios: [pecho], musculos_secundarios: [hombros]}  # fuente: [Pedrosa 2026], indirecta: el par externo máximo está con los brazos abiertos
+  - {id: Cable_Crossover, nombre_es: Cruce de poleas, patron: empuje_horizontal, mecanica: aislamiento, familia_sustitucion: aperturas, implemento: polea, musculos_primarios: [pecho], musculos_secundarios: [hombros]}
+  - {id: Butterfly, nombre_es: Aperturas en máquina (pec deck), patron: empuje_horizontal, mecanica: aislamiento, familia_sustitucion: aperturas, implemento: maquina, rango_movimiento: reducido, musculos_primarios: [pecho], musculos_secundarios: [hombros]}
+
+  # --- cuádriceps: la extensión trabaja el recto femoral más que la sentadilla [Kassiano 2026], pero sentado
+  #     (cadera flexionada) el recto femoral está ACORTADO: no es entrenamiento en posición estirada ---
+  - {id: Leg_Extensions, nombre_es: Extensión de cuádriceps en máquina, patron: aislamiento_pierna, mecanica: aislamiento, familia_sustitucion: extension_cuadriceps, implemento: maquina, musculos_primarios: [cuadriceps], musculos_secundarios: []}
+  - {id: Single-Leg_Leg_Extension, nombre_es: Extensión de cuádriceps a una pierna, patron: aislamiento_pierna, mecanica: aislamiento, familia_sustitucion: extension_cuadriceps, implemento: maquina, lateralidad: unilateral, musculos_primarios: [cuadriceps], musculos_secundarios: []}
+
+  # --- curl femoral ---
+  - {id: Seated_Leg_Curl, nombre_es: Curl femoral sentado, patron: aislamiento_pierna, mecanica: aislamiento, familia_sustitucion: curl_femoral, implemento: maquina, posicion_estirada: true, musculos_primarios: [isquiotibiales], musculos_secundarios: [gemelos]}  # fuente: [Maeo 2021], sentado (cadera flexionada) > tumbado
+  - {id: Lying_Leg_Curls, nombre_es: Curl femoral tumbado, patron: aislamiento_pierna, mecanica: aislamiento, familia_sustitucion: curl_femoral, implemento: maquina, musculos_primarios: [isquiotibiales], musculos_secundarios: [gemelos]}
+  - {id: Glute_Ham_Raise, nombre_es: Elevación glúteo-isquio (GHR), patron: aislamiento_pierna, mecanica: compuesto, familia_sustitucion: curl_femoral, implemento: maquina, agarre: ninguno, musculos_primarios: [isquiotibiales], musculos_secundarios: [gluteos, gemelos, lumbares], regiones: [cadera, rodilla]}
+
+  # --- gemelo ---
+  - {id: Standing_Calf_Raises, nombre_es: Elevación de talones de pie en máquina, patron: aislamiento_pierna, mecanica: aislamiento, familia_sustitucion: gemelo, implemento: maquina, carga_axial: true, posicion_estirada: true, musculos_primarios: [gemelos], musculos_secundarios: []}  # fuente: [Maeo 2023b], de pie (rodilla extendida) > sentado
+  - {id: Seated_Calf_Raise, nombre_es: Elevación de talones sentado, patron: aislamiento_pierna, mecanica: aislamiento, familia_sustitucion: gemelo, implemento: maquina, musculos_primarios: [gemelos], musculos_secundarios: []}
+  - {id: Standing_Dumbbell_Calf_Raise, nombre_es: Elevación de talones de pie con mancuernas, patron: aislamiento_pierna, mecanica: aislamiento, familia_sustitucion: gemelo, implemento: mancuerna, carga_axial: true, agarre: ligero, posicion_estirada: true, musculos_primarios: [gemelos], musculos_secundarios: []}  # fuente: [Maeo 2023b], misma postura de rodilla extendida
+
+  # --- bíceps ---
+  - {id: Barbell_Curl, nombre_es: Curl con barra, patron: aislamiento_brazo, mecanica: aislamiento, familia_sustitucion: curl_biceps, implemento: barra, agarre: ligero, musculos_primarios: [biceps], musculos_secundarios: [antebrazos]}
+  - {id: Incline_Dumbbell_Curl, nombre_es: Curl inclinado con mancuernas, patron: aislamiento_brazo, mecanica: aislamiento, familia_sustitucion: curl_biceps, implemento: mancuerna, agarre: ligero, posicion_estirada: true, musculos_primarios: [biceps], musculos_secundarios: [antebrazos]}  # fuente: [Curl 2026], hombro extendido > predicador (diferencia pequeña-moderada)
+  - {id: Hammer_Curls, nombre_es: Curl martillo, patron: aislamiento_brazo, mecanica: aislamiento, familia_sustitucion: curl_biceps, implemento: mancuerna, agarre: ligero, musculos_primarios: [biceps], musculos_secundarios: [antebrazos]}
+
+  # --- tríceps ---
+  - {id: Standing_Dumbbell_Triceps_Extension, nombre_es: Extensión de tríceps por encima de la cabeza con mancuerna, patron: aislamiento_brazo, mecanica: aislamiento, familia_sustitucion: triceps_encima_cabeza, implemento: mancuerna, por_encima_cabeza: true, posicion_estirada: true, musculos_primarios: [triceps], musculos_secundarios: []}  # fuente: [Maeo 2023a], con polea; la mancuerna es la misma postura
+  - {id: Triceps_Overhead_Extension_with_Rope, nombre_es: Extensión de tríceps por encima de la cabeza en polea con cuerda, patron: aislamiento_brazo, mecanica: aislamiento, familia_sustitucion: triceps_encima_cabeza, implemento: polea, por_encima_cabeza: true, posicion_estirada: true, musculos_primarios: [triceps], musculos_secundarios: []}  # fuente: [Maeo 2023a]
+  - {id: Triceps_Pushdown, nombre_es: Jalón de tríceps en polea, patron: aislamiento_brazo, mecanica: aislamiento, familia_sustitucion: extension_triceps, implemento: polea, musculos_primarios: [triceps], musculos_secundarios: []}
+  - {id: EZ-Bar_Skullcrusher, nombre_es: Press francés con barra EZ, patron: aislamiento_brazo, mecanica: aislamiento, familia_sustitucion: extension_triceps, implemento: barra_ez, agarre: ligero, musculos_primarios: [triceps], musculos_secundarios: [antebrazos]}
+  - {id: Machine_Triceps_Extension, nombre_es: Extensión de tríceps en máquina, patron: aislamiento_brazo, mecanica: aislamiento, familia_sustitucion: extension_triceps, implemento: maquina, musculos_primarios: [triceps], musculos_secundarios: []}
+
+  # --- core ---
+  - {id: Plank, nombre_es: Plancha, patron: core, mecanica: aislamiento, familia_sustitucion: core_anti_extension, implemento: peso_corporal, musculos_primarios: [abdominales], musculos_secundarios: [hombros]}
+  - {id: Ab_Roller, nombre_es: Rueda abdominal, patron: core, mecanica: compuesto, familia_sustitucion: core_anti_extension, implemento: otro, agarre: ligero, musculos_primarios: [abdominales], musculos_secundarios: [hombros, dorsales]}
+  - {id: Hanging_Leg_Raise, nombre_es: Elevación de piernas colgado, patron: core, mecanica: aislamiento, familia_sustitucion: core_flexion, implemento: peso_corporal, agarre: pesado, por_encima_cabeza: true, musculos_primarios: [abdominales], musculos_secundarios: [antebrazos]}
+  - {id: Cable_Crunch, nombre_es: Crunch en polea, patron: core, mecanica: aislamiento, familia_sustitucion: core_flexion, implemento: polea, musculos_primarios: [abdominales], musculos_secundarios: []}
+
+  # --- acarreo ---
+  - {id: Farmers_Walk, nombre_es: Paseo del granjero, patron: acarreo, mecanica: compuesto, familia_sustitucion: acarreo, implemento: otro, carga_axial: true, agarre: pesado, apto_fuerza: true, musculos_primarios: [antebrazos, trapecio], musculos_secundarios: [abdominales, gluteos, isquiotibiales, cuadriceps, lumbares]}
+  - {id: Rickshaw_Carry, nombre_es: Paseo con barra rickshaw, patron: acarreo, mecanica: compuesto, familia_sustitucion: acarreo, implemento: otro, carga_axial: true, agarre: pesado, apto_fuerza: true, musculos_primarios: [antebrazos, trapecio], musculos_secundarios: [abdominales, gluteos, cuadriceps, lumbares]}
+
+# Ejercicios que pedía el encargo y NO están en free-exercise-db (no se inventan).
+faltan:
+  - Sentadilla búlgara (no hay ninguna con el pie trasero elevado; la sentadilla dividida con mancuernas, Split_Squat_with_Dumbbells, es la más cercana y está en la familia «zancada»)

@@ -67,6 +67,47 @@ jobs:
         if: steps.codigo.outputs.existe == 'true'
         run: ./mvnw -B verify
 
+  database:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: database/catalogo
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Comprobar si hay código
+        id: codigo
+        working-directory: .
+        run: |
+          if [ -f database/catalogo/pyproject.toml ]; then
+            echo "existe=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "existe=false" >> "$GITHUB_OUTPUT"
+            echo "database: sin código todavía" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/setup-python@v7
+        if: steps.codigo.outputs.existe == 'true'
+        with:
+          python-version: '3.12'
+      - name: Instalar dependencias
+        if: steps.codigo.outputs.existe == 'true'
+        run: pip install -e ".[dev]"
+      - name: Lint
+        if: steps.codigo.outputs.existe == 'true'
+        run: ruff check .
+      - name: Tipos
+        if: steps.codigo.outputs.existe == 'true'
+        run: mypy --strict .
+      - name: Tests con cobertura
+        if: steps.codigo.outputs.existe == 'true'
+        run: pytest --cov
+      - name: La semilla SQL commiteada coincide con la generada
+        if: steps.codigo.outputs.existe == 'true'
+        run: |
+          python generar.py
+          git diff --exit-code -- ../../backend/src/main/resources/db/migration/R__catalogo_semilla.sql
+
   vision-service:
     runs-on: ubuntu-latest
     defaults:

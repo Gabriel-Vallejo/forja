@@ -1,0 +1,15 @@
+# Los valores salen de las variables MYSQL_* del .env (ver .env.example). Nada de secretos aquí.
+spring:
+  application:
+    name: forja-backend
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PUERTO:3308}/${MYSQL_DATABASE}
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      # El esquema lo manda Flyway; Hibernate solo comprueba que las entidades casan.
+      ddl-auto: validate
+  flyway:
+    enabled: true

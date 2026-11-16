@@ -18,3 +18,6 @@
 
 # Vault de Obsidian: repo privado aparte (forja-vault), nunca en este
 vault
+
+# Caché de la descarga de free-exercise-db (database/catalogo/descargar.py)
+database/catalogo/.cache/
