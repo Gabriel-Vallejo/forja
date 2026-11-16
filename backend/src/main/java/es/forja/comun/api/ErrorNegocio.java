@@ -30,6 +30,15 @@ public class ErrorNegocio extends RuntimeException {
 		return new ErrorNegocio(HttpStatus.CONFLICT, mensaje);
 	}
 
+	/** 422: la petición está bien formada, pero apunta a algo que no se puede usar (una serie o un plan ajenos). */
+	public static ErrorNegocio noProcesable(String mensaje) {
+		return new ErrorNegocio(HttpStatus.UNPROCESSABLE_CONTENT, mensaje);
+	}
+
+	public static ErrorNegocio demasiadoGrande(String mensaje) {
+		return new ErrorNegocio(HttpStatus.CONTENT_TOO_LARGE, mensaje);
+	}
+
 	public static ErrorNegocio noAutenticado(String mensaje) {
 		return new ErrorNegocio(HttpStatus.UNAUTHORIZED, mensaje);
 	}

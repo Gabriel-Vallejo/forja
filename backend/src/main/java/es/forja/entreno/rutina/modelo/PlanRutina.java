@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Plan semanal y su traza (ADR 0002 §5 y enmiendas). No se guarda: el plan versionado es del ADR 0008.
+ * Plan semanal y su traza (ADR 0002 §5 y enmiendas). Se guarda como versión inmutable (ADR 0008), sin la parte de la
+ * traza que cita las limitaciones del usuario.
  *
  * @param estado {@value #OPTIMO} o {@value #FACTIBLE}
  * @param objetivo valor del objetivo que maximiza el solver

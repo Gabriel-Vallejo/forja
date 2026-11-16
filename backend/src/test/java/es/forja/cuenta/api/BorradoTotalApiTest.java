@@ -11,10 +11,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
-import es.forja.restricciones.api.SoporteLimitaciones;
+import es.forja.sesiones.api.SoporteSesiones;
 
 /** Criterio de la v0.1 (PRD, ADR 0004 §6): al borrar la cuenta no queda ninguna fila suya en ninguna tabla. */
-class BorradoTotalApiTest extends SoporteLimitaciones {
+class BorradoTotalApiTest extends SoporteSesiones {
 
 	private static final List<String> CONSENTIMIENTOS = List.of("fotos_cuerpo", "medidas_salud", "lesiones",
 			"limitaciones", "suplementos");
@@ -54,6 +54,13 @@ class BorradoTotalApiTest extends SoporteLimitaciones {
 		}
 		crearRestriccion(movil, restriccion("rodilla", "sentadilla", "sin_carga_axial"));
 		crearRestriccion(movil, restriccion("hombro", "empuje_vertical", "sin_por_encima_cabeza"));
+		// Plan versionado y una sesión con una serie con dolor cifrado: las tablas de la v4 también se vacían.
+		String plan = generarPlan(movil);
+		Objetivo objetivo = ejercicioConIncremento(movil);
+		Map<String, Object> serie = serie(java.util.UUID.randomUUID(), objetivo.idExterno(), 0, "50", 8, 2);
+		serie.put("dolor", 3);
+		guardarSesion(movil, java.util.UUID.randomUUID(),
+				sesion(plan, java.time.Instant.now().minusSeconds(60), List.of(serie))).andExpect(status().isOk());
 		long usuarioId = contar("SELECT id FROM usuario WHERE correo = ?", correo);
 		List<Long> dispositivos = jdbc.sql("SELECT id FROM dispositivo WHERE usuario_id = :u").param("u", usuarioId)
 				.query(Long.class).list();
@@ -62,6 +69,10 @@ class BorradoTotalApiTest extends SoporteLimitaciones {
 				"restriccion");
 		assertThat(antes.get("consentimiento")).isEqualTo(CONSENTIMIENTOS.size());
 		assertThat(antes.get("restriccion")).isEqualTo(2);
+		assertThat(antes).containsKeys("plan_version", "sesion");
+		assertThat(seriesGuardadas(correo)).isEqualTo(1);
+		assertThat(contar("SELECT COUNT(*) FROM ejercicio_plan ep JOIN plan_version p ON p.id = ep.plan_version_id "
+				+ "WHERE p.usuario_id = ?", usuarioId)).isPositive();
 		assertThat(antes.values()).allSatisfy(n -> assertThat(n).isPositive());
 
 		mvc.perform(delete("/api/v1/cuenta").header("Authorization", movil.cabecera())
@@ -71,5 +82,10 @@ class BorradoTotalApiTest extends SoporteLimitaciones {
 		Map<String, Long> despues = filasDelUsuario(usuarioId, dispositivos);
 		assertThat(despues.keySet()).isEqualTo(antes.keySet());
 		assertThat(despues.values()).allSatisfy(n -> assertThat(n).isZero());
+		// Las tablas sin usuario_id propio (cuelgan de sesion y plan_version) quedan sin filas de ese usuario.
+		assertThat(contar("SELECT COUNT(*) FROM serie_realizada s LEFT JOIN sesion x ON x.uuid = s.sesion_uuid "
+				+ "WHERE x.uuid IS NULL")).isZero();
+		assertThat(contar("SELECT COUNT(*) FROM ejercicio_plan ep LEFT JOIN plan_version p "
+				+ "ON p.id = ep.plan_version_id WHERE p.id IS NULL")).isZero();
 	}
 }

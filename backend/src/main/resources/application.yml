@@ -55,6 +55,21 @@ forja:
       tiempo-determinista-alternativas: 0.2 # cada re-resolución del «por qué este y no aquel»
       workers: 1                 # con 1 la búsqueda es determinista sin intercalar, y en este modelo va más rápido
       semilla: 42
+  # Plan versionado: objetivos por defecto de cada ejercicio y regla de la siguiente sesión (ADR 0008 §5).
+  progresion:
+    compuestos: {repeticiones-min: 6, repeticiones-max: 10, rir: 2}
+    aislados: {repeticiones-min: 10, repeticiones-max: 15, rir: 1}
+    # kg que sube la carga si se completa el rango alto al RIR objetivo en todas las series de trabajo.
+    # Con peso corporal es 0: se progresa por repeticiones. Barra EZ y polea, como barra y máquina; el resto, 0.
+    incrementos-kg:
+      barra: 2.5
+      barra_ez: 2.5
+      mancuerna: 2.0
+      kettlebell: 2.0
+      maquina: 5.0
+      polea: 5.0
+      peso_corporal: 0
+    incremento-por-defecto-kg: 0
 spring:
   application:
     name: forja-backend

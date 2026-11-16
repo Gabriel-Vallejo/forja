@@ -21,7 +21,7 @@ import es.forja.restricciones.servicio.ServicioEfecto;
 import es.forja.restricciones.servicio.ServicioRestricciones;
 
 /**
- * Genera la rutina del usuario autenticado. No guarda nada: el plan versionado es del ADR 0008. Las restricciones
+ * Genera la rutina del usuario autenticado. No guarda nada: de guardarla como versión se encarga {@code ServicioPlan} (ADR 0008). Las restricciones
  * solo entran si el usuario tiene el consentimiento de limitaciones (ADR 0004).
  */
 @Service
