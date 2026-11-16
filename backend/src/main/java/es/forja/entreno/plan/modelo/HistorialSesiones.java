@@ -6,8 +6,8 @@ import java.util.List;
 public interface HistorialSesiones {
 
 	/**
-	 * Series de trabajo vigentes del ejercicio en la sesión más reciente del usuario (por {@code realizada_en})
-	 * que lo incluya; vacía si nunca lo ha hecho.
+	 * Las sesiones del usuario que incluyen el ejercicio, con sus series de trabajo vigentes (sin calentamiento, sin
+	 * las corregidas ni las anuladas). Vacía si nunca lo ha hecho. El orden de la lista no importa.
 	 */
-	List<SerieTrabajo> ultimasSeriesDeTrabajo(long usuarioId, long ejercicioId);
+	List<SesionEjercicio> sesionesDeTrabajo(long usuarioId, long ejercicioId);
 }

@@ -22,8 +22,13 @@ public final class ReglaProgresion {
 	/** Carga de la próxima vez a partir de las series de trabajo vigentes de la última sesión. */
 	public static Optional<BigDecimal> siguienteCarga(List<SerieTrabajo> series, int repeticionesMax,
 			int rirObjetivo, BigDecimal incrementoKg) {
-		boolean cumplida = series.stream().allMatch(s -> s.repeticiones() >= repeticionesMax && s.rir() != null
-				&& s.rir() <= rirObjetivo);
+		boolean cumplida = cumplida(series, repeticionesMax, rirObjetivo);
 		return cargaBase(series).map(base -> cumplida ? base.add(incrementoKg) : base);
+	}
+
+	/** Todas las series llegaron a {@code repeticionesMax} con {@code rirObjetivo} o menos (y hubo alguna). */
+	public static boolean cumplida(List<SerieTrabajo> series, int repeticionesMax, int rirObjetivo) {
+		return !series.isEmpty() && series.stream().allMatch(
+				s -> s.repeticiones() >= repeticionesMax && s.rir() != null && s.rir() <= rirObjetivo);
 	}
 }

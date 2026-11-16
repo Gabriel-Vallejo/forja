@@ -70,6 +70,17 @@ forja:
       polea: 5.0
       peso_corporal: 0
     incremento-por-defecto-kg: 0
+    # RF-26: sin mejorar el e1RM durante `semanas` (con al menos `sesiones-minimas`), la siguiente sesión es un deload.
+    deload:
+      semanas: 3
+      sesiones-minimas: 3
+      mejora-minima-porcentaje: 1.0  # el mejor e1RM de la ventana tiene que superar en más de esto al anterior
+      factor-carga: 0.9
+      factor-series: 0.5             # la mitad, redondeando hacia arriba
+      redondeo-kg: 0.5
+    e1rm-repeticiones-maximas: 12    # Epley no es fiable por encima: esas series no cuentan
+    peso-corporal-tope-repeticiones: 20
+    series-por-defecto: 3
 spring:
   application:
     name: forja-backend

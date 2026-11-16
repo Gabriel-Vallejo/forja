@@ -2,8 +2,10 @@ package es.forja.sesiones.repositorio;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import es.forja.comun.repositorio.Conversiones;
 import es.forja.entreno.plan.modelo.HistorialSesiones;
 import es.forja.entreno.plan.modelo.SerieTrabajo;
+import es.forja.entreno.plan.modelo.SesionEjercicio;
 
 /** Acceso a {@code sesion}, {@code serie_realizada} y la vista {@code serie_vigente}. Solo ve el dolor cifrado. */
 @Repository
@@ -174,22 +177,24 @@ public class SesionRepositorio implements HistorialSesiones {
 				WHERE x.usuario_id = :usuario AND s.dolor IS NOT NULL""").param("usuario", usuarioId).update();
 	}
 
+	/** Todo el historial del ejercicio. shortcut: sin tope; si un usuario acumula años de sesiones, limitar a los últimos meses. */
 	@Override
-	public List<SerieTrabajo> ultimasSeriesDeTrabajo(long usuarioId, long ejercicioId) {
-		Optional<byte[]> sesion = jdbc.sql("""
-				SELECT x.uuid FROM sesion x JOIN serie_vigente s ON s.sesion_uuid = x.uuid
+	public List<SesionEjercicio> sesionesDeTrabajo(long usuarioId, long ejercicioId) {
+		Map<UUID, List<SerieTrabajo>> series = new LinkedHashMap<>();
+		Map<UUID, Instant> fechas = new HashMap<>();
+		jdbc.sql("""
+				SELECT x.uuid, x.realizada_en, s.peso_kg, s.repeticiones, s.rir
+				FROM sesion x JOIN serie_vigente s ON s.sesion_uuid = x.uuid
 				WHERE x.usuario_id = :usuario AND s.ejercicio_id = :ejercicio AND s.calentamiento = FALSE
-				ORDER BY x.realizada_en DESC, x.uuid DESC LIMIT 1""").param("usuario", usuarioId)
-				.param("ejercicio", ejercicioId).query(byte[].class).optional();
-		if (sesion.isEmpty()) {
-			return List.of();
-		}
-		return jdbc.sql("""
-				SELECT peso_kg, repeticiones, rir FROM serie_vigente
-				WHERE sesion_uuid = :sesion AND ejercicio_id = :ejercicio AND calentamiento = FALSE
-				ORDER BY orden, uuid""").param("sesion", sesion.get()).param("ejercicio", ejercicioId)
-				.query((rs, n) -> new SerieTrabajo(rs.getBigDecimal("peso_kg"), rs.getInt("repeticiones"),
-						entero(rs, "rir")))
-				.list();
+				ORDER BY x.realizada_en, x.uuid, s.orden, s.uuid""").param("usuario", usuarioId)
+				.param("ejercicio", ejercicioId).query((rs, n) -> {
+					UUID sesion = Conversiones.uuid(rs, "uuid");
+					fechas.put(sesion, Conversiones.instante(rs, "realizada_en"));
+					series.computeIfAbsent(sesion, k -> new ArrayList<>()).add(new SerieTrabajo(
+							rs.getBigDecimal("peso_kg"), rs.getInt("repeticiones"), entero(rs, "rir")));
+					return 0;
+				}).list();
+		return series.entrySet().stream()
+				.map(e -> new SesionEjercicio(e.getKey(), fechas.get(e.getKey()), e.getValue())).toList();
 	}
 }

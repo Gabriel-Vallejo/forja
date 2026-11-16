@@ -22,10 +22,15 @@ public record PlanActual(UUID uuid, Instant creadoEn, String estado, List<DiaEnt
 	}
 
 	/**
+	 * @param estado en qué punto de la progresión está el ejercicio (RF-26)
+	 * @param series las del plan, o las del deload si toca
+	 * @param repeticionesMin y {@code repeticionesMax}: el rango objetivo; con peso corporal sube al cumplir la regla
 	 * @param cargaKg objetivo de carga de la próxima sesión; nula hasta que el usuario entrene el ejercicio
+	 * @param motivo qué toca y por qué, en español
 	 * @param incrementoKg lo que sube la carga si se cumple el rango alto al RIR objetivo; 0 con peso corporal
 	 */
 	public record ObjetivoEjercicio(String idExterno, String nombre, int orden, int series, int repeticionesMin,
-			int repeticionesMax, int rirObjetivo, BigDecimal cargaKg, BigDecimal incrementoKg) {
+			int repeticionesMax, int rirObjetivo, BigDecimal cargaKg, BigDecimal incrementoKg, Estado estado,
+			String motivo) {
 	}
 }
