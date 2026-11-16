@@ -8,8 +8,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import es.forja.cuenta.servicio.ErrorCuenta;
 
-/** Traduce los fallos de negocio de la cuenta a {@code ProblemDetail}, con {@code Retry-After} en los 429. */
-@RestControllerAdvice(basePackageClasses = ManejadorErroresCuenta.class)
+/**
+ * Traduce los fallos de negocio de la cuenta a {@code ProblemDetail}, con {@code Retry-After} en los 429. Vale para
+ * toda la API: el límite de intentos también lo usan otros dominios (la generación de la rutina).
+ */
+@RestControllerAdvice
 public class ManejadorErroresCuenta {
 
 	@ExceptionHandler(ErrorCuenta.class)

@@ -21,6 +21,9 @@
 		<!-- Versiones fijadas de lo que no gestiona Spring Boot (ADR 0009) -->
 		<bouncycastle.version>1.87</bouncycastle.version>
 		<bucket4j.version>8.22.0</bucket4j.version>
+		<ortools.version>9.15.6755</ortools.version>
+		<!-- Vacío por defecto: JaCoCo le añade su agente, y si se salta, surefire no recibe un @{argLine} sin resolver -->
+		<argLine></argLine>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -62,6 +65,12 @@
 			<groupId>com.bucket4j</groupId>
 			<artifactId>bucket4j_jdk17-core</artifactId>
 			<version>${bucket4j.version}</version>
+		</dependency>
+		<!-- Solver CP-SAT de la rutina (ADR 0002), con los nativos de cada plataforma. Licencia: Apache 2.0 -->
+		<dependency>
+			<groupId>com.google.ortools</groupId>
+			<artifactId>ortools-java</artifactId>
+			<version>${ortools.version}</version>
 		</dependency>
 
 		<dependency>
@@ -121,6 +130,14 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<!-- OR-Tools carga su nativo con System.load; sin esto, el JDK avisa (y en el futuro lo bloqueará) -->
+					<argLine>@{argLine} --enable-native-access=ALL-UNNAMED</argLine>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>

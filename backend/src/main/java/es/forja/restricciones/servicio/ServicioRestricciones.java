@@ -55,6 +55,14 @@ public class ServicioRestricciones {
 		return restricciones.deUsuario(usuarioId).stream().map(this::descifrar).toList();
 	}
 
+	/** Las que usa la rutina: las del usuario si tiene el consentimiento de limitaciones y, si no, ninguna. */
+	public List<Restriccion> paraLaRutina(UUID usuario) {
+		if (!consentimientos.tiene(usuario, TipoConsentimiento.LIMITACIONES)) {
+			return List.of();
+		}
+		return listar(usuario).stream().map(RestriccionGuardada::restriccion).toList();
+	}
+
 	@Transactional
 	public RestriccionGuardada crear(UUID usuario, RestriccionCodificada datos) {
 		long usuarioId = exigir(usuario);

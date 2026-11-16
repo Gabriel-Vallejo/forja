@@ -84,6 +84,11 @@ public class ServicioConsentimientos {
 		return usuarioId;
 	}
 
+	/** Si el consentimiento está vivo, sin fallar cuando no lo está. */
+	public boolean tiene(UUID usuario, TipoConsentimiento tipo) {
+		return consentimientos.vivo(idDe(usuario), tipo).isPresent();
+	}
+
 	private long idDe(UUID usuario) {
 		return usuarios.porUuid(usuario).orElseThrow(() -> ErrorNegocio.noAutenticado("La sesión ya no es válida."))
 				.id();

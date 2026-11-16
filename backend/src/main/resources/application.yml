@@ -13,6 +13,38 @@ forja:
     exigir-verificacion: ${FORJA_CUENTA_EXIGIR_VERIFICACION:true}
   contrasenas-filtradas: ${FORJA_CONTRASENAS_FILTRADAS:}
   origen-web: ${FORJA_ORIGEN_WEB:}
+  # Generador de la rutina con CP-SAT (ADR 0002). Los pesos y los rangos viven aquí, no en el código.
+  rutina:
+    pesos:
+      cobertura-prioritarios: 3   # por serie doble (primario 2, secundario 1) de un músculo prioritario
+      posicion-estirada: 1        # moderado: desempata a favor de la posición estirada sin añadir series (ADR 0007)
+      variedad: 10                # por cada día de más que se repite un ejercicio (más de 2)
+      fatiga: 1                   # por serie de básico pesado (compuesto con carga axial)
+      series: 2                   # por serie: sin él, el solver podría añadir series gratis
+      holgura-volumen: 100        # por serie doble que falta para el mínimo
+      holgura-frecuencia: 300     # por día que falta para la frecuencia mínima
+      movilidad: 0                # sin datos todavía (tests de movilidad)
+      palancas: 0                 # sin datos todavía (fase 2)
+    volumen:
+      # Heurística de entrenadores (RP), nivel H: ver docs/referencias.md.
+      minimo: 10
+      maximo: 20
+      musculos-con-minimo: [pecho, dorsales, espalda_media, hombros, cuadriceps, isquiotibiales, gluteos, biceps, triceps, gemelos]
+      por-musculo: {}
+    tiempos:
+      segundos-por-serie: 40
+      segundos-de-descanso: 90
+      segundos-de-transicion: 120
+    sesion:
+      series-minimas-por-ejercicio: 2
+      series-maximas-por-ejercicio: 5
+      ejercicios-minimos: 3
+      ejercicios-maximos: 8
+      maximo-por-patron: 2
+    solver:
+      tiempo-determinista: 2.0   # segundos «deterministas» de CP-SAT, no de reloj (ADR 0002, enmienda)
+      workers: 1                 # con 1 la búsqueda es determinista sin intercalar, y en este modelo va más rápido
+      semilla: 42
 spring:
   application:
     name: forja-backend

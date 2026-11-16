@@ -54,7 +54,9 @@ public class ServicioEfecto {
 		return decision instanceof Decision.Sustituido s ? porId.get(s.porIdExterno()) : null;
 	}
 
-	private List<EjercicioCandidato> catalogo() {
+	/** El catálogo entero visto por el filtro; también lo usa el generador de la rutina. */
+	@Transactional(readOnly = true)
+	public List<EjercicioCandidato> catalogo() {
 		List<EjercicioCandidato> cargado = catalogo;
 		if (cargado == null) {
 			// El adaptador necesita la sesión abierta: estamos dentro de la transacción de solo lectura.
