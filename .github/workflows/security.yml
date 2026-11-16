@@ -48,7 +48,7 @@ jobs:
       - name: Trivy sobre el repo (secretos y configuración)
         run: >
           docker run --rm -v "$PWD":/repo -w /repo aquasec/trivy:0.76.2
-          fs --scanners secret,misconfig --severity HIGH,CRITICAL --exit-code 1 .
+          fs --offline-scan --scanners secret,misconfig --severity HIGH,CRITICAL --exit-code 1 .
 
   codeql:
     # En repos privados CodeQL exige GitHub Advanced Security: solo corre si el repo es público.
