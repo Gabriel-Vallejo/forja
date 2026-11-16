@@ -10,6 +10,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import es.forja.comun.repositorio.Conversiones;
 import es.forja.cuenta.modelo.Usuario;
 
 @Repository

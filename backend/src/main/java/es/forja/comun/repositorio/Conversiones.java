@@ -1,4 +1,4 @@
-package es.forja.cuenta.repositorio;
+package es.forja.comun.repositorio;
 
 import java.nio.ByteBuffer;
 import java.sql.ResultSet;
@@ -9,33 +9,33 @@ import java.time.ZoneOffset;
 import java.util.UUID;
 
 /** Paso entre los tipos de Java y los de MySQL: UUID en BINARY(16), fechas en DATETIME(6) UTC. */
-final class Conversiones {
+public final class Conversiones {
 
 	private static final int BYTES_UUID = 16;
 
 	private Conversiones() {
 	}
 
-	static byte[] aBytes(UUID uuid) {
+	public static byte[] aBytes(UUID uuid) {
 		return ByteBuffer.allocate(BYTES_UUID).putLong(uuid.getMostSignificantBits())
 				.putLong(uuid.getLeastSignificantBits()).array();
 	}
 
-	static UUID aUuid(byte[] bytes) {
+	public static UUID aUuid(byte[] bytes) {
 		ByteBuffer buffer = ByteBuffer.wrap(bytes);
 		return new UUID(buffer.getLong(), buffer.getLong());
 	}
 
-	static LocalDateTime aSql(Instant instante) {
+	public static LocalDateTime aSql(Instant instante) {
 		return instante == null ? null : LocalDateTime.ofInstant(instante, ZoneOffset.UTC);
 	}
 
-	static Instant instante(ResultSet rs, String columna) throws SQLException {
+	public static Instant instante(ResultSet rs, String columna) throws SQLException {
 		LocalDateTime fecha = rs.getObject(columna, LocalDateTime.class);
 		return fecha == null ? null : fecha.toInstant(ZoneOffset.UTC);
 	}
 
-	static UUID uuid(ResultSet rs, String columna) throws SQLException {
+	public static UUID uuid(ResultSet rs, String columna) throws SQLException {
 		return aUuid(rs.getBytes(columna));
 	}
 }

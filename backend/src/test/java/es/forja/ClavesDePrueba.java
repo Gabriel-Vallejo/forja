@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Map;
 
@@ -26,6 +27,16 @@ public final class ClavesDePrueba implements ApplicationContextInitializer<Confi
 	public static final KeyPair ANTERIOR = generar();
 	/** La única contraseña de la lista de filtradas que se usa en los tests. */
 	public static final String CONTRASENA_FILTRADA = "contrasena-filtrada-de-prueba";
+
+	public static final String KID_CIFRADO = "cifrado-prueba";
+	/** 32 bytes al azar en cada ejecución, en base64. */
+	public static final String CLAVE_CIFRADO = Base64.getEncoder().encodeToString(bytesAlAzar());
+
+	private static byte[] bytesAlAzar() {
+		byte[] bytes = new byte[32];
+		new SecureRandom().nextBytes(bytes);
+		return bytes;
+	}
 
 	private static KeyPair generar() {
 		try {
@@ -60,6 +71,8 @@ public final class ClavesDePrueba implements ApplicationContextInitializer<Confi
 				"forja.jwt.clave-privada-actual", privadaBase64(ACTUAL),
 				"forja.jwt.kid-anterior", KID_ANTERIOR,
 				"forja.jwt.clave-publica-anterior", publicaBase64(ANTERIOR),
+				"forja.cifrado.kid-actual", KID_CIFRADO,
+				"forja.cifrado.clave-actual", CLAVE_CIFRADO,
 				"forja.contrasenas-filtradas", archivoDeFiltradas(),
 				"forja.origen-web", "https://forja.test")));
 	}

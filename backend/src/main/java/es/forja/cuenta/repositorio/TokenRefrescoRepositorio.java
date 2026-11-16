@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import es.forja.comun.repositorio.Conversiones;
 import es.forja.cuenta.modelo.TokenRefresco;
 
 @Repository

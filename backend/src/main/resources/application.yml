@@ -5,6 +5,10 @@ forja:
     clave-privada-actual: ${FORJA_JWT_CLAVE_PRIVADA_ACTUAL}
     kid-anterior: ${FORJA_JWT_KID_ANTERIOR:}
     clave-publica-anterior: ${FORJA_JWT_CLAVE_PUBLICA_ANTERIOR:}
+  cifrado:
+    kid-actual: ${FORJA_CIFRADO_KID_ACTUAL}
+    clave-actual: ${FORJA_CIFRADO_CLAVE_ACTUAL}
+    claves-anteriores: ${FORJA_CIFRADO_CLAVES_ANTERIORES:}
   cuenta:
     exigir-verificacion: ${FORJA_CUENTA_EXIGIR_VERIFICACION:true}
   contrasenas-filtradas: ${FORJA_CONTRASENAS_FILTRADAS:}

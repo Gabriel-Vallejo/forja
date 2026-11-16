@@ -23,4 +23,8 @@ public enum TipoRestriccion implements ConCodigo {
 		return descripcion;
 	}
 
+	public static TipoRestriccion desdeCodigo(String codigo) {
+		return ConCodigo.buscar(TipoRestriccion.class, codigo);
+	}
+
 }

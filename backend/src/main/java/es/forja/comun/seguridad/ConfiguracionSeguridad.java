@@ -71,7 +71,7 @@ public class ConfiguracionSeguridad {
 			origenes.add(origenWeb.strip());
 		}
 		cors.setAllowedOrigins(origenes);
-		cors.setAllowedMethods(List.of("GET", "POST", "DELETE", "OPTIONS"));
+		cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		cors.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 		cors.setMaxAge(SEGUNDOS_CACHE_CORS);
 		UrlBasedCorsConfigurationSource fuente = new UrlBasedCorsConfigurationSource();
