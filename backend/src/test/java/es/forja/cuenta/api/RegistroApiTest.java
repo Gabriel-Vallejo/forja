@@ -101,7 +101,9 @@ class RegistroApiTest extends ApiCuentaSoporte {
 		assertThat(duplicado.andReturn().getResponse().getContentAsString())
 				.isEqualTo(alta.andReturn().getResponse().getContentAsString());
 		assertThat(contar("SELECT COUNT(*) FROM usuario WHERE correo = ?", correo)).isEqualTo(1);
-		assertThat(buzon.total()).isEqualTo(correosTrasElAlta);
+		// Sin verificar, el duplicado manda un enlace de recuperación al dueño del buzón (y nada más).
+		assertThat(buzon.total()).isEqualTo(correosTrasElAlta + 1);
+		assertThat(buzon.ultimoToken(correo, "recuperacion")).isPresent();
 		// La cuenta original sigue con su contraseña y sus datos.
 		verificarCorreo(correo);
 		iniciarSesion(correo, "Pixel", null);

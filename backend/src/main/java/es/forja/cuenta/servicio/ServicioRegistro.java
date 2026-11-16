@@ -49,7 +49,7 @@ public class ServicioRegistro {
 	}
 
 	/**
-	 * Crea la cuenta. Si el correo ya existe no hace nada y el resultado es idéntico (también en tiempo,
+	 * Crea la cuenta. Si el correo ya existe el resultado es idéntico (también en tiempo,
 	 * porque la contraseña se codifica igualmente), para no revelar qué correos están registrados.
 	 * La fecha de nacimiento se valida aquí y se descarta: solo se guardan el año y {@code mayor_de_edad}.
 	 */
@@ -62,26 +62,42 @@ public class ServicioRegistro {
 			throw ErrorCuenta.datosNoValidos("Forja es solo para mayores de " + ReglasCuenta.EDAD_MINIMA + " años.");
 		}
 		String hash = codificador.encode(contrasena);
-		String tokenVerificacion = transaccion.execute(estado -> crearCuenta(direccion, hash, nacimiento, ahora));
-		if (tokenVerificacion != null) {
-			enviarSinFallar(direccion, tokenVerificacion);
+		Enlace enlace = transaccion.execute(estado -> crearCuenta(direccion, hash, nacimiento, ahora));
+		if (enlace != null) {
+			enviarSinFallar(direccion, enlace);
 		}
 	}
 
-	private String crearCuenta(String direccion, String hash, LocalDate nacimiento, Instant ahora) {
+	private record Enlace(TipoTokenUnUso tipo, String token) {
+	}
+
+	/**
+	 * Devuelve el enlace que hay que mandar, o null si no hay que mandar nada. Si el correo ya está
+	 * registrado sin verificar (quizá lo dio de alta otra persona), manda un enlace de recuperación: el
+	 * dueño del buzón pone su contraseña y la cuenta queda verificada. Si ya está verificado, nada.
+	 */
+	private Enlace crearCuenta(String direccion, String hash, LocalDate nacimiento, Instant ahora) {
 		try {
 			long id = usuarios.insertar(UUID.randomUUID(), direccion, hash, nacimiento.getYear(), true, ahora);
-			return tokens.crear(id, TipoTokenUnUso.VERIFICACION, VIDA_TOKEN_VERIFICACION);
+			return new Enlace(TipoTokenUnUso.VERIFICACION,
+					tokens.crear(id, TipoTokenUnUso.VERIFICACION, VIDA_TOKEN_VERIFICACION));
 		} catch (DuplicateKeyException e) {
-			return null;
+			return usuarios.porCorreo(direccion).filter(u -> !u.verificado())
+					.map(u -> new Enlace(TipoTokenUnUso.RECUPERACION, tokens.crear(u.id(),
+							TipoTokenUnUso.RECUPERACION, ServicioRecuperacion.VIDA_TOKEN_RECUPERACION)))
+					.orElse(null);
 		}
 	}
 
-	private void enviarSinFallar(String direccion, String token) {
+	private void enviarSinFallar(String direccion, Enlace enlace) {
 		try {
-			correo.enviarVerificacion(direccion, token);
+			if (enlace.tipo() == TipoTokenUnUso.VERIFICACION) {
+				correo.enviarVerificacion(direccion, enlace.token());
+			} else {
+				correo.enviarRecuperacion(direccion, enlace.token());
+			}
 		} catch (RuntimeException e) {
-			LOG.error("fallo al enviar el correo de verificación ({})", e.getClass().getSimpleName());
+			LOG.error("fallo al enviar el correo de {} ({})", enlace.tipo(), e.getClass().getSimpleName());
 		}
 	}
 

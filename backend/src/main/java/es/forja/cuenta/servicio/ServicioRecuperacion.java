@@ -79,6 +79,8 @@ public class ServicioRecuperacion {
 			long usuarioId = tokens.consumir(token, TipoTokenUnUso.RECUPERACION);
 			tokens.gastarPendientes(usuarioId, TipoTokenUnUso.RECUPERACION);
 			usuarios.cambiarContrasena(usuarioId, hash);
+			// Usar el enlace prueba que el correo es tuyo: quien registró tu correo antes que tú no te deja fuera.
+			usuarios.marcarVerificado(usuarioId);
 			refrescos.revocarDeUsuario(usuarioId, ahora);
 			dispositivos.revocarTodosDeUsuario(usuarioId, ahora);
 		});

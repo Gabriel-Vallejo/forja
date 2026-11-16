@@ -34,6 +34,39 @@ class RecuperacionApiTest extends ApiCuentaSoporte {
 	}
 
 	@Test
+	void restablecerVerificaElCorreoPorqueElEnlacePruebaQueEsTuyo() throws Exception {
+		String correo = crearCuentaSinVerificar();
+		enviar(RECUPERAR, Map.of("correo", correo)).andExpect(status().isAccepted());
+		String token = buzon.ultimoToken(correo, "recuperacion").orElseThrow();
+
+		enviar(RESTABLECER, Map.of("token", token, "contrasenaNueva", NUEVA)).andExpect(status().isNoContent());
+
+		enviar("/api/v1/auth/login", cuerpoLogin(correo, NUEVA, "Móvil", null)).andExpect(status().isOk());
+	}
+
+	@Test
+	void registrarDeNuevoUnCorreoSinVerificarMandaUnEnlaceParaRecuperarlo() throws Exception {
+		String correo = crearCuentaSinVerificar();
+		buzon.vaciar();
+
+		enviar("/api/v1/auth/registro", cuerpoRegistro(correo, NUEVA, FECHA_ADULTO)).andExpect(status().isAccepted());
+		String token = buzon.ultimoToken(correo, "recuperacion").orElseThrow();
+		enviar(RESTABLECER, Map.of("token", token, "contrasenaNueva", NUEVA)).andExpect(status().isNoContent());
+
+		enviar("/api/v1/auth/login", cuerpoLogin(correo, NUEVA, "Móvil", null)).andExpect(status().isOk());
+	}
+
+	@Test
+	void registrarDeNuevoUnCorreoVerificadoNoMandaNada() throws Exception {
+		String correo = crearCuenta();
+		buzon.vaciar();
+
+		enviar("/api/v1/auth/registro", cuerpoRegistro(correo, NUEVA, FECHA_ADULTO)).andExpect(status().isAccepted());
+
+		assertThat(buzon.total()).isZero();
+	}
+
+	@Test
 	void restablecerCambiaLaContrasenaYCierraTodosLosDispositivos() throws Exception {
 		String correo = crearCuenta();
 		Cliente movil = iniciarSesion(correo, "Móvil", null);
