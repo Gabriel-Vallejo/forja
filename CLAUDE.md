@@ -35,7 +35,7 @@ Antes de ejecutar una tarea, evalúa su dificultad y selecciona el modelo adecua
 Hardware: portátil con RTX 5070 (~8 GB de VRAM) para el worker de GPU; VPS sin GPU para el resto. Todo lo pesado va por la cola de trabajos.
 
 ## 4. Reglas del proyecto
-- Las fotos de cuerpo y de etiquetas **no se guardan**: se procesan y se borran; solo quedan los ratios. Son datos de salud (RGPD, art. 9).
+- Las fotos de cuerpo y de etiquetas **no se guardan**: se procesan y se borran; solo quedan los tramos de cada proporción ([ADR 0007](docs/adr/0007-motor-de-seleccion-de-ejercicios.md)). Son datos de salud (RGPD, art. 9).
 - Las reglas por palancas son **heurísticas de entrenadores**, no ciencia: dilo así en la app y en el README (ver `docs/fase-0.md`).
 - Finalidad de fitness, no sanitaria ([ADR 0007](docs/adr/0007-motor-de-seleccion-de-ejercicios.md)): Forja «elige ejercicios compatibles con las limitaciones que tú indicas». Nunca escribas «rehabilita», «alivia», «corrige», «previene lesiones», «detecta desequilibrios o atrofias» ni «seguro para tu lesión», ni en la app ni en el README ni en los posts. El LLM transcribe; las reglas deciden; las banderas rojas van por reglas.
 - El escáner de suplementos nunca dice «libre de dopaje»: dice «riesgo por ingredientes declarados» y si tiene sello Informed Sport/NSF.

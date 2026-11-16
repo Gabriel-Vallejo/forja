@@ -11,3 +11,5 @@ Decisiones de arquitectura numeradas (0001-…).
 | [0005](0005-fuentes-de-datos.md) | free-exercise-db, OpenPowerlifting CSV, OFF, mercaapi autoalojado, lista del BOE y CELAD/AESAN | aceptada |
 | [0006](0006-version-de-pc.md) | Versión de PC: export web de Expo dentro de Tauri 2 (Windows y Linux); en PC las fotos se suben como archivo | aceptada |
 | [0007](0007-motor-de-seleccion-de-ejercicios.md) | Motor de selección: restricciones de la entrada de limitaciones (IA que solo transcribe), movilidad y reglas con evidencia; las palancas por foto solo desempatan | aceptada |
+| [0008](0008-sincronizacion-sin-conexion.md) | Registro sin conexión: UUID del cliente, `PUT /sesiones/{uuid}`, outbox en el móvil, series que solo se añaden y plan versionado | propuesta |
+| [0009](0009-autenticacion.md) | Autenticación: JWT de 15 min en cabecera, refresco rotatorio por dispositivo, Argon2id y recuperación por correo | propuesta |

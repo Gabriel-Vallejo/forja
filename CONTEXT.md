@@ -147,7 +147,7 @@ GET  /api/v1/perfil/ratios
 GET  /api/v1/estandares              → percentiles y mapa muscular
 POST /api/v1/rutinas/generar         → plan + traza (síncrono, del solver) + trabajo para la explicación del LLM
 POST /api/v1/rutinas/{id}/ajustar    → texto libre → 202 + trabajo (intención con LLM) → re-solve
-POST /api/v1/sesiones                → registro (idempotente, sincronización sin conexión)
+PUT  /api/v1/sesiones/{uuid}         → registro idempotente sin conexión ([ADR 0008](docs/adr/0008-sincronizacion-sin-conexion.md))
 GET  /api/v1/progresion/{ejercicio}
 POST /api/v1/dieta/cesta/optimizar
 POST /api/v1/precios                 → foto de lineal (crowdsourcing)
@@ -218,7 +218,7 @@ Igual que Style & Scent Engine, con cuatro añadidos (`docs/`, `eval/`, `infra/`
 - **Flyway** para todas las migraciones. Nada de `ddl-auto=update`: un reclutador de banca lo mira.
 - **OpenAPI** con springdoc. El cliente TypeScript del frontend se genera con `openapi-typescript`, así el contrato no se desincroniza.
 - **Seguridad:**
-  - Spring Security con JWT de acceso corto y refresh rotatorio. Contraseñas con Argon2 o BCrypt.
+  - Spring Security con JWT de acceso de 15 min (Ed25519) y refresco rotatorio por dispositivo; contraseñas con Argon2id ([ADR 0009](docs/adr/0009-autenticacion.md)).
   - Validación con Bean Validation en cada DTO.
   - Rate limiting con Bucket4j.
   - CORS cerrado.
