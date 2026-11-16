@@ -1,6 +1,6 @@
 # 0008. Registro de series sin conexión: outbox en el móvil y series que solo se añaden
 
-- **Estado:** propuesta
+- **Estado:** aceptada (2026-11-16)
 - **Fecha:** 2026-11-16
 
 ## Contexto

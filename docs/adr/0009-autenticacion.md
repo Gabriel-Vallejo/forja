@@ -1,6 +1,6 @@
 # 0009. Autenticación: token de acceso corto, refresco rotatorio por dispositivo
 
-- **Estado:** propuesta
+- **Estado:** aceptada (2026-11-16)
 - **Fecha:** 2026-11-16
 
 ## Contexto
