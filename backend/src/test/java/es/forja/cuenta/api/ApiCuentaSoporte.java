@@ -112,10 +112,23 @@ abstract class ApiCuentaSoporte {
 		return json.readTree(resultado.andReturn().getResponse().getContentAsString());
 	}
 
-	/** Da de alta una cuenta (con el limitador de IP propio del test) y devuelve su correo. */
-	String crearCuenta() throws Exception {
+	/** Da de alta una cuenta sin verificar (con el limitador de IP propio del test) y devuelve su correo. */
+	String crearCuentaSinVerificar() throws Exception {
 		String correo = correoNuevo();
 		enviar("/api/v1/auth/registro", cuerpoRegistro(correo, CONTRASENA, FECHA_ADULTO)).andExpect(status().isAccepted());
+		return correo;
+	}
+
+	/** Gasta el token de verificación que salió por correo. */
+	void verificarCorreo(String correo) throws Exception {
+		String token = buzon.ultimoToken(correo, "verificacion").orElseThrow();
+		enviar("/api/v1/auth/verificar", Map.of("token", token)).andExpect(status().isNoContent());
+	}
+
+	/** Alta y verificación: la cuenta queda lista para entrar. */
+	String crearCuenta() throws Exception {
+		String correo = crearCuentaSinVerificar();
+		verificarCorreo(correo);
 		return correo;
 	}
 

@@ -64,6 +64,21 @@ public class UsuarioRepositorio {
 				.param("id", id).update();
 	}
 
+	/**
+	 * Suma un fallo con un UPDATE atómico y devuelve el contador resultante. Hay que llamarlo dentro de una
+	 * transacción: el bloqueo de fila del UPDATE hace que la lectura siguiente vea todos los fallos.
+	 */
+	public int sumarFallo(long id) {
+		jdbc.sql("UPDATE usuario SET fallos_seguidos = fallos_seguidos + 1 WHERE id = :id").param("id", id).update();
+		return jdbc.sql("SELECT fallos_seguidos FROM usuario WHERE id = :id").param("id", id).query(Integer.class)
+				.single();
+	}
+
+	public void bloquearHasta(long id, Instant hasta) {
+		jdbc.sql("UPDATE usuario SET bloqueado_hasta = :hasta WHERE id = :id")
+				.param("hasta", Conversiones.aSql(hasta)).param("id", id).update();
+	}
+
 	public void marcarVerificado(long id) {
 		jdbc.sql("UPDATE usuario SET verificado = 1 WHERE id = :id").param("id", id).update();
 	}

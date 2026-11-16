@@ -50,12 +50,26 @@ class SesionApiTest extends ApiCuentaSoporte {
 	}
 
 	@Test
-	void unUsuarioSinVerificarPuedeEntrar() throws Exception {
-		String correo = crearCuenta();
+	void unUsuarioSinVerificarRecibeElMismo401QueUnaContrasenaMala() throws Exception {
+		String correo = crearCuentaSinVerificar();
+
+		var sinVerificar = enviar(LOGIN, cuerpoLogin(correo, CONTRASENA, "Portátil", null))
+				.andExpect(status().isUnauthorized());
+		var mala = enviar(LOGIN, cuerpoLogin(correo, "contrasena-equivocada-1", "Portátil", null))
+				.andExpect(status().isUnauthorized());
+
+		assertThat(sinVerificar.andReturn().getResponse().getContentAsString())
+				.isEqualTo(mala.andReturn().getResponse().getContentAsString());
+		assertThat(contar("SELECT COUNT(*) FROM dispositivo d JOIN usuario u ON u.id = d.usuario_id "
+				+ "WHERE u.correo = ?", correo)).isZero();
+	}
+
+	@Test
+	void trasVerificarElCorreoYaPuedeEntrar() throws Exception {
+		String correo = crearCuentaSinVerificar();
+		verificarCorreo(correo);
 
 		iniciarSesion(correo, "Portátil", null);
-
-		assertThat(contar("SELECT verificado FROM usuario WHERE correo = ?", correo)).isZero();
 	}
 
 	@Test

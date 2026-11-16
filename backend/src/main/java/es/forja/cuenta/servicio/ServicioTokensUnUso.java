@@ -24,11 +24,21 @@ public class ServicioTokensUnUso {
 		this.reloj = reloj;
 	}
 
-	/** Guarda el hash y devuelve el token en claro, que solo existe en el correo. */
+	/**
+	 * Guarda el hash y devuelve el token en claro, que solo existe en el correo. Los anteriores del mismo
+	 * tipo sin usar se gastan: solo vale el último.
+	 */
 	public String crear(long usuarioId, TipoTokenUnUso tipo, Duration vida) {
+		Instant ahora = reloj.instant();
+		tokens.gastarPendientes(usuarioId, tipo, ahora);
 		String token = Tokens.nuevo();
-		tokens.insertar(usuarioId, tipo, Tokens.hash(token), reloj.instant().plus(vida));
+		tokens.insertar(usuarioId, tipo, Tokens.hash(token), ahora.plus(vida));
 		return token;
+	}
+
+	/** Gasta los tokens pendientes de ese tipo (p. ej. al restablecer, los demás enlaces de recuperación). */
+	public void gastarPendientes(long usuarioId, TipoTokenUnUso tipo) {
+		tokens.gastarPendientes(usuarioId, tipo, reloj.instant());
 	}
 
 	/** Gasta el token y devuelve el usuario al que pertenece; 400 si no existe, es de otro tipo, caducó o ya se usó. */

@@ -103,12 +103,13 @@ class RegistroApiTest extends ApiCuentaSoporte {
 		assertThat(contar("SELECT COUNT(*) FROM usuario WHERE correo = ?", correo)).isEqualTo(1);
 		assertThat(buzon.total()).isEqualTo(correosTrasElAlta);
 		// La cuenta original sigue con su contraseña y sus datos.
+		verificarCorreo(correo);
 		iniciarSesion(correo, "Pixel", null);
 	}
 
 	@Test
 	void verificarConElTokenDelCorreoMarcaLaCuentaYSoloSirveUnaVez() throws Exception {
-		String correo = crearCuenta();
+		String correo = crearCuentaSinVerificar();
 		String token = buzon.ultimoToken(correo, "verificacion").orElseThrow();
 
 		enviar("/api/v1/auth/verificar", java.util.Map.of("token", token)).andExpect(status().isNoContent());
@@ -119,7 +120,7 @@ class RegistroApiTest extends ApiCuentaSoporte {
 
 	@Test
 	void unTokenDeVerificacionCaducaALas24Horas() throws Exception {
-		String correo = crearCuenta();
+		String correo = crearCuentaSinVerificar();
 		String token = buzon.ultimoToken(correo, "verificacion").orElseThrow();
 
 		reloj.avanzar(Duration.ofHours(24).plusMinutes(1));
@@ -130,7 +131,7 @@ class RegistroApiTest extends ApiCuentaSoporte {
 
 	@Test
 	void elTokenDeVerificacionNoSirveParaRestablecerLaContrasena() throws Exception {
-		String correo = crearCuenta();
+		String correo = crearCuentaSinVerificar();
 		String token = buzon.ultimoToken(correo, "verificacion").orElseThrow();
 
 		enviar("/api/v1/auth/restablecer", java.util.Map.of("token", token, "contrasenaNueva", "otra-contrasena-larga-3"))

@@ -45,4 +45,13 @@ public class TokenUnUsoRepositorio {
 		return jdbc.sql("UPDATE token_un_uso SET usado_en = :ahora WHERE id = :id AND usado_en IS NULL")
 				.param("ahora", Conversiones.aSql(ahora)).param("id", id).update() == 1;
 	}
+
+	/** Gasta todos los tokens sin usar de ese usuario y tipo, para que solo valga el último que se emita. */
+	public void gastarPendientes(long usuarioId, TipoTokenUnUso tipo, Instant ahora) {
+		jdbc.sql("""
+				UPDATE token_un_uso SET usado_en = :ahora
+				WHERE usuario_id = :usuario AND tipo = :tipo AND usado_en IS NULL""")
+				.param("ahora", Conversiones.aSql(ahora)).param("usuario", usuarioId).param("tipo", tipo.codigo())
+				.update();
+	}
 }

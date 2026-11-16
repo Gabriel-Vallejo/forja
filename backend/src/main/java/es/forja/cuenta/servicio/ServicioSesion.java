@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -37,12 +38,14 @@ public class ServicioSesion {
 	private final LimitadorIntentos limitador;
 	private final TransactionTemplate transaccion;
 	private final Clock reloj;
+	private final boolean exigirVerificacion;
 	/** Hash de una contraseña que nadie tiene: se compara cuando el correo no existe, para gastar el mismo tiempo. */
 	private final String hashSenuelo;
 
 	public ServicioSesion(UsuarioRepositorio usuarios, DispositivoRepositorio dispositivos,
 			TokenRefrescoRepositorio refrescos, ServicioJwt jwt, PasswordEncoder codificador,
-			LimitadorIntentos limitador, TransactionTemplate transaccion, Clock reloj) {
+			LimitadorIntentos limitador, TransactionTemplate transaccion, Clock reloj,
+			@Value("${forja.cuenta.exigir-verificacion:true}") String exigirVerificacion) {
 		this.usuarios = usuarios;
 		this.dispositivos = dispositivos;
 		this.refrescos = refrescos;
@@ -51,6 +54,8 @@ public class ServicioSesion {
 		this.limitador = limitador;
 		this.transaccion = transaccion;
 		this.reloj = reloj;
+		// A prueba de fallos: solo un «false» explícito desactiva la exigencia; vacío o con erratas, se exige.
+		this.exigirVerificacion = !"false".equalsIgnoreCase(exigirVerificacion.strip());
 		this.hashSenuelo = codificador.encode(Tokens.nuevo());
 	}
 
@@ -62,14 +67,19 @@ public class ServicioSesion {
 		String direccion = ReglasCuenta.normalizarCorreo(correoSinNormalizar);
 		limitador.exigir(ACCION, ip, direccion);
 		Usuario usuario = usuarios.porCorreo(direccion).orElse(null);
-		if (usuario == null) {
-			codificador.matches(contrasena, hashSenuelo);
+		Instant ahora = reloj.instant();
+		// Sin cuenta o con la cuenta en espera se compara contra el hash señuelo: mismo tiempo y mismo 401,
+		// para que ni la respuesta ni la duración delaten qué correos existen o están bloqueados.
+		boolean comparable = usuario != null && !enEspera(usuario, ahora);
+		boolean coincide = codificador.matches(contrasena, comparable ? usuario.hashContrasena() : hashSenuelo);
+		if (!comparable) {
 			throw ErrorCuenta.noAutenticado(CREDENCIALES_MALAS);
 		}
-		Instant ahora = reloj.instant();
-		exigirSinBloqueo(usuario, ahora);
-		if (!codificador.matches(contrasena, usuario.hashContrasena())) {
+		if (!coincide) {
 			registrarFallo(usuario, ahora);
+			throw ErrorCuenta.noAutenticado(CREDENCIALES_MALAS);
+		}
+		if (exigirVerificacion && !usuario.verificado()) {
 			throw ErrorCuenta.noAutenticado(CREDENCIALES_MALAS);
 		}
 		if (usuario.fallosSeguidos() > 0 || usuario.bloqueadoHasta() != null) {
@@ -78,16 +88,19 @@ public class ServicioSesion {
 		return transaccion.execute(estado -> abrirSesion(usuario, datos, ahora));
 	}
 
-	private static void exigirSinBloqueo(Usuario usuario, Instant ahora) {
-		if (usuario.bloqueadoHasta() != null && ahora.isBefore(usuario.bloqueadoHasta())) {
-			throw ErrorCuenta.demasiadasPeticiones(Duration.between(ahora, usuario.bloqueadoHasta()));
-		}
+	private static boolean enEspera(Usuario usuario, Instant ahora) {
+		return usuario.bloqueadoHasta() != null && ahora.isBefore(usuario.bloqueadoHasta());
 	}
 
+	/** Suma el fallo de forma atómica y, si toca, fija la espera según el contador resultante. */
 	private void registrarFallo(Usuario usuario, Instant ahora) {
-		int fallos = usuario.fallosSeguidos() + 1;
-		Duration espera = ReglasCuenta.esperaTrasFallos(fallos);
-		usuarios.guardarFallos(usuario.id(), fallos, espera.isZero() ? null : ahora.plus(espera));
+		transaccion.executeWithoutResult(estado -> {
+			int fallos = usuarios.sumarFallo(usuario.id());
+			Duration espera = ReglasCuenta.esperaTrasFallos(fallos);
+			if (!espera.isZero()) {
+				usuarios.bloquearHasta(usuario.id(), ahora.plus(espera));
+			}
+		});
 	}
 
 	private Sesion abrirSesion(Usuario usuario, DatosDispositivo datos, Instant ahora) {

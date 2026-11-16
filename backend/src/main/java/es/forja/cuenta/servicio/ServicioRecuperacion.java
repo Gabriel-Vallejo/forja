@@ -77,6 +77,7 @@ public class ServicioRecuperacion {
 		Instant ahora = reloj.instant();
 		transaccion.executeWithoutResult(estado -> {
 			long usuarioId = tokens.consumir(token, TipoTokenUnUso.RECUPERACION);
+			tokens.gastarPendientes(usuarioId, TipoTokenUnUso.RECUPERACION);
 			usuarios.cambiarContrasena(usuarioId, hash);
 			refrescos.revocarDeUsuario(usuarioId, ahora);
 			dispositivos.revocarTodosDeUsuario(usuarioId, ahora);

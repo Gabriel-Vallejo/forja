@@ -5,6 +5,8 @@ forja:
     clave-privada-actual: ${FORJA_JWT_CLAVE_PRIVADA_ACTUAL}
     kid-anterior: ${FORJA_JWT_KID_ANTERIOR:}
     clave-publica-anterior: ${FORJA_JWT_CLAVE_PUBLICA_ANTERIOR:}
+  cuenta:
+    exigir-verificacion: ${FORJA_CUENTA_EXIGIR_VERIFICACION:true}
   contrasenas-filtradas: ${FORJA_CONTRASENAS_FILTRADAS:}
   origen-web: ${FORJA_ORIGEN_WEB:}
 spring:

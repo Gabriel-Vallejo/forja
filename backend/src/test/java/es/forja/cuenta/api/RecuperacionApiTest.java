@@ -12,6 +12,9 @@ import es.forja.ClavesDePrueba;
 
 class RecuperacionApiTest extends ApiCuentaSoporte {
 
+	@org.springframework.beans.factory.annotation.Autowired
+	es.forja.cuenta.repositorio.TokenUnUsoRepositorio tokensUnUso;
+
 	private static final String RECUPERAR = "/api/v1/auth/recuperar";
 	private static final String RESTABLECER = "/api/v1/auth/restablecer";
 	private static final String NUEVA = "otra-contrasena-larga-2";
@@ -100,5 +103,42 @@ class RecuperacionApiTest extends ApiCuentaSoporte {
 
 		assertThat(contar("SELECT fallos_seguidos FROM usuario WHERE correo = ?", correo)).isZero();
 		enviar("/api/v1/auth/login", cuerpoLogin(correo, NUEVA, "P", null)).andExpect(status().isOk());
+	}
+
+	@Test
+	void emitirUnEnlaceNuevoAnulaElAnterior() throws Exception {
+		String correo = crearCuenta();
+		enviar(RECUPERAR, Map.of("correo", correo));
+		String viejo = buzon.ultimoToken(correo, "recuperacion").orElseThrow();
+		enviar(RECUPERAR, Map.of("correo", correo));
+		String nuevo = buzon.ultimoToken(correo, "recuperacion").orElseThrow();
+
+		enviar(RESTABLECER, Map.of("token", viejo, "contrasenaNueva", NUEVA)).andExpect(status().isBadRequest());
+
+		enviar(RESTABLECER, Map.of("token", nuevo, "contrasenaNueva", NUEVA)).andExpect(status().isNoContent());
+	}
+
+	@Test
+	void restablecerGastaTambienLosOtrosEnlacesPendientes() throws Exception {
+		String correo = crearCuenta();
+		enviar(RECUPERAR, Map.of("correo", correo));
+		String enlace = buzon.ultimoToken(correo, "recuperacion").orElseThrow();
+		// Un segundo enlace vivo que no salió por la API (p. ej. un resto de antes del arreglo).
+		long usuarioId = contar("SELECT id FROM usuario WHERE correo = ?", correo);
+		String otro = "enlace-anterior-que-sigue-vivo";
+		tokensUnUso.insertar(usuarioId, es.forja.cuenta.modelo.TipoTokenUnUso.RECUPERACION, sha256(otro),
+				reloj.instant().plus(Duration.ofMinutes(20)));
+
+		enviar(RESTABLECER, Map.of("token", enlace, "contrasenaNueva", NUEVA)).andExpect(status().isNoContent());
+
+		enviar(RESTABLECER, Map.of("token", otro, "contrasenaNueva", "tercera-contrasena-larga-3"))
+				.andExpect(status().isBadRequest());
+		assertThat(contar("SELECT COUNT(*) FROM token_un_uso WHERE usuario_id = ? AND tipo = 'recuperacion' "
+				+ "AND usado_en IS NULL", usuarioId)).isZero();
+	}
+
+	private static byte[] sha256(String texto) throws Exception {
+		return java.security.MessageDigest.getInstance("SHA-256")
+				.digest(texto.getBytes(java.nio.charset.StandardCharsets.UTF_8));
 	}
 }

@@ -57,9 +57,9 @@ class LimitesApiTest extends ApiCuentaSoporte {
 					.andExpect(status().isUnauthorized());
 		}
 
-		// Aunque ahora acierte, la cuenta está en espera.
-		enviar(LOGIN, cuerpoLogin(correo, CONTRASENA, "P", null)).andExpect(status().isTooManyRequests())
-				.andExpect(header().exists("Retry-After"));
+		// Aunque ahora acierte, la cuenta está en espera y no se distingue de un correo inexistente.
+		enviar(LOGIN, cuerpoLogin(correo, CONTRASENA, "P", null)).andExpect(status().isUnauthorized())
+				.andExpect(header().doesNotExist("Retry-After"));
 		assertThat(contar("SELECT COUNT(*) FROM usuario WHERE correo = ? AND bloqueado_hasta IS NOT NULL", correo))
 				.isEqualTo(1);
 
@@ -67,7 +67,7 @@ class LimitesApiTest extends ApiCuentaSoporte {
 		reloj.avanzar(Duration.ofSeconds(61));
 		enviar(LOGIN, cuerpoLogin(correo, "contrasena-mala-final", "P", null)).andExpect(status().isUnauthorized());
 		reloj.avanzar(Duration.ofSeconds(61));
-		enviar(LOGIN, cuerpoLogin(correo, CONTRASENA, "P", null)).andExpect(status().isTooManyRequests());
+		enviar(LOGIN, cuerpoLogin(correo, CONTRASENA, "P", null)).andExpect(status().isUnauthorized());
 		reloj.avanzar(Duration.ofSeconds(61));
 
 		// Un acierto fuera de la espera lo deja todo a cero.
@@ -91,5 +91,52 @@ class LimitesApiTest extends ApiCuentaSoporte {
 		assertThat(contar("SELECT fallos_seguidos FROM usuario WHERE correo = ?", correo)).isZero();
 		enviar(LOGIN, cuerpoLogin(correo, "mala-otra-vez-123", "P", null)).andExpect(status().isUnauthorized());
 		assertThat(contar("SELECT fallos_seguidos FROM usuario WHERE correo = ?", correo)).isEqualTo(1);
+	}
+
+	@Test
+	void unaCuentaBloqueadaYUnCorreoInexistenteDanLaMismaRespuestaYElMismoCodigo() throws Exception {
+		String correo = crearCuenta();
+		for (int i = 0; i < 10; i++) {
+			enviar(LOGIN, cuerpoLogin(correo, "contrasena-mala-" + i + "xx", "P", null))
+					.andExpect(status().isUnauthorized());
+		}
+
+		var bloqueada = enviar(LOGIN, cuerpoLogin(correo, CONTRASENA, "P", null));
+		var inexistente = enviar(LOGIN, cuerpoLogin(correoNuevo(), CONTRASENA, "P", null));
+
+		assertThat(bloqueada.andReturn().getResponse().getStatus())
+				.isEqualTo(inexistente.andReturn().getResponse().getStatus()).isEqualTo(401);
+		assertThat(bloqueada.andReturn().getResponse().getContentAsString())
+				.isEqualTo(inexistente.andReturn().getResponse().getContentAsString());
+		assertThat(bloqueada.andReturn().getResponse().getHeaderNames())
+				.isEqualTo(inexistente.andReturn().getResponse().getHeaderNames());
+	}
+
+	@Test
+	void fallosEnParaleloNoSePierdenElContadorQuedaEnN() throws Exception {
+		String correo = crearCuenta();
+		int fallos = 8;
+		var piscina = java.util.concurrent.Executors.newFixedThreadPool(fallos);
+		var salida = new java.util.concurrent.CountDownLatch(1);
+		try {
+			var tareas = new java.util.ArrayList<java.util.concurrent.Future<Integer>>();
+			for (int i = 0; i < fallos; i++) {
+				String origen = ip + "." + i;
+				String mala = "contrasena-mala-" + i + "xx";
+				tareas.add(piscina.submit(() -> {
+					salida.await();
+					return enviarDesde(origen, LOGIN, cuerpoLogin(correo, mala, "P", null)).andReturn()
+							.getResponse().getStatus();
+				}));
+			}
+			salida.countDown();
+			for (var tarea : tareas) {
+				assertThat(tarea.get()).isEqualTo(401);
+			}
+		} finally {
+			piscina.shutdownNow();
+		}
+
+		assertThat(contar("SELECT fallos_seguidos FROM usuario WHERE correo = ?", correo)).isEqualTo(fallos);
 	}
 }
