@@ -27,7 +27,7 @@ Esta sección sí vive aquí: son las normas de código para cualquier agente.
 - **Paquetes por dominio** (`entreno`, `restricciones`, `sesiones`, `dieta`, `suplementos`, `cuenta`, `comun`), cada uno con `api`, `servicio`, `repositorio` y `modelo`. Un dominio no accede a las tablas de otro.
 - **DTO como `record`**, validados con Bean Validation. Errores como `ProblemDetail` (RFC 9457), sin trazas.
 - **Esquema solo con Flyway:** `src/main/resources/db/migration/V{n}__{descripcion}.sql`. Nada de `ddl-auto`. Cada migración, con su test en Testcontainers (MySQL 8.4 real).
-- **Tests:** JUnit 5 y Mockito para reglas; jqwik para propiedades del solver y de la progresión; Testcontainers para repositorios y migraciones; JaCoCo con umbral del 80 %.
+- **Tests:** JUnit 5 y Mockito para reglas; propiedades del solver y de la progresión con `@ParameterizedTest` y generadores con semilla fija (no jqwik: su autor pide que no lo usen agentes de IA); Testcontainers para repositorios y migraciones; JaCoCo con umbral del 80 %.
 - Formato con el que traiga el proyecto (Spotless o equivalente) y sin advertencias del compilador.
 
 ### `vision-service/` (Python, FastAPI)

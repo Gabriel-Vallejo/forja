@@ -1,11 +1,17 @@
 package es.forja.entreno.catalogo.modelo;
 
+import java.util.Set;
+
+import org.hibernate.annotations.Immutable;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -47,6 +53,14 @@ public class Ejercicio {
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "implemento_id")
 	private Material implemento;
+
+	/** Regiones que carga el ejercicio (tabla {@code ejercicio_region}); solo lectura, la escribe la semilla. */
+	@Immutable
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "ejercicio_region",
+			joinColumns = @JoinColumn(name = "ejercicio_id"),
+			inverseJoinColumns = @JoinColumn(name = "region_id"))
+	private Set<RegionCorporal> regiones;
 
 	private boolean aptoFuerza;
 	private String origenEtiquetado;
@@ -126,6 +140,10 @@ public class Ejercicio {
 
 	public Material getImplemento() {
 		return implemento;
+	}
+
+	public Set<RegionCorporal> getRegiones() {
+		return regiones;
 	}
 
 	public boolean isAptoFuerza() {

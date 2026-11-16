@@ -31,7 +31,7 @@ Además, cada elección tiene que poder explicarse («por qué hack y no barra b
    - menos fatiga,
    - menos holgura.
 5. **Traza:** después de resolver, se calcula la contribución de cada término del objetivo a cada ejercicio elegido, más los motivos de descarte del paso 1. El LLM solo convierte esa traza en texto.
-6. **Reproducible:** parámetros fijos, semilla fija y límite de tiempo (5 s de partida **[estimación, medir en la fase 1]**). Los tests no comparan con un plan exacto: comprueban **propiedades** con jqwik, por ejemplo «nunca supera la duración» o «con lesión de hombro no hay press por encima de la cabeza».
+6. **Reproducible:** parámetros fijos, semilla fija y límite de tiempo (5 s de partida **[estimación, medir en la fase 1]**). Los tests no comparan con un plan exacto: comprueban **propiedades** con generadores de semilla fija, por ejemplo «nunca supera la duración» o «con lesión de hombro no hay press por encima de la cabeza».
 7. **Diagnóstico de inviabilidad:** las asunciones de CP-SAT (`addAssumptions` y la lista de asunciones que bastan para la inviabilidad) solo se usan como **herramienta de depuración**, no en el camino normal. Su resultado no es mínimo y hay errores abiertos en el tracker de OR-Tools. La holgura del punto 3 cubre el caso del usuario.
 
 La dieta usa el mismo paquete (OR-Tools): GLOP para la programación lineal, o CP-SAT si hay raciones enteras. No necesita ADR aparte.

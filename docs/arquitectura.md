@@ -259,7 +259,7 @@ sequenceDiagram
 ## 3. Componentes
 
 ### `backend/`
-- **Stack:** Java 21 (Temurin en el CI), Spring Boot 4, JPA, Flyway (nunca `ddl-auto=update`), springdoc con OpenAPI exportado a [`docs/api/`](api/). Seguridad con Spring Security, Bucket4j, Bean Validation y `ProblemDetail` (RFC 9457). Resilience4j hacia el `vision-service`. Solvers con OR-Tools: CP-SAT para la rutina y GLOP, o CP-SAT con raciones enteras, para la dieta. Tests con JUnit 5, Mockito, jqwik, Testcontainers con MySQL real y JaCoCo (≥ 80 % en el dominio).
+- **Stack:** Java 21 (Temurin en el CI), Spring Boot 4, JPA, Flyway (nunca `ddl-auto=update`), springdoc con OpenAPI exportado a [`docs/api/`](api/). Seguridad con Spring Security, Bucket4j, Bean Validation y `ProblemDetail` (RFC 9457). Resilience4j hacia el `vision-service`. Solvers con OR-Tools: CP-SAT para la rutina y GLOP, o CP-SAT con raciones enteras, para la dieta. Tests con JUnit 5, Mockito, tests de propiedades con semilla fija, Testcontainers con MySQL real y JaCoCo (≥ 80 % en el dominio).
 - **Estructura:** un paquete por dominio, cada uno con `api`, `servicio`, `repositorio` y `modelo`. Un dominio no toca las tablas de otro.
   - `entreno/`: perfil, limitaciones y banderas rojas por reglas, tests de movilidad, CP-SAT con filtro previo, holgura, traza y alternativas, `plan_version`, sesiones idempotentes, progresión doble con su máquina de estados (`acumulando`, `subir_carga`, `estancado`, `deload`) y percentiles.
   - `dieta/`: Mifflin-St Jeor, LP de la cesta, `FuentePrecios`, `FuenteNutricion`, avisos de precio y recalcular las macros de las recetas.

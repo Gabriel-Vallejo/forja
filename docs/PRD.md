@@ -57,7 +57,7 @@ Horas de [CONTEXT](../CONTEXT.md) §1.8 **[estimación]**. Cada versión es publ
 | Cribado con botones y preguntas guiadas | Cualquier «sí» relevante muestra la recomendación de hablar con un profesional antes de seguir |
 | Banderas rojas por reglas | Con una bandera roja, la app no genera la rutina y recomienda urgencias hoy o un profesional en unos días |
 | Tests de movilidad a mano | Los tres tests dan un tramo y el tramo cambia al menos una variante del plan (p. ej., talonera o goblet) |
-| Rutina con CP-SAT | Tests de propiedades con jqwik en verde: nunca supera la duración ni el máximo de series por músculo |
+| Rutina con CP-SAT | Tests de propiedades (generadores con semilla fija) en verde: nunca supera la duración ni el máximo de series por músculo |
 | «Por qué este ejercicio» | Cada tarjeta muestra la regla, su fuente y su nivel (A-D, H o P); en v0.1 sale de la traza con plantillas, sin LLM **[propuesta]** |
 | Ajustes del plan (más, menos, no recomendar, reemplazar, variedad, excluir 4 y enfocar 2) | Cada ajuste vuelve a resolver y el cambio se ve en la vista previa |
 | Registro sin conexión | En modo avión se registran sesiones, se recupera la red y el servidor queda igual que el móvil |
@@ -204,7 +204,7 @@ Horas de [CONTEXT](../CONTEXT.md) §1.8 **[estimación]**. Cada versión es publ
 | RNF-08 | **Plataformas:** Android (APK por EAS) y PC en Windows 11 y Linux desde el mismo `frontend/` (Expo web + Tauri 2); el CI ejecuta `npx expo export -p web`; se prueba en Windows y Linux antes de cada release | [0006](adr/0006-version-de-pc.md) |
 | RNF-09 | **Idioma y voz:** todo en español, de tú, sin mezclar idiomas; ninguna pantalla, ficha de tienda, README ni post usa «rehabilita», «alivia», «corrige», «previene lesiones», «detecta desequilibrios o atrofias» ni «seguro para tu lesión» **[propuesta: comprobarlo con un grep en el CI]** | [0007](adr/0007-motor-de-seleccion-de-ejercicios.md), [CLAUDE.md](../CLAUDE.md) §4-5 |
 | RNF-10 | **Evaluación de IA:** cada modelo tiene dataset con `DATASET.md`, script y métricas versionadas en `eval/`; `eval.yml` falla si la métrica cae; `models.yaml` con `revision` y licencia, y el CI falla si falta la licencia; `modelo_usado` guardado en cada trabajo | [CONTEXT](../CONTEXT.md) §0.5-0.6, [0003](adr/0003-cola-de-trabajos-gpu.md) |
-| RNF-11 | **Tests:** ≥ 80 % de cobertura (JaCoCo en el dominio), propiedades con jqwik, Testcontainers con MySQL real, contrato contra el OpenAPI, Jest + RNTL, Maestro en 2-3 flujos y pytest | [CLAUDE.md](../CLAUDE.md) §4, [CONTEXT](../CONTEXT.md) §0.2-0.5 |
+| RNF-11 | **Tests:** ≥ 80 % de cobertura (JaCoCo en el dominio), propiedades con generadores de semilla fija, Testcontainers con MySQL real, contrato contra el OpenAPI, Jest + RNTL, Maestro en 2-3 flujos y pytest | [CLAUDE.md](../CLAUDE.md) §4, [CONTEXT](../CONTEXT.md) §0.2-0.5 |
 | RNF-12 | **Procedencia:** cada fila de un catálogo guarda `fuente`, `id_externo`, versión o fecha y, si hace falta, licencia y autor; instantáneas con URL, hash y fecha | [0005](adr/0005-fuentes-de-datos.md) |
 | RNF-13 | **Observabilidad:** Micrometer, Prometheus y Grafana; logs JSON con `traceId` y el ID de usuario con hash; `evento_uso` con HMAC, seudonimizada | [0004](adr/0004-privacidad-fotos-y-datos-de-salud.md), [CONTEXT](../CONTEXT.md) §0.8 |
 
