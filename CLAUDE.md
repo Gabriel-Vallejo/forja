@@ -15,7 +15,7 @@ Antes de ejecutar una tarea, evalúa su dificultad y selecciona el modelo adecua
 ## 1. Al empezar cada sesión
 1. `git pull --rebase --autostash` y `git -C vault pull --rebase --autostash`. Si falta `vault/`: `git clone git@github.com:Gabriel-Vallejo/forja-vault.git vault`.
 2. Lee `vault/Inicio.md` (estado y siguiente paso), la sección **Ahora** de `vault/Pendiente.md` y las 3 últimas entradas de `vault/Log.md` (`grep "^## \[" vault/Log.md | tail -3`).
-3. El plan completo (módulos, modelo de datos, algoritmos, API, fases y riesgos) está en `CONTEXT.md`. Léelo cuando la tarea toque diseño.
+3. `CONTEXT.md` es el índice: producto en `docs/PRD.md`, arquitectura en `docs/arquitectura.md`, diseño en `docs/design-system.md`, decisiones en `docs/adr/` y fases y riesgos en el propio `CONTEXT.md`. Léelos cuando la tarea toque diseño.
 4. Si la tarea no está en `Pendiente.md`, añádela antes de empezar.
 
 ## 2. Al terminar cada tarea
@@ -31,6 +31,8 @@ Antes de ejecutar una tarea, evalúa su dificultad y selecciona el modelo adecua
 - `eval/`: datasets etiquetados y scripts; los resultados se versionan y el CI falla si empeoran.
 - `docs/adr/`: una decisión por archivo (`0001-titulo.md`), con la plantilla `vault/Plantillas/ADR.md`.
 - `infra/` despliegue, `ops/` Prometheus y Grafana, `.github/workflows/` CI.
+
+Estándares de código por carpeta: en [`AGENTS.md`](AGENTS.md#estándares-de-código). Producto en [`docs/PRD.md`](docs/PRD.md), arquitectura en [`docs/arquitectura.md`](docs/arquitectura.md) y diseño en [`docs/design-system.md`](docs/design-system.md).
 
 Hardware: portátil con RTX 5070 (~8 GB de VRAM) para el worker de GPU; VPS sin GPU para el resto. Todo lo pesado va por la cola de trabajos.
 

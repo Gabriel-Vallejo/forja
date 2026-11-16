@@ -24,7 +24,7 @@ Forja son tres módulos (entreno, dieta y suplementos) con un núcleo de algorit
 - **Organización del backend:** por dominio (`entreno/`, `dieta/`, `suplementos/`, `comun/`), y cada dominio con `api`, `servicio`, `repositorio` y `modelo`. Un dominio no toca las tablas de otro; se hablan por servicios.
 - **Contratos:** OpenAPI exportado a `docs/api/` y JSON Schema de Pydantic exportado desde el `vision-service`. El CI comprueba que no se desincronizan.
 - **Sin búsqueda vectorial:** la plantilla común propone Qdrant, pero Forja no la necesita. El cruce de ingredientes usa normalización y Jaro-Winkler (ver [CONTEXT.md](../../CONTEXT.md) §1.5). Si algún día hace falta, va en otro ADR.
-- **La versión de PC** tiene su propio ADR pendiente (Tauri o Electron).
+- **La versión de PC** tiene su propio ADR: [0006](0006-version-de-pc.md) (Tauri).
 
 ## Alternativas
 | Opción | A favor | En contra |

@@ -32,7 +32,7 @@ Te pregunta lo que te limita, mide tu movilidad y arma la rutina con un solver q
 
 ## ◆ Evaluación
 Lo que se mide (los resultados estarán en `eval/`):
-- MAE de los ratios corporales frente a cinta métrica (mm y %)
+- Acierto del tramo de cada proporción (corto, medio, largo) frente a cinta métrica
 - Precisión y recall de ingredientes extraídos por OCR
 - Exactitud de la intención en 50 frases de prueba
 - Coste de la cesta frente a una cesta manual

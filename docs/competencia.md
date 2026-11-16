@@ -129,7 +129,7 @@ BodyLeveling **dice** que elige por proporciones, pero no lo **demuestra**. Lo q
 - **No capturado:** el registro de series en curso, que es justo el motivo por el que estaba en la lista.
 
 ## Qué se lleva Forja
-Ninguna de las cinco **explica por qué hay cada ejercicio** ni **usa proporciones del cuerpo**. Ese hueco sigue intacto. Las ideas de UX, ordenadas por fase:
+Ninguna de las cinco **explica por qué hay cada ejercicio** ni **usa proporciones del cuerpo**. El primer hueco es el de Forja. El segundo no se cubre midiendo palancas: la investigación de la fase 1 mostró que no sostienen la elección de ejercicios ([ADR 0007](adr/0007-motor-de-seleccion-de-ejercicios.md)). Las ideas de UX, ordenadas por fase:
 
 | Idea | De dónde sale | Cómo encaja en Forja | Fase |
 |---|---|---|---|
@@ -145,7 +145,6 @@ Ninguna de las cinco **explica por qué hay cada ejercicio** ni **usa proporcion
 | Calculadora rápida con una sola serie | Symmetry y Symmetric Strength | Onboarding de estándares sin historial | 2 |
 | Dos escalas etiquetadas: nivel del modelo y percentil de OpenPowerlifting, con «es una estimación» | Symmetric Strength y Symmetry | Mapa y estándares, con el sesgo de los competidores dicho | 2 |
 | Mapa muscular con estados (débil, en la media, fuerte, sin datos) y «registra N sesiones» si faltan datos | Symmetry, Fitbod y Symmetric Strength | Mapa de puntos débiles, enlazado al ejercicio que lo trabaja | 2 |
-| Peso objetivo ajustado a tus palancas junto al genérico | Hueco de Symmetric Strength | Lo propio de Forja | 2 |
 | Método visible con un ejemplo trabajado en pocos pasos | Symmetric Strength | Página de método en la app y en el README | 2 |
 
 **Lo que no copiar:**

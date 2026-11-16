@@ -59,3 +59,6 @@ La dieta usa el mismo paquete (OR-Tools): GLOP para la programación lineal, o C
 - **Reproducible de verdad:** el límite es `max_deterministic_time`, no el tiempo de reloj, con un número fijo de workers. Una semilla fija con 5 s de reloj no da el mismo plan cuando se agota el tiempo.
 - **La traza dice si el plan es óptimo.** Guarda `OPTIMAL` o `FEASIBLE`. Si es `FEASIBLE`, la app no dice «el mejor plan», sino «un buen plan».
 - **«Por qué este y no aquel»:** para las 2-3 alternativas más cercanas a cada ejercicio elegido, se fuerza el cambio, se vuelve a resolver y se guarda la diferencia del objetivo, o la restricción que lo impide. Es lo que permite al LLM explicar la elección y no solo listar contribuciones.
+
+## Enmienda (2026-11-16)
+- **Restricciones de la entrada de limitaciones** ([0007](0007-motor-de-seleccion-de-ejercicios.md)): solo `evitar` o una restricción con origen profesional excluyen ejercicios en el filtro previo. `limitar_rango` y `limitar_carga` eligen otra variante de la escalera de sustitución. La propiedad de test «con lesión de hombro no hay press por encima de la cabeza» pasa a ser: «con `evitar` en un patrón, ningún ejercicio de ese patrón; con `limitar`, solo variantes permitidas».

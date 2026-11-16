@@ -76,3 +76,7 @@ La competencia directa (BodyLeveling, ver [competencia](../competencia.md)) mand
    - Lleva un HMAC del usuario con un secreto, nunca un hash simple de un ID secuencial.
    - Se borra o se desvincula al borrar la cuenta.
 10. **Restaurar una copia no resucita cuentas.** Se guarda un registro de los IDs borrados, que se vuelve a aplicar tras cada restauración.
+
+## Enmienda (2026-11-16)
+- **Se guarda la limitación funcional, no la patología** ([0007](0007-motor-de-seleccion-de-ejercicios.md)): «sin carga axial», no «hernia L5-S1». La tabla `restriccion` sustituye a las «lesiones» del perfil; sigue cifrada y sigue siendo un dato de salud.
+- **Logs:** el ID de usuario va con HMAC y secreto, igual que en `evento_uso`, no con un hash simple.

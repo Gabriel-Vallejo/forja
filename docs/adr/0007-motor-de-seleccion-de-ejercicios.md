@@ -17,7 +17,7 @@ La investigación de fase 1 (coach, fisio, médico y biomecánico; seis áreas, 
 - **Un LLM no puede decidir sobre salud:** pasa por alto entre el 26 y el 42 % de las banderas rojas cuando el texto lo escribe un paciente (Gökmen 2026).
 - **La frontera legal la marca la finalidad.** Una app de fitness que elige ejercicios compatibles con lo que el usuario declara no es producto sanitario. Si «rehabilita», «alivia el dolor» o «detecta atrofias», se acerca a clase IIa según la MDCG 2019-11 rev.1.
 
-Informe completo con fuentes y nivel de evidencia: vault privado, `reports/Ejercicios según palancas y lesiones.md`. Las citas clave se pasarán a [docs/referencias.md](../referencias.md) en la fase 1.
+El informe completo con fuentes y nivel de evidencia es interno. Las citas clave se pasarán a [docs/referencias.md](../referencias.md) en la fase 1.
 
 ## Decisión
 **El motor de selección, de más a menos peso:**

@@ -33,7 +33,7 @@ Comprobado el 2026-11-15 con búsqueda web y peticiones directas a las APIs. **N
 ### Qué queda de hueco
 La idea «fotos → proporciones → rutina» **ya está en el mercado** como reclamo, así que no puedes venderla como nueva. Lo que no he visto en ninguna:
 1. **Error medido y publicado**: ratio de la foto frente a cinta métrica en N personas, con el MAE en el README y en el CI.
-2. **Reglas explicables y abiertas**: cada cambio de ejercicio cita la regla y la medida («fémur/torso = 0,92 > 0,85 → sentadilla hack»), y las reglas están en un ADR con sus fuentes.
+2. **Reglas explicables y abiertas**: cada cambio de ejercicio cita la regla y la medida («fémur/torso = 0,92 > 0,85 → sentadilla hack»; ejemplo superado: el [ADR 0007](adr/0007-motor-de-seleccion-de-ejercicios.md) descarta los ratios exactos con umbral y deja las palancas en tramos, solo para desempatar), y las reglas están en un ADR con sus fuentes.
 3. **Android y gratis**: las tres que lo hacen son de iPhone y de pago.
 4. **Dieta por precio en España + suplementos** en la misma app.
 

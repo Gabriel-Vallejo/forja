@@ -57,5 +57,5 @@ En PC se usa sobre todo para planificar: ver y ajustar la rutina, el mapa muscul
 
 ## Enmienda (2026-11-15, revisión)
 - **El llavero va por un plugin comunitario.** Tauri no tiene plugin **oficial** de llavero del sistema: solo Stronghold, que guarda en un archivo cifrado. Se permite un plugin comunitario revisado (por ejemplo `tauri-plugin-keyring-store`) y la excepción se apunta aquí. Si no hay Secret Service (Linux sin llavero), el plan B es Stronghold.
-- **Autenticación en escritorio:** token bearer en la cabecera, no cookies. El backend admite los orígenes de la webview (`tauri://localhost` y `http://tauri.localhost`), y la CSP de Tauri limita `connect-src` al dominio de la API. CORS no autentica nada aquí. Lo cierra el ADR de autenticación (pendiente para la fase 1).
+- **Autenticación en escritorio:** token bearer en la cabecera, no cookies. El backend admite los orígenes de la webview (`tauri://localhost` y `http://tauri.localhost`), y la CSP de Tauri limita `connect-src` al dominio de la API. CORS no autentica nada aquí. Lo cierra el [ADR 0009](0009-autenticacion.md).
 - **Horas:** la versión de PC no estaba en las 210 h. Se suman a la fase 5 **[estimación: 8-10 h]**.
