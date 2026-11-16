@@ -7,7 +7,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
 /**
@@ -20,7 +22,9 @@ import org.springframework.test.context.TestPropertySource;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @SpringBootTest
-@Import(TestcontainersConfiguration.class)
+@AutoConfigureMockMvc
+@ContextConfiguration(initializers = ClavesDePrueba.class)
+@Import({ TestcontainersConfiguration.class, RelojDePrueba.Configuracion.class, BuzonDeCorreo.Configuracion.class })
 @TestPropertySource(properties = {
 		"spring.datasource.url=jdbc:mysql://relleno:3306/relleno",
 		"spring.datasource.username=relleno",

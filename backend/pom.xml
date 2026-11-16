@@ -18,6 +18,9 @@
 		<!-- Compila con release 21 aunque el JDK instalado sea más nuevo -->
 		<maven.compiler.release>21</maven.compiler.release>
 		<jacoco.version>0.8.16</jacoco.version>
+		<!-- Versiones fijadas de lo que no gestiona Spring Boot (ADR 0009) -->
+		<bouncycastle.version>1.87</bouncycastle.version>
+		<bucket4j.version>8.22.0</bucket4j.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -41,8 +44,24 @@
 			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-mysql</artifactId>
+		</dependency>
+		<!-- Lo pide Argon2PasswordEncoder de Spring Security. Licencia: Bouncy Castle (tipo MIT) -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk18on</artifactId>
+			<version>${bouncycastle.version}</version>
+		</dependency>
+		<!-- Límites de intentos en memoria. Licencia: Apache 2.0 -->
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j_jdk17-core</artifactId>
+			<version>${bucket4j.version}</version>
 		</dependency>
 
 		<dependency>
@@ -63,6 +82,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-flyway-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

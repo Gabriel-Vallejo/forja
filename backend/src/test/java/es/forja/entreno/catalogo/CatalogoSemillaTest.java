@@ -50,12 +50,12 @@ class CatalogoSemillaTest {
 	}
 
 	@Test
-	void flywayAplicaLaV1YLaSemillaRepetibleSinErrores() {
+	void flywayAplicaLasMigracionesYLaSemillaRepetibleSinErrores() {
 		MigrationInfo[] aplicadas = flyway.info().applied();
 
 		assertThat(aplicadas).extracting(m -> m.getState()).containsOnly(MigrationState.SUCCESS);
 		assertThat(Arrays.stream(aplicadas).map(m -> m.getScript()))
-				.containsExactlyInAnyOrder("V1__catalogo_ejercicios.sql", "R__catalogo_semilla.sql");
+				.containsExactlyInAnyOrder("V1__catalogo_ejercicios.sql", "V2__cuenta.sql", "R__catalogo_semilla.sql");
 		assertThat(flyway.info().pending()).isEmpty();
 	}
 

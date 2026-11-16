@@ -1,4 +1,12 @@
 # Los valores salen de las variables MYSQL_* del .env (ver .env.example). Nada de secretos aquí.
+forja:
+  jwt:
+    kid-actual: ${FORJA_JWT_KID_ACTUAL}
+    clave-privada-actual: ${FORJA_JWT_CLAVE_PRIVADA_ACTUAL}
+    kid-anterior: ${FORJA_JWT_KID_ANTERIOR:}
+    clave-publica-anterior: ${FORJA_JWT_CLAVE_PUBLICA_ANTERIOR:}
+  contrasenas-filtradas: ${FORJA_CONTRASENAS_FILTRADAS:}
+  origen-web: ${FORJA_ORIGEN_WEB:}
 spring:
   application:
     name: forja-backend
