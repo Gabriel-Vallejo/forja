@@ -456,6 +456,14 @@ class SesionesApiTest extends SoporteSesiones {
 	}
 
 	@Test
+	void elTopeDelCuerpoValeParaCualquierRutaNoSoloSesiones() throws Exception {
+		String enorme = "{\"correo\":\"" + "x".repeat(300_000) + "\"}";
+
+		mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/v1/auth/login")
+				.contentType("application/json").content(enorme)).andExpect(status().isContentTooLarge());
+	}
+
+	@Test
 	void sinSesionDa401() throws Exception {
 		mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 				.put(RUTA_SESIONES + "/" + UUID.randomUUID()).contentType("application/json").content("{}"))

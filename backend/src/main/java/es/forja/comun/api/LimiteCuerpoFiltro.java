@@ -1,4 +1,4 @@
-package es.forja.sesiones.api;
+package es.forja.comun.api;
 
 import java.io.IOException;
 
@@ -19,14 +19,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Tope al cuerpo de {@code PUT /api/v1/sesiones/*}: 413 si el cliente declara más de {@value #MAXIMO_BYTES} bytes y,
- * si no los declara (chunked), corta la lectura al pasarse, con lo que la petición acaba en 400.
+ * Tope al cuerpo de cualquier petición: 413 si el cliente declara más de {@value #MAXIMO_BYTES} bytes y, si no los
+ * declara (chunked), corta la lectura al pasarse, con lo que la petición acaba en 400. Vale para todas las rutas, sin
+ * mirar la URL, para que ninguna variante del camino se lo salte; la sesión es el cuerpo más grande de la API.
  */
 @Component
 public class LimiteCuerpoFiltro extends OncePerRequestFilter {
 
 	public static final int MAXIMO_BYTES = 256 * 1024;
-	private static final String PREFIJO = "/api/v1/sesiones/";
 
 	private final JsonMapper json;
 
@@ -36,7 +36,8 @@ public class LimiteCuerpoFiltro extends OncePerRequestFilter {
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest peticion) {
-		return !HttpMethod.PUT.matches(peticion.getMethod()) || !peticion.getRequestURI().startsWith(PREFIJO);
+		String metodo = peticion.getMethod();
+		return HttpMethod.GET.matches(metodo) || HttpMethod.HEAD.matches(metodo) || HttpMethod.OPTIONS.matches(metodo);
 	}
 
 	@Override
@@ -46,7 +47,7 @@ public class LimiteCuerpoFiltro extends OncePerRequestFilter {
 			respuesta.setStatus(HttpStatus.CONTENT_TOO_LARGE.value());
 			respuesta.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
 			respuesta.getWriter().write(json.writeValueAsString(ProblemDetail.forStatusAndDetail(
-					HttpStatus.CONTENT_TOO_LARGE, "La sesión es demasiado grande.")));
+					HttpStatus.CONTENT_TOO_LARGE, "La petición es demasiado grande.")));
 			return;
 		}
 		cadena.doFilter(new CuerpoAcotado(peticion), respuesta);
