@@ -47,14 +47,17 @@ public record PlanRutina(String estado, String resumen, long objetivo, List<DiaP
 	/**
 	 * Series efectivas de un músculo frente a su rango.
 	 *
-	 * @param minimo nulo si el músculo no tiene meta de volumen
+	 * @param minimo y {@code objetivo}: nulos si el músculo no tiene meta de volumen
 	 */
-	public record VolumenMusculo(String musculo, String nombre, double series, Integer minimo, int maximo,
-			String fuente) {
+	public record VolumenMusculo(String musculo, String nombre, double series, Integer minimo, Integer objetivo,
+			int maximo, String fuente) {
 	}
 
-	/** @param tipo {@code volumen} o {@code frecuencia}; {@code faltan}, en series o en días */
-	public record Holgura(String musculo, String tipo, double faltan, String mensaje) {
+	/**
+	 * @param codigo músculo, o patrón si el tipo es {@code basico}
+	 * @param tipo {@code volumen}, {@code frecuencia} o {@code basico}; {@code faltan}, en series, días o patrones
+	 */
+	public record Holgura(String codigo, String tipo, double faltan, String mensaje) {
 	}
 
 	/** Lo que aporta el ejercicio a cada término del objetivo, en puntos. */

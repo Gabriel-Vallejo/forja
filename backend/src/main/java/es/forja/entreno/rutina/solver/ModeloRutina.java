@@ -25,8 +25,11 @@ import es.forja.restricciones.modelo.Patron;
  *
  * <ul>
  * <li>Duras: duración por sesión, ejercicios por patrón y día, básico pesado sin repetir en días seguidos, máximo
- * de series por músculo y ejercicios por sesión.</li>
- * <li>Con holgura: mínimo de series y frecuencia mínima de los músculos con meta.</li>
+ * de series por músculo, ejercicios por sesión y sesión mínima (porcentaje del tiempo).</li>
+ * <li>Con holgura: mínimo de series y frecuencia mínima de los músculos con meta, y cada patrón principal al
+ * menos una vez con un compuesto.</li>
+ * <li>Volumen objetivo por músculo, lineal a trozos: premio por serie hasta el objetivo y penalización suave por
+ * encima. Diferencia entre la sesión más larga y la más corta, penalizada por minuto.</li>
  * </ul>
  */
 final class ModeloRutina {
@@ -39,6 +42,7 @@ final class ModeloRutina {
 	static final int REPETICIONES_SIN_PENALIZAR = 2;
 	private static final int SEGUNDOS_POR_MINUTO = 60;
 	private static final int DOBLE = 2;
+	private static final int CIEN = 100;
 
 	final CpModel cp = new CpModel();
 	final List<EjercicioRutina> ejercicios;
@@ -48,14 +52,20 @@ final class ModeloRutina {
 	final IntVar[] exceso;
 	final Map<String, IntVar> holguraVolumen = new TreeMap<>();
 	final Map<String, IntVar> holguraFrecuencia = new TreeMap<>();
+	final Map<String, BoolVar> faltaBasico = new TreeMap<>();
+	private final Map<String, IntVar> hastaObjetivo = new TreeMap<>();
+	private final Map<String, IntVar> sobreObjetivo = new TreeMap<>();
+	private final LinearExprBuilder[] duracion;
+	private IntVar desequilibrio;
 	private final ConfiguracionRutina config;
 	private final EntradaRutina entrada;
 
 	/**
-	 * @param ejerciciosMinimos mínimo de ejercicios por sesión que se exige en esta resolución
+	 * @param exigirMinimosPorSesion si se exigen el mínimo de ejercicios y de tiempo por sesión; sin ellos el
+	 *            modelo siempre tiene solución (todo a cero)
 	 */
 	ModeloRutina(ConfiguracionRutina config, EntradaRutina entrada, List<EjercicioRutina> ejercicios,
-			int ejerciciosMinimos) {
+			boolean exigirMinimosPorSesion) {
 		this.config = config;
 		this.entrada = entrada;
 		this.ejercicios = List.copyOf(ejercicios);
@@ -63,11 +73,14 @@ final class ModeloRutina {
 		this.series = new IntVar[ejercicios.size()][dias];
 		this.esta = new BoolVar[ejercicios.size()][dias];
 		this.exceso = new IntVar[ejercicios.size()];
+		this.duracion = new LinearExprBuilder[dias];
 		crearVariables();
-		restriccionesPorDia(ejerciciosMinimos);
+		restriccionesPorDia(exigirMinimosPorSesion);
+		equilibrio(exigirMinimosPorSesion);
 		basicosPesados();
 		volumen();
 		frecuencia();
+		basicos();
 		cp.maximize(objetivo(Map.of(), Map.of()));
 	}
 
@@ -115,10 +128,12 @@ final class ModeloRutina {
 		}
 	}
 
-	private void restriccionesPorDia(int ejerciciosMinimos) {
+	private void restriccionesPorDia(boolean exigirMinimos) {
 		ConfiguracionRutina.Tiempos t = config.tiempos();
+		int ejerciciosMinimos = exigirMinimos ? config.sesion().ejerciciosMinimos() : 0;
 		for (int d = 0; d < dias; d++) {
 			LinearExprBuilder duracion = LinearExpr.newBuilder();
+			this.duracion[d] = duracion;
 			LinearExprBuilder cuantos = LinearExpr.newBuilder();
 			Map<Patron, LinearExprBuilder> porPatron = new TreeMap<>();
 			for (int e = 0; e < ejercicios.size(); e++) {
@@ -131,6 +146,38 @@ final class ModeloRutina {
 			cp.addGreaterOrEqual(cuantos, ejerciciosMinimos);
 			cp.addLessOrEqual(cuantos, config.sesion().ejerciciosMaximos());
 			porPatron.values().forEach(p -> cp.addLessOrEqual(p, config.sesion().maximoPorPatron()));
+		}
+	}
+
+	/** Sesión mínima dura y diferencia entre la más larga y la más corta, en minutos, para penalizarla. */
+	private void equilibrio(boolean exigirMinimos) {
+		long disponible = (long) entrada.minutos() * SEGUNDOS_POR_MINUTO;
+		long minima = exigirMinimos ? disponible * config.sesion().porcentajeMinimoDelTiempo() / CIEN : 0;
+		IntVar larga = cp.newIntVar(0, disponible, "sesion_larga");
+		IntVar corta = cp.newIntVar(0, disponible, "sesion_corta");
+		for (LinearExprBuilder d : duracion) {
+			cp.addGreaterOrEqual(d, minima);
+			cp.addGreaterOrEqual(larga, d);
+			cp.addLessOrEqual(corta, d);
+		}
+		desequilibrio = cp.newIntVar(0, entrada.minutos(), "desequilibrio");
+		cp.addGreaterOrEqual(LinearExpr.term(desequilibrio, SEGUNDOS_POR_MINUTO),
+				LinearExpr.newBuilder().add(larga).addTerm(corta, -1));
+	}
+
+	/** Cada patrón principal, al menos un día con un compuesto; si no puede, {@code faltaBasico} lo absorbe. */
+	private void basicos() {
+		for (String codigo : config.basicos().patrones()) {
+			Patron patron = Patron.desdeCodigo(codigo);
+			LinearExprBuilder presencias = LinearExpr.newBuilder();
+			for (int e = 0; e < ejercicios.size(); e++) {
+				if (ejercicios.get(e).compuesto() && ejercicios.get(e).patron() == patron) {
+					presencias.addSum(esta[e]);
+				}
+			}
+			BoolVar falta = cp.newBoolVar("falta_" + codigo);
+			faltaBasico.put(codigo, falta);
+			cp.addGreaterOrEqual(presencias.add(falta), 1);
 		}
 	}
 
@@ -164,12 +211,24 @@ final class ModeloRutina {
 		for (String m : musculos()) {
 			Rango rango = config.volumen().rango(m);
 			cp.addLessOrEqual(seriesDobles(m), (long) DOBLE * rango.maximo());
+			objetivoDeVolumen(m, rango);
 			if (conMinimo.contains(m)) {
 				IntVar holgura = cp.newIntVar(0, (long) DOBLE * rango.minimo(), "hv_" + m);
 				holguraVolumen.put(m, holgura);
 				cp.addGreaterOrEqual(seriesDobles(m).add(holgura), (long) DOBLE * rango.minimo());
 			}
 		}
+	}
+
+	/** {@code hasta} = min(series, objetivo) y {@code sobre} = max(0, series − objetivo), en series dobles. */
+	private void objetivoDeVolumen(String musculo, Rango rango) {
+		long objetivo = (long) DOBLE * config.volumen().objetivoDe(musculo);
+		IntVar hasta = cp.newIntVar(0, objetivo, "hasta_" + musculo);
+		IntVar sobre = cp.newIntVar(0, (long) DOBLE * rango.maximo(), "sobre_" + musculo);
+		cp.addLessOrEqual(hasta, seriesDobles(musculo));
+		cp.addGreaterOrEqual(LinearExpr.newBuilder().add(sobre).add(objetivo), seriesDobles(musculo));
+		hastaObjetivo.put(musculo, hasta);
+		sobreObjetivo.put(musculo, sobre);
 	}
 
 	private void frecuencia() {
@@ -201,14 +260,18 @@ final class ModeloRutina {
 		ConfiguracionRutina.Pesos p = config.pesos();
 		LinearExprBuilder objetivo = LinearExpr.newBuilder();
 		for (int e = 0; e < ejercicios.size(); e++) {
-			long porSerie = Terminos.porSerie(p, ejercicios.get(e), entrada.prioritarios(), movilidad, palancas);
+			long porSerie = Terminos.porSerie(config, ejercicios.get(e), entrada.prioritarios(), movilidad, palancas);
 			for (int d = 0; d < dias; d++) {
 				objetivo.addTerm(series[e][d], porSerie);
 			}
 			objetivo.addTerm(exceso[e], -p.variedad());
 		}
+		hastaObjetivo.values().forEach(h -> objetivo.addTerm(h, p.serieHastaObjetivo()));
+		sobreObjetivo.values().forEach(s -> objetivo.addTerm(s, -p.serieSobreObjetivo()));
 		holguraVolumen.values().forEach(h -> objetivo.addTerm(h, -p.holguraVolumen()));
 		holguraFrecuencia.values().forEach(h -> objetivo.addTerm(h, -p.holguraFrecuencia()));
+		faltaBasico.values().forEach(f -> objetivo.addTerm(f, -p.holguraBasicos()));
+		objetivo.addTerm(desequilibrio, -p.desequilibrioSesiones());
 		return objetivo;
 	}
 }

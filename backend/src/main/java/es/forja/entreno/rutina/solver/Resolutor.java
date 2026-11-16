@@ -6,7 +6,6 @@ import java.util.TreeMap;
 
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
-import com.google.ortools.sat.SatParameters.SearchBranching;
 
 import es.forja.entreno.rutina.modelo.ConfiguracionRutina;
 import es.forja.entreno.rutina.modelo.PlanRutina;
@@ -17,8 +16,9 @@ import es.forja.entreno.rutina.modelo.PlanRutina;
  * intercalados, que es lo que hace que den siempre la misma respuesta; con uno, la búsqueda ya es determinista y
  * sin intercalar va unas cuatro veces más rápido en este modelo.
  *
- * <p>La linealización completa y la cartera con reinicios rápidos son las que mejor van en este modelo: con 1 worker
- * cierran el óptimo en menos de un segundo en casi todas las combinaciones de días y minutos del catálogo real.
+ * <p>Con la linealización completa y la ramificación automática, 1 worker llega a planes casi óptimos en 1 s
+ * determinista en el catálogo real; la cartera con reinicios rápidos y el modo intercalado van peor (el intercalado,
+ * además, se pasa del límite determinista).
  */
 final class Resolutor {
 
@@ -36,12 +36,13 @@ final class Resolutor {
 	private Resolutor() {
 	}
 
-	static Resultado resolver(ModeloRutina modelo, ConfiguracionRutina.Solver parametros) {
+	/** @param tiempoDeterminista el del plan o el de las alternativas, los dos de la configuración */
+	static Resultado resolver(ModeloRutina modelo, ConfiguracionRutina.Solver parametros, double tiempoDeterminista) {
 		CpSolver solver = new CpSolver();
-		solver.getParameters().setMaxDeterministicTime(parametros.tiempoDeterminista())
+		solver.getParameters().setMaxDeterministicTime(tiempoDeterminista)
 				.setNumWorkers(parametros.workers()).setRandomSeed(parametros.semilla()).setRandomizeSearch(false)
 				.setInterleaveSearch(parametros.workers() > 1).setLinearizationLevel(LINEALIZACION_COMPLETA)
-				.setSearchBranching(SearchBranching.PORTFOLIO_WITH_QUICK_RESTART_SEARCH);
+				;
 		CpSolverStatus estado = solver.solve(modelo.cp);
 		if (estado != CpSolverStatus.OPTIMAL && estado != CpSolverStatus.FEASIBLE) {
 			return new Resultado(Optional.empty(), estado == CpSolverStatus.INFEASIBLE);

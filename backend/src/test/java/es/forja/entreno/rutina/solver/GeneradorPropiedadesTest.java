@@ -31,6 +31,7 @@ class GeneradorPropiedadesTest {
 
 	private static final int CASOS = 50;
 	private static final int SEGUNDOS_POR_MINUTO = 60;
+	private static final int CIEN = 100;
 	private static final ConfiguracionRutina CONFIG = ConfiguracionDePrueba.estandar();
 	private static final GeneradorRutina GENERADOR = new GeneradorRutina(CONFIG);
 	private static final Map<Long, PlanRutina> PLANES = new ConcurrentHashMap<>();
@@ -140,6 +141,36 @@ class GeneradorPropiedadesTest {
 
 	@ParameterizedTest(name = "semilla {0}")
 	@MethodSource("semillas")
+	void dentroDelDiaVanLosCompuestosPrimeroYAIgualdadLaPosicionEstirada(long semilla) {
+		Map<String, EjercicioRutina> porId = CasosAleatorios.caso(semilla).porId();
+
+		for (DiaPlan dia : plan(semilla).dias()) {
+			List<EjercicioRutina> orden = dia.ejercicios().stream().map(e -> porId.get(e.idExterno())).toList();
+			for (int i = 0; i + 1 < orden.size(); i++) {
+				EjercicioRutina antes = orden.get(i);
+				EjercicioRutina despues = orden.get(i + 1);
+				assertThat(antes.compuesto() || !despues.compuesto()).isTrue();
+				if (antes.compuesto() == despues.compuesto()) {
+					assertThat(antes.posicionEstirada() || !despues.posicionEstirada()).isTrue();
+				}
+			}
+		}
+	}
+
+	@ParameterizedTest(name = "semilla {0}")
+	@MethodSource("semillas")
+	void sinFaltaDeCandidatosNingunaSesionBajaDeLaMitadDelTiempo(long semilla) {
+		PlanRutina plan = plan(semilla);
+		int minimo = CasosAleatorios.caso(semilla).entrada().minutos() * SEGUNDOS_POR_MINUTO
+				* CONFIG.sesion().porcentajeMinimoDelTiempo() / CIEN;
+
+		if (plan.notas().isEmpty()) {
+			plan.dias().forEach(d -> assertThat(d.segundos()).isGreaterThanOrEqualTo(minimo));
+		}
+	}
+
+	@ParameterizedTest(name = "semilla {0}")
+	@MethodSource("semillas")
 	void mismaEntradaYMismaSemillaDanElMismoPlan(long semilla) {
 		Caso caso = CasosAleatorios.caso(semilla);
 
@@ -154,7 +185,7 @@ class GeneradorPropiedadesTest {
 
 		assertThat(plan.contribuciones()).hasSize((int) elegidosDistintos);
 		assertThat(plan.alternativas()).hasSizeLessThanOrEqualTo(GeneradorRutina.MAXIMO_RESOLUCIONES_ALTERNATIVAS);
-		plan.holguras().forEach(h -> assertThat(h.mensaje()).startsWith("Con "));
+		plan.holguras().forEach(h -> assertThat(h.mensaje()).matches("(Con|Sin) .+"));
 		plan.descartes().forEach(d -> assertThat(d.motivo()).isNotBlank());
 		assertThat(plan.resumen()).contains(PlanRutina.OPTIMO.equals(plan.estado()) ? "el mejor plan" : "un buen plan");
 	}

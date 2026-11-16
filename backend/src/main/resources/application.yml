@@ -13,24 +13,32 @@ forja:
     exigir-verificacion: ${FORJA_CUENTA_EXIGIR_VERIFICACION:true}
   contrasenas-filtradas: ${FORJA_CONTRASENAS_FILTRADAS:}
   origen-web: ${FORJA_ORIGEN_WEB:}
-  # Generador de la rutina con CP-SAT (ADR 0002). Los pesos y los rangos viven aquí, no en el código.
+  # Generador de la rutina con CP-SAT (ADR 0002). Los pesos, rangos y objetivos viven aquí, no en el código.
   rutina:
     pesos:
-      cobertura-prioritarios: 3   # por serie doble (primario 2, secundario 1) de un músculo prioritario
-      posicion-estirada: 1        # moderado: desempata a favor de la posición estirada sin añadir series (ADR 0007)
+      cobertura-prioritarios: 5   # por serie doble (primario 2, secundario 1) de un músculo prioritario
+      posicion-estirada: 2        # moderado: favorece la posición estirada sin mandar sobre el volumen (ADR 0007)
       variedad: 10                # por cada día de más que se repite un ejercicio (más de 2)
-      fatiga: 1                   # por serie de básico pesado (compuesto con carga axial)
-      series: 2                   # por serie: sin él, el solver podría añadir series gratis
+      fatiga: 2                   # por serie de básico pesado (compuesto con carga axial)
+      serie-hasta-objetivo: 10    # premio por serie doble de un músculo hasta su objetivo
+      serie-sobre-objetivo: 3     # penalización suave por serie doble por encima (o de un músculo sin meta)
+      serie-compuesto: 4          # premio por serie de compuesto; mayor que la fatiga
       holgura-volumen: 100        # por serie doble que falta para el mínimo
       holgura-frecuencia: 300     # por día que falta para la frecuencia mínima
+      holgura-basicos: 500        # por patrón principal que falta en la semana
+      desequilibrio-sesiones: 5   # por minuto entre la sesión más larga y la más corta
       movilidad: 0                # sin datos todavía (tests de movilidad)
       palancas: 0                 # sin datos todavía (fase 2)
     volumen:
       # Heurística de entrenadores (RP), nivel H: ver docs/referencias.md.
       minimo: 10
+      objetivo: 14
       maximo: 20
       musculos-con-minimo: [pecho, dorsales, espalda_media, hombros, cuadriceps, isquiotibiales, gluteos, biceps, triceps, gemelos]
       por-musculo: {}
+    basicos:
+      # Cada uno, al menos una vez por semana con un compuesto (meta con holgura).
+      patrones: [sentadilla, bisagra, empuje_horizontal, empuje_vertical, traccion_horizontal, traccion_vertical]
     tiempos:
       segundos-por-serie: 40
       segundos-de-descanso: 90
@@ -41,8 +49,10 @@ forja:
       ejercicios-minimos: 3
       ejercicios-maximos: 8
       maximo-por-patron: 2
+      porcentaje-minimo-del-tiempo: 50   # ninguna sesión por debajo, salvo que falten candidatos
     solver:
-      tiempo-determinista: 2.0   # segundos «deterministas» de CP-SAT, no de reloj (ADR 0002, enmienda)
+      tiempo-determinista: 1.0              # segundos «deterministas» de CP-SAT, no de reloj (ADR 0002, enmienda)
+      tiempo-determinista-alternativas: 0.2 # cada re-resolución del «por qué este y no aquel»
       workers: 1                 # con 1 la búsqueda es determinista sin intercalar, y en este modelo va más rápido
       semilla: 42
 spring:

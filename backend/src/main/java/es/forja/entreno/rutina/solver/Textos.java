@@ -1,6 +1,7 @@
 package es.forja.entreno.rutina.solver;
 
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Textos de la traza, en español y de tú. Finalidad de fitness (ADR 0007): nada de vocabulario sanitario.
@@ -13,6 +14,7 @@ final class Textos {
 	static final String FUENTE_VOLUMEN = "heurística de entrenadores (RP), nivel H";
 	static final String VOLUMEN = "volumen";
 	static final String FRECUENCIA = "frecuencia";
+	static final String BASICO = "basico";
 
 	private static final Locale ES = Locale.forLanguageTag("es-ES");
 
@@ -31,12 +33,34 @@ final class Textos {
 						musculo.toLowerCase(ES), minima, entrenado);
 	}
 
-	static String minimoRebajado(int minimo) {
-		return ("Con tu material y tus limitaciones no hay ejercicios compatibles para llegar a %d por sesión: "
-				+ "alguna sesión lleva menos.").formatted(minimo);
+	static String minimoRebajado(int ejercicios, int porcentaje) {
+		return ("Con tu material y tus limitaciones no hay ejercicios compatibles para llenar todas las sesiones "
+				+ "(%d ejercicios y el %d %% del tiempo): alguna lleva menos.").formatted(ejercicios, porcentaje);
 	}
 
-	static String alternativa(String nombre, Long diferencia, boolean inviable) {
+	static String basicoNoCabe(String patron, int dias, int minutos) {
+		return "Sin %s: con %d días y %d min no cabe un compuesto de este patrón.".formatted(patron, dias, minutos);
+	}
+
+	/** @param tipos tipos de descarte de las variantes compuestas del patrón */
+	static String basicoSinVariantes(String patron, Set<String> tipos) {
+		String motivo;
+		if (tipos.isEmpty()) {
+			motivo = "el catálogo no tiene ninguna variante compuesta.";
+		} else if (tipos.equals(Set.of(FiltroPrevio.RESTRICCION))) {
+			motivo = "tus restricciones excluyen todas las variantes.";
+		} else if (tipos.equals(Set.of(FiltroPrevio.MATERIAL))) {
+			motivo = "con tu material no hay ninguna variante.";
+		} else if (tipos.equals(Set.of(FiltroPrevio.EXCLUSION))) {
+			motivo = "has quitado todas las variantes.";
+		} else {
+			motivo = "entre tu material, lo que has quitado y tus restricciones no queda ninguna variante.";
+		}
+		return "Sin " + patron + ": " + motivo;
+	}
+
+	/** @param exacta si la re-resolución demostró su óptimo; si no, la pérdida es como mucho la que se dice */
+	static String alternativa(String nombre, Long diferencia, boolean inviable, boolean exacta) {
 		String alternativa = minusculaInicial(nombre);
 		if (inviable) {
 			return "Con " + alternativa + " el plan no cabe en tus límites de tiempo y volumen.";
@@ -46,6 +70,9 @@ final class Textos {
 		}
 		if (diferencia == 0) {
 			return "Con " + alternativa + " en su lugar el plan queda igual de bien.";
+		}
+		if (diferencia > 0 && !exacta) {
+			return "Con %s en su lugar el plan pierde como mucho %d puntos.".formatted(alternativa, diferencia);
 		}
 		return diferencia > 0 ? "Con %s en su lugar el plan pierde %d puntos.".formatted(alternativa, diferencia)
 				: "Con %s en su lugar el plan gana %d puntos.".formatted(alternativa, -diferencia);

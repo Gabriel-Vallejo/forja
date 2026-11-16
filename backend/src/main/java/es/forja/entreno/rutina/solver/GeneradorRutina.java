@@ -12,6 +12,7 @@ import es.forja.entreno.rutina.modelo.EjercicioRutina;
 import es.forja.entreno.rutina.modelo.EntradaRutina;
 import es.forja.entreno.rutina.modelo.PlanRutina;
 import es.forja.entreno.rutina.modelo.PlanRutina.Alternativa;
+import es.forja.entreno.rutina.modelo.PlanRutina.Holgura;
 import es.forja.entreno.rutina.solver.Resolutor.Resultado;
 import es.forja.entreno.rutina.solver.Resolutor.Solucion;
 
@@ -22,7 +23,7 @@ import es.forja.entreno.rutina.solver.Resolutor.Solucion;
 public class GeneradorRutina {
 
 	/** Tope de re-resoluciones del «por qué este y no aquel» en una misma petición: cada una cuesta CPU. */
-	public static final int MAXIMO_RESOLUCIONES_ALTERNATIVAS = 10;
+	public static final int MAXIMO_RESOLUCIONES_ALTERNATIVAS = 6;
 	static final int ALTERNATIVAS_POR_EJERCICIO = 2;
 
 	private final ConfiguracionRutina config;
@@ -34,32 +35,37 @@ public class GeneradorRutina {
 	public PlanRutina generar(CatalogoRutina catalogo, EntradaRutina entrada) {
 		FiltroPrevio.Resultado filtro = FiltroPrevio.aplicar(catalogo.ejercicios(), entrada);
 		List<String> notas = new ArrayList<>();
-		int minimo = config.sesion().ejerciciosMinimos();
-		ModeloRutina modelo = new ModeloRutina(config, entrada, filtro.candidatos(), minimo);
-		Resultado resultado = Resolutor.resolver(modelo, config.solver());
+		boolean minimos = true;
+		ModeloRutina modelo = new ModeloRutina(config, entrada, filtro.candidatos(), minimos);
+		Resultado resultado = Resolutor.resolver(modelo, config.solver(), config.solver().tiempoDeterminista());
 		if (resultado.inviable()) {
-			// Con pocos candidatos el mínimo de ejercicios por sesión puede no caber; sin él, el modelo siempre
-			// tiene solución (todo a cero) y la holgura cuenta lo que falta.
-			notas.add(Textos.minimoRebajado(minimo));
-			minimo = 0;
-			modelo = new ModeloRutina(config, entrada, filtro.candidatos(), minimo);
-			resultado = Resolutor.resolver(modelo, config.solver());
+			// Con pocos candidatos los mínimos por sesión pueden no caber; sin ellos, el modelo siempre tiene
+			// solución (todo a cero) y la holgura cuenta lo que falta.
+			notas.add(Textos.minimoRebajado(config.sesion().ejerciciosMinimos(),
+					config.sesion().porcentajeMinimoDelTiempo()));
+			minimos = false;
+			modelo = new ModeloRutina(config, entrada, filtro.candidatos(), minimos);
+			resultado = Resolutor.resolver(modelo, config.solver(), config.solver().tiempoDeterminista());
 		}
 		Solucion solucion = resultado.solucion()
 				.orElseThrow(() -> new IllegalStateException("El solver no encontró ningún plan en el límite fijado"));
 		Traza traza = new Traza(config, entrada, modelo, solucion, catalogo.nombresMusculo());
+		List<Holgura> holguras = new ArrayList<>(traza.holguras());
+		holguras.addAll(TrazaBasicos.holguras(config.basicos().patrones(), entrada, catalogo.ejercicios(), filtro,
+				traza.elegidos().stream().map(filtro.candidatos()::get).toList()));
 		String resumen = PlanRutina.OPTIMO.equals(solucion.estado()) ? Textos.RESUMEN_OPTIMO
 				: Textos.RESUMEN_FACTIBLE;
 		return new PlanRutina(solucion.estado(), resumen, solucion.objetivo(), traza.dias(filtro.anotaciones()),
-				traza.volumen(), traza.holguras(), traza.contribuciones(),
-				alternativas(entrada, filtro.candidatos(), minimo, traza, solucion), filtro.descartes(), notas);
+				traza.volumen(), holguras, traza.contribuciones(),
+				alternativas(entrada, filtro.candidatos(), minimos, traza, solucion), filtro.descartes(), notas);
 	}
 
 	/**
 	 * Para cada elegido, hasta {@value #ALTERNATIVAS_POR_EJERCICIO} candidatos de su patrón que no están en el plan
-	 * (familia primero): se prohíbe el elegido, se fuerza la alternativa y se vuelve a resolver con el mismo límite.
+	 * (familia primero): se prohíbe el elegido, se fuerza la alternativa y se vuelve a resolver, con el límite de las
+	 * alternativas y el plan base como pista.
 	 */
-	private List<Alternativa> alternativas(EntradaRutina entrada, List<EjercicioRutina> candidatos, int minimo,
+	private List<Alternativa> alternativas(EntradaRutina entrada, List<EjercicioRutina> candidatos, boolean minimos,
 			Traza traza, Solucion base) {
 		List<Integer> elegidos = traza.elegidos();
 		List<Alternativa> alternativas = new ArrayList<>();
@@ -68,7 +74,7 @@ public class GeneradorRutina {
 				if (alternativas.size() == MAXIMO_RESOLUCIONES_ALTERNATIVAS) {
 					return alternativas;
 				}
-				alternativas.add(comparar(entrada, candidatos, minimo, base, e, a));
+				alternativas.add(comparar(entrada, candidatos, minimos, base, e, a));
 			}
 		}
 		return alternativas;
@@ -85,16 +91,18 @@ public class GeneradorRutina {
 				.limit(ALTERNATIVAS_POR_EJERCICIO).toList();
 	}
 
-	private Alternativa comparar(EntradaRutina entrada, List<EjercicioRutina> candidatos, int minimo, Solucion base,
-			int elegido, int alternativa) {
-		ModeloRutina modelo = new ModeloRutina(config, entrada, candidatos, minimo);
+	private Alternativa comparar(EntradaRutina entrada, List<EjercicioRutina> candidatos, boolean minimos,
+			Solucion base, int elegido, int alternativa) {
+		ModeloRutina modelo = new ModeloRutina(config, entrada, candidatos, minimos);
 		modelo.sugerir(base.series());
 		modelo.prohibir(elegido);
 		modelo.forzar(alternativa);
-		Resultado resultado = Resolutor.resolver(modelo, config.solver());
+		Resultado resultado = Resolutor.resolver(modelo, config.solver(),
+				config.solver().tiempoDeterministaAlternativas());
 		Long diferencia = resultado.solucion().map(s -> base.objetivo() - s.objetivo()).orElse(null);
 		EjercicioRutina alt = candidatos.get(alternativa);
 		return new Alternativa(candidatos.get(elegido).idExterno(), alt.idExterno(), alt.nombre(), diferencia,
-				Textos.alternativa(alt.nombre(), diferencia, resultado.inviable()));
+				Textos.alternativa(alt.nombre(), diferencia, resultado.inviable(), resultado.solucion()
+						.map(sol -> PlanRutina.OPTIMO.equals(sol.estado())).orElse(false)));
 	}
 }

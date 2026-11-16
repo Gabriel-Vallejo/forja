@@ -1,6 +1,7 @@
 package es.forja.entreno.rutina.solver;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -24,6 +25,7 @@ import es.forja.entreno.rutina.solver.Resolutor.Solucion;
 final class Traza {
 
 	private static final double MITAD = 2.0;
+	private static final int DOBLE = 2;
 
 	private final ConfiguracionRutina config;
 	private final EntradaRutina entrada;
@@ -49,13 +51,20 @@ final class Traza {
 		return IntStream.range(0, modelo.ejercicios.size()).filter(e -> seriesSemana(e) > 0).boxed().toList();
 	}
 
+	/** Al presentar el día: compuestos primero, luego aislados y, a igualdad, la posición estirada. */
+	private static final Comparator<EjercicioRutina> ORDEN_DEL_DIA = Comparator
+			.comparing((EjercicioRutina e) -> !e.compuesto()).thenComparing(e -> !e.posicionEstirada())
+			.thenComparing(EjercicioRutina::idExterno);
+
 	List<DiaPlan> dias(Map<String, List<String>> anotaciones) {
 		ConfiguracionRutina.Tiempos t = config.tiempos();
+		List<Integer> orden = IntStream.range(0, modelo.ejercicios.size()).boxed()
+				.sorted(Comparator.comparing(modelo.ejercicios::get, ORDEN_DEL_DIA)).toList();
 		List<DiaPlan> dias = new ArrayList<>();
 		for (int d = 0; d < modelo.dias; d++) {
 			List<EjercicioPlan> ejercicios = new ArrayList<>();
 			int segundos = 0;
-			for (int e = 0; e < modelo.ejercicios.size(); e++) {
+			for (int e : orden) {
 				int series = solucion.series()[e][d];
 				if (series > 0) {
 					EjercicioRutina ej = modelo.ejercicios.get(e);
@@ -82,7 +91,8 @@ final class Traza {
 		return modelo.musculos().stream().map(m -> {
 			Rango rango = config.volumen().rango(m);
 			return new VolumenMusculo(m, nombre(m), seriesEfectivas(m),
-					conMinimo.contains(m) ? rango.minimo() : null, rango.maximo(), Textos.FUENTE_VOLUMEN);
+					conMinimo.contains(m) ? rango.minimo() : null, conMinimo.contains(m) ? rango.objetivo() : null,
+					rango.maximo(), Textos.FUENTE_VOLUMEN);
 		}).toList();
 	}
 
@@ -110,9 +120,22 @@ final class Traza {
 			EjercicioRutina ej = modelo.ejercicios.get(e);
 			int diasUsados = (int) IntStream.of(solucion.series()[e]).filter(s -> s > 0).count();
 			int diasDeMas = Math.max(0, diasUsados - ModeloRutina.REPETICIONES_SIN_PENALIZAR);
-			return new ContribucionEjercicio(ej.idExterno(), ej.nombre(), Terminos.contribucion(config.pesos(), ej,
-					entrada.prioritarios(), seriesSemana(e), diasDeMas));
+			return new ContribucionEjercicio(ej.idExterno(), ej.nombre(), Terminos.contribucion(config, ej,
+					entrada.prioritarios(), seriesSemana(e), diasDeMas, parteDelVolumen(ej, seriesSemana(e))));
 		}).toList();
+	}
+
+	/** Lo que aporta el ejercicio al término de volumen objetivo, repartido por series dobles en cada músculo. */
+	private long parteDelVolumen(EjercicioRutina ej, int series) {
+		double parte = 0;
+		for (Map.Entry<String, Integer> m : ej.musculos().entrySet()) {
+			double dobles = DOBLE * seriesEfectivas(m.getKey());
+			long objetivo = (long) DOBLE * config.volumen().objetivoDe(m.getKey());
+			double valor = config.pesos().serieHastaObjetivo() * Math.min(dobles, objetivo)
+					- config.pesos().serieSobreObjetivo() * Math.max(0, dobles - objetivo);
+			parte += valor * m.getValue() * series / dobles;
+		}
+		return Math.round(parte);
 	}
 
 	/** Días en que el músculo sale como primario en algún ejercicio. */

@@ -11,28 +11,32 @@ public final class ConfiguracionDePrueba {
 
 	public static final List<String> MUSCULOS_GRANDES = List.of("pecho", "dorsales", "espalda_media", "hombros",
 			"cuadriceps", "isquiotibiales", "gluteos");
+	public static final List<String> PATRONES_PRINCIPALES = List.of("sentadilla", "bisagra", "empuje_horizontal",
+			"empuje_vertical", "traccion_horizontal", "traccion_vertical");
 
 	private ConfiguracionDePrueba() {
 	}
 
 	public static ConfiguracionRutina estandar() {
 		return new ConfiguracionRutina(
-				new Pesos(3, 1, 10, 1, 2, 100, 300, 0, 0),
-				new ConfiguracionRutina.Volumen(10, 20,
+				pesos(2),
+				new ConfiguracionRutina.Volumen(10, 14, 20,
 						List.of("pecho", "dorsales", "espalda_media", "hombros", "cuadriceps", "isquiotibiales",
 								"gluteos", "biceps", "triceps", "gemelos"),
 						Map.of()),
+				new ConfiguracionRutina.Basicos(PATRONES_PRINCIPALES),
 				new ConfiguracionRutina.Tiempos(40, 90, 120),
-				new ConfiguracionRutina.Sesion(2, 5, 3, 8, 2),
-				new ConfiguracionRutina.Solver(2.0, 1, 42));
+				new ConfiguracionRutina.Sesion(2, 5, 3, 8, 2, 50),
+				new ConfiguracionRutina.Solver(1.0, 0.2, 1, 42));
 	}
 
 	/** La estándar con otro peso de posición estirada. */
 	public static ConfiguracionRutina conPesoEstirada(int peso) {
 		ConfiguracionRutina c = estandar();
-		Pesos p = c.pesos();
-		return new ConfiguracionRutina(new Pesos(p.coberturaPrioritarios(), peso, p.variedad(), p.fatiga(),
-				p.series(), p.holguraVolumen(), p.holguraFrecuencia(), p.movilidad(), p.palancas()), c.volumen(),
-				c.tiempos(), c.sesion(), c.solver());
+		return new ConfiguracionRutina(pesos(peso), c.volumen(), c.basicos(), c.tiempos(), c.sesion(), c.solver());
+	}
+
+	private static Pesos pesos(int posicionEstirada) {
+		return new Pesos(5, posicionEstirada, 10, 2, 10, 3, 4, 100, 300, 500, 5, 0, 0);
 	}
 }
