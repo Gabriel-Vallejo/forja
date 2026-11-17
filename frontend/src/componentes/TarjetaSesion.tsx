@@ -9,7 +9,7 @@ import { Texto } from './Texto';
 
 export const ANCHO_TARJETA = 330;
 const ALTO_TARJETA = 392;
-const ANCHO_CUERPO = 116;
+const ANCHO_CUERPO = 88;
 const CUERPO_ARRIBA = 22;
 const CUERPO_DERECHA = 12;
 
