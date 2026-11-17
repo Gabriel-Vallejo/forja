@@ -7,6 +7,7 @@ import { Aviso } from '../componentes/Aviso';
 import { Boton } from '../componentes/Boton';
 import { CampoTexto } from '../componentes/CampoTexto';
 import { Pantalla } from '../componentes/Pantalla';
+import { SelectorFecha } from '../componentes/SelectorFecha';
 import { useSesion } from '../sesion/sesion';
 import {
   type DatosRegistro,
@@ -59,14 +60,12 @@ export function Registro() {
         autoComplete="new-password"
         textContentType="newPassword"
       />
-      <CampoTexto
+      <SelectorFecha
         etiqueta="Fecha de nacimiento"
         valor={datos.fechaNacimiento}
         alCambiar={cambiar('fechaNacimiento')}
         error={errores.fechaNacimiento}
-        ayuda="AAAA-MM-DD. Solo la usamos para comprobar que tienes 18 años o más, y guardamos el año."
-        keyboardType="numbers-and-punctuation"
-        autoComplete="birthdate-full"
+        ayuda="Solo la usamos para comprobar que tienes 18 años o más, y guardamos el año."
       />
       {alta.isError ? <Aviso tipo="error" mensaje={mensajeDeError(alta.error)} /> : null}
       <Boton etiqueta="Crear cuenta" etiquetaCargando="Creando…" cargando={alta.isPending} onPress={crearCuenta} />

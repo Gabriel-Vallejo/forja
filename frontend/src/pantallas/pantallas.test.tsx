@@ -39,13 +39,33 @@ const PLAN: PlanActual = {
   ],
 };
 
+// La ruleta nativa no existe en Jest: un botón que «elige» la fecha que diga el test.
+let mockFechaElegida = '2000-01-01';
+jest.mock('@react-native-community/datetimepicker', () => {
+  const { createElement } = jest.requireActual<typeof import('react')>('react');
+  const { Pressable, Text } = jest.requireActual<typeof import('react-native')>('react-native');
+  return {
+    __esModule: true,
+    default: ({ onChange }: { onChange: (evento: { type: string }, fecha?: Date) => void }) => {
+      const [anio, mes, dia] = mockFechaElegida.split('-').map(Number) as [number, number, number];
+      return createElement(
+        Pressable,
+        { accessibilityRole: 'button', accessibilityLabel: 'Confirmar fecha', onPress: () => onChange({ type: 'set' }, new Date(anio, mes - 1, dia)) },
+        createElement(Text, null, 'Confirmar'),
+      );
+    },
+  };
+});
+
 beforeEach(() => jest.clearAllMocks());
 
 describe('Registro', () => {
   async function rellenar(contrasena: string, fecha: string) {
     await fireEvent.changeText(screen.getByLabelText('Correo'), 'ana@forja.test');
     await fireEvent.changeText(screen.getByLabelText('Contraseña'), contrasena);
-    await fireEvent.changeText(screen.getByLabelText('Fecha de nacimiento'), fecha);
+    mockFechaElegida = fecha;
+    await fireEvent.press(screen.getByRole('button', { name: /^Fecha de nacimiento/ }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Confirmar fecha' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Crear cuenta' }));
   }
 
