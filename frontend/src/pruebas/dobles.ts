@@ -58,6 +58,7 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
     preguntasCribado: jest.fn().mockResolvedValue({ semanasReciente: 4, preguntas: [] }),
     cribar: jest.fn().mockResolvedValue({ nivel: 'seguir', motivos: [] }),
     evaluarBanderas: jest.fn().mockResolvedValue({ bloquea: false, banderas: [] }),
+    estadoBloqueo: jest.fn().mockResolvedValue({ bloquea: false, nivel: null }),
     restricciones: jest.fn().mockResolvedValue([]),
     crearRestriccion: jest.fn().mockResolvedValue(restriccion()),
     actualizarRestriccion: jest.fn().mockResolvedValue(restriccion()),

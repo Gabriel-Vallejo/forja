@@ -4,9 +4,11 @@ import { ErrorApi } from './errores';
 import {
   type DatosRestriccion,
   type EfectoEjercicio,
+  type EstadoBloqueo,
   esquemaConsentimientos,
   esquemaDatosSesion,
   esquemaEfecto,
+  esquemaEstadoBloqueo,
   esquemaMensaje,
   esquemaPlanActual,
   esquemaPlanGenerado,
@@ -64,6 +66,8 @@ export interface ApiForja {
   preguntasCribado(): Promise<CuestionarioCribado>;
   cribar(solicitud: SolicitudCribado): Promise<ResultadoCribado>;
   evaluarBanderas(solicitud: SolicitudBanderas): Promise<ResultadoBanderas>;
+  /** Si el backend recuerda una bandera roja o un cribado urgente (solo el nivel, nunca las respuestas). */
+  estadoBloqueo(): Promise<EstadoBloqueo>;
   restricciones(): Promise<Restriccion[]>;
   crearRestriccion(datos: DatosRestriccion): Promise<Restriccion>;
   actualizarRestriccion(uuid: string, datos: DatosRestriccion): Promise<Restriccion>;
@@ -150,6 +154,7 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
       cliente.pedir({ metodo: 'POST', ruta: '/api/v1/cribado', cuerpo: solicitud, esquema: esquemaResultadoCribado }),
     evaluarBanderas: (solicitud) =>
       cliente.pedir({ metodo: 'POST', ruta: '/api/v1/banderas', cuerpo: solicitud, esquema: esquemaResultadoBanderas }),
+    estadoBloqueo: () => cliente.pedir({ ruta: '/api/v1/banderas/estado', esquema: esquemaEstadoBloqueo }),
     restricciones: () => cliente.pedir({ ruta: '/api/v1/restricciones', esquema: esquemaRestricciones }),
     crearRestriccion: (datos) =>
       cliente.pedir({ metodo: 'POST', ruta: '/api/v1/restricciones', cuerpo: datos, esquema: esquemaRestriccion }),

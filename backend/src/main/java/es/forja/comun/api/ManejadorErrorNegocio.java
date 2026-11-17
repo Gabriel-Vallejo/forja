@@ -11,7 +11,10 @@ public class ManejadorErrorNegocio {
 
 	@ExceptionHandler(ErrorNegocio.class)
 	ResponseEntity<ProblemDetail> alFallar(ErrorNegocio error) {
-		return ResponseEntity.status(error.estado())
-				.body(ProblemDetail.forStatusAndDetail(error.estado(), error.getMessage()));
+		ProblemDetail problema = ProblemDetail.forStatusAndDetail(error.estado(), error.getMessage());
+		if (error.codigo() != null) {
+			problema.setProperty("codigo", error.codigo());
+		}
+		return ResponseEntity.status(error.estado()).body(problema);
 	}
 }

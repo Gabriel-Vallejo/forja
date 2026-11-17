@@ -16,6 +16,7 @@ import {
   prescripcion,
   seriesDe,
 } from '../plan/plan';
+import { RegenerarPlan } from '../plan/RegenerarPlan';
 import { type Theme, useTheme } from '../theme';
 import { ConPlan } from './ConPlan';
 
@@ -107,6 +108,7 @@ export function MiPlan() {
           <>
             <Texto estilo="mini" tono="secundario">{`Generado el ${fechaCorta(plan.creadoEn)}`}</Texto>
             <Plan plan={plan} />
+            <RegenerarPlan etiqueta="Regenerar mi plan" />
           </>
         )}
       </ConPlan>

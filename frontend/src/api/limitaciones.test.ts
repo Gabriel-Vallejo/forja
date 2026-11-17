@@ -152,3 +152,29 @@ describe('API de limitaciones', () => {
     expect(efecto[1]?.sustituto?.nombre).toBe('Prensa de piernas');
   });
 });
+
+describe('Estado del bloqueo y errores con código', () => {
+  test('el estado se lee de /banderas/estado y admite nivel nulo', async () => {
+    const fetchFalso = jest.fn(async () => respuesta(200, { bloquea: false, nivel: null }));
+
+    const estado = await montar(fetchFalso).estadoBloqueo();
+
+    expect(llamada(fetchFalso)[0]).toBe(`${URL_BASE}/api/v1/banderas/estado`);
+    expect(estado).toEqual({ bloquea: false, nivel: null });
+  });
+
+  test('un nivel desconocido es una respuesta inesperada', async () => {
+    const fetchFalso = jest.fn(async () => respuesta(200, { bloquea: true, nivel: 'inventado' }));
+
+    await expect(montar(fetchFalso).estadoBloqueo()).rejects.toThrow('formato esperado');
+  });
+
+  test('el 409 de generar conserva el código estable y el mensaje del backend', async () => {
+    const problema = { status: 409, detail: 'No generamos tu plan por ahora.', codigo: 'bandera_roja_activa' };
+    const fetchFalso = jest.fn(async () => respuesta(409, problema));
+
+    const error = await montar(fetchFalso).generarPlan().catch((e: unknown) => e);
+
+    expect(error).toMatchObject({ estado: 409, codigo: 'bandera_roja_activa', message: 'No generamos tu plan por ahora.' });
+  });
+});

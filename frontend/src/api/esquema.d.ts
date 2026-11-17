@@ -132,6 +132,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/banderas/estado": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["estado"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/consentimientos": {
         parameters: {
             query?: never;
@@ -439,6 +455,10 @@ export interface components {
             posicionEstirada?: boolean;
             /** Format: int32 */
             series?: number;
+        };
+        EstadoBloqueo: {
+            bloquea?: boolean;
+            nivel?: string;
         };
         Holgura: {
             codigo?: string;
@@ -925,6 +945,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["RespuestaBanderas"];
+                };
+            };
+        };
+    };
+    estado: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EstadoBloqueo"];
                 };
             };
         };

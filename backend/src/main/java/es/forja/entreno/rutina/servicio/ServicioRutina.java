@@ -16,6 +16,7 @@ import es.forja.entreno.rutina.modelo.SolicitudRutina;
 import es.forja.entreno.rutina.repositorio.CatalogoRutinaRepositorio;
 import es.forja.entreno.rutina.repositorio.CatalogoRutinaRepositorio.FichaCurado;
 import es.forja.entreno.rutina.solver.GeneradorRutina;
+import es.forja.restricciones.bloqueo.ServicioBloqueo;
 import es.forja.restricciones.modelo.Restriccion;
 import es.forja.restricciones.servicio.ServicioEfecto;
 import es.forja.restricciones.servicio.ServicioRestricciones;
@@ -34,22 +35,26 @@ public class ServicioRutina {
 	private final CatalogoRutinaRepositorio repositorio;
 	private final LimitadorIntentos limitador;
 	private final GeneradorRutina generador;
+	private final ServicioBloqueo bloqueo;
 
 	// shortcut: como el catálogo de ServicioEfecto, solo cambia al arrancar (Flyway); si se edita en caliente, invalidar aquí.
 	private volatile CatalogoRutina catalogo;
 	private volatile Set<String> materiales;
 
 	public ServicioRutina(ServicioEfecto efecto, ServicioRestricciones restricciones,
-			CatalogoRutinaRepositorio repositorio, LimitadorIntentos limitador, GeneradorRutina generador) {
+			CatalogoRutinaRepositorio repositorio, LimitadorIntentos limitador, GeneradorRutina generador,
+			ServicioBloqueo bloqueo) {
 		this.efecto = efecto;
 		this.restricciones = restricciones;
 		this.repositorio = repositorio;
 		this.limitador = limitador;
 		this.generador = generador;
+		this.bloqueo = bloqueo;
 	}
 
-	/** Resolver cuesta CPU: gasta un intento del límite por usuario antes de nada. */
+	/** Con bandera roja o cribado urgente activos no se genera (409, sin gastar intento); si no, resolver cuesta CPU y gasta uno. */
 	public PlanRutina generar(UUID usuario, SolicitudRutina solicitud) {
+		bloqueo.exigirSinBloqueo(usuario);
 		limitador.exigirPorClave(ACCION_GENERAR, usuario.toString());
 		CatalogoRutina cargado = catalogo();
 		validarCodigos(solicitud, cargado);

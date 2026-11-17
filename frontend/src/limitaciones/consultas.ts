@@ -7,6 +7,7 @@ import { useSesion } from '../sesion/sesion';
 export const CLAVE_LIMITACIONES = ['limitaciones'] as const;
 export const CLAVE_CONSENTIMIENTO = [...CLAVE_LIMITACIONES, 'consentimiento'] as const;
 export const CLAVE_RESTRICCIONES = [...CLAVE_LIMITACIONES, 'restricciones'] as const;
+export const CLAVE_BLOQUEO = [...CLAVE_LIMITACIONES, 'bloqueo'] as const;
 export const CLAVE_EFECTO = [...CLAVE_LIMITACIONES, 'efecto'] as const;
 const CLAVE_PREGUNTAS = [...CLAVE_LIMITACIONES, 'preguntas'] as const;
 
@@ -48,4 +49,13 @@ export function useResumenLimitaciones(): ResumenLimitaciones {
   if (restricciones.isError) return { valor: 'No disponible', pendiente: false };
   const activas = restricciones.data.filter((r) => r.estado !== 'historico_sin_limitacion').length;
   return { valor: activas === 0 ? 'Ninguna' : activas === 1 ? '1 activa' : `${activas} activas`, pendiente: false };
+}
+
+/**
+ * Bloqueo que recuerda el backend tras una bandera roja o un cribado urgente. Si no carga no se bloquea en el
+ * cliente: `POST /rutinas/generar` manda y responde 409 igualmente.
+ */
+export function useBloqueoSalud() {
+  const { api } = useSesion();
+  return useQuery({ queryKey: CLAVE_BLOQUEO, queryFn: () => api.estadoBloqueo() });
 }

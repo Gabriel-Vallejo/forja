@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
@@ -12,7 +12,7 @@ import { Pantalla } from '../componentes/Pantalla';
 import { SiNo } from '../componentes/SiNo';
 import { Texto } from '../componentes/Texto';
 import { Veredicto } from '../componentes/Veredicto';
-import { usePreguntasCribado } from '../limitaciones/consultas';
+import { CLAVE_BLOQUEO, usePreguntasCribado } from '../limitaciones/consultas';
 import { useSesion } from '../sesion/sesion';
 import { ConConsentimiento } from './ConConsentimiento';
 
@@ -50,9 +50,13 @@ function Resultado({ resultado, alVolver, alRepetir }: { resultado: ResultadoCri
 function Cuestionario({ cuestionario: { preguntas, semanasReciente } }: { cuestionario: CuestionarioCribado }) {
   const router = useRouter();
   const { api } = useSesion();
+  const consultas = useQueryClient();
   const [respuestas, setRespuestas] = useState<Mapa>({});
   const [recientes, setRecientes] = useState<Mapa>({});
-  const envio = useMutation({ mutationFn: (solicitud: SolicitudCribado) => api.cribar(solicitud) });
+  const envio = useMutation({ mutationFn: (solicitud: SolicitudCribado) => api.cribar(solicitud),
+    // El backend ha puesto o levantado el bloqueo de «generar plan».
+    onSuccess: () => consultas.invalidateQueries({ queryKey: CLAVE_BLOQUEO }),
+  });
 
   const contestar = (p: PreguntaCribado, valor: boolean) => {
     setRespuestas({ ...respuestas, [p.codigo]: valor });

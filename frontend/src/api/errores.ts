@@ -5,6 +5,8 @@ export class ErrorApi extends Error {
   constructor(
     readonly estado: number,
     mensaje: string,
+    /** Código estable del backend (`bandera_roja_activa`…), si el error lo trae. */
+    readonly codigo?: string,
   ) {
     super(mensaje);
     this.name = 'ErrorApi';
@@ -24,6 +26,15 @@ const POR_ESTADO: Record<number, string> = {
 const ERROR_SERVIDOR = 'Algo ha fallado en el servidor. Inténtalo más tarde.';
 const ERROR_GENERICO = 'No se ha podido completar la petición.';
 const ESTADO_ERROR_SERVIDOR = 500;
+
+/** Con bandera roja o cribado urgente activos, el backend no genera el plan (409). */
+export const CODIGO_BANDERA_ROJA = 'bandera_roja_activa';
+
+/** Código estable de un `ProblemDetail`, si lo trae. */
+export function codigoDeProblema(cuerpo: unknown): string | undefined {
+  const problema = esquemaProblema.safeParse(cuerpo);
+  return problema.success ? problema.data.codigo : undefined;
+}
 
 /** Convierte un `ProblemDetail` (o lo que llegue) en un mensaje para el usuario. */
 export function mensajeDeProblema(estado: number, cuerpo: unknown): string {

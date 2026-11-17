@@ -83,3 +83,7 @@ El informe completo con fuentes y nivel de evidencia es interno. Las citas clave
   - los ejercicios ganan los atributos espejo: patrones, regiones cargadas, carga axial, impacto, agarre, uni o bilateral, por encima de la cabeza y familia de sustitución.
 - **Consentimiento:** se suma el tipo `limitaciones` ([0004](0004-privacidad-fotos-y-datos-de-salud.md)).
 - **Riesgos:** la lista de banderas rojas y la de perfiles que se derivan son propuestas propias sin revisión clínica, y deben pasar por un fisio antes de la v0.2. Además, el informe deja 17 huecos sin verificar.
+
+## Enmienda (2026-11-17): el backend recuerda el bloqueo
+
+El PRD pide que, con una bandera roja, la app no genere la rutina. Para que no dependa del cliente, `POST /banderas` y `POST /cribado` guardan **solo el nivel del resultado** (`urgencias_hoy`, `profesional_en_dias` o `parar_urgencias`) y la fecha, cifrados como `restriccion.datos` (`bloqueo_salud`, una fila por usuario y origen); las respuestas siguen sin guardarse. Cada cuestionario levanta solo su bloqueo, y `POST /rutinas/generar` responde 409 `bandera_roja_activa` mientras haya alguno. Revocar el consentimiento `limitaciones` o borrar la cuenta lo borra (RF-46).

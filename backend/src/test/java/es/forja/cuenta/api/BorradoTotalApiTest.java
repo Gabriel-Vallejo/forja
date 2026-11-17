@@ -43,6 +43,17 @@ class BorradoTotalApiTest extends SoporteSesiones {
 		return filas;
 	}
 
+	private static Map<String, Object> banderasConDolorToracico() {
+		Map<String, Object> cuerpo = new java.util.LinkedHashMap<>();
+		cuerpo.put("dolorPorZona", Map.of());
+		for (String senal : List.of("dolorEnReposo", "dolorNocturnoQueDespierta", "hormigueoOEntumecimiento",
+				"perdidaDeFuerza", "perdidaControlEsfinteresOAnestesiaSillaDeMontar", "fiebreConDolorDeEspalda",
+				"traumatismoReciente", "perdidaDePesoSinExplicacion", "dolorToracico", "mareoODesmayo")) {
+			cuerpo.put(senal, senal.equals("dolorToracico"));
+		}
+		return cuerpo;
+	}
+
 	@Test
 	void borrarLaCuentaNoDejaNingunaFilaSuyaEnNingunaTabla() throws Exception {
 		String correo = crearCuenta();
@@ -61,12 +72,15 @@ class BorradoTotalApiTest extends SoporteSesiones {
 		serie.put("dolor", 3);
 		guardarSesion(movil, java.util.UUID.randomUUID(),
 				sesion(plan, java.time.Instant.now().minusSeconds(60), List.of(serie))).andExpect(status().isOk());
+		// Después de generar el plan: con bandera roja activa ya no se genera.
+		// Bandera roja: deja un bloqueo guardado, que también se borra con la cuenta.
+		enviarAutenticado("/api/v1/banderas", movil, banderasConDolorToracico()).andExpect(status().isOk());
 		long usuarioId = contar("SELECT id FROM usuario WHERE correo = ?", correo);
 		List<Long> dispositivos = jdbc.sql("SELECT id FROM dispositivo WHERE usuario_id = :u").param("u", usuarioId)
 				.query(Long.class).list();
 		Map<String, Long> antes = filasDelUsuario(usuarioId, dispositivos);
 		assertThat(antes).containsKeys("usuario", "dispositivo", "token_refresco", "token_un_uso", "consentimiento",
-				"restriccion");
+				"restriccion", "bloqueo_salud");
 		assertThat(antes.get("consentimiento")).isEqualTo(CONSENTIMIENTOS.size());
 		assertThat(antes.get("restriccion")).isEqualTo(2);
 		assertThat(antes).containsKeys("plan_version", "sesion");

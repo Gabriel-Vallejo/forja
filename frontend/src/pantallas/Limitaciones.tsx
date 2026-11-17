@@ -14,9 +14,11 @@ import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
 import { ESTADOS, LADOS, ORIGENES, PATRONES, REGIONES, TIPOS } from '../limitaciones/catalogo';
 import {
+  CLAVE_BLOQUEO,
   CLAVE_CONSENTIMIENTO,
   CLAVE_EFECTO,
   CLAVE_RESTRICCIONES,
+  useBloqueoSalud,
   useRestricciones,
 } from '../limitaciones/consultas';
 import { MAXIMO_POR_USUARIO } from '../limitaciones/restriccion';
@@ -24,6 +26,8 @@ import { FINALIDAD, NOTA_PLAN } from '../limitaciones/textos';
 import { useSesion } from '../sesion/sesion';
 import { type Theme, useTheme } from '../theme';
 import { ConConsentimiento } from './ConConsentimiento';
+import { AvisoBloqueo } from '../componentes/AvisoBloqueo';
+import { RegenerarPlan } from '../plan/RegenerarPlan';
 import { ConsentimientoLimitaciones } from './ConsentimientoLimitaciones';
 
 /** «Rodilla», «Sentadilla» o «Rodilla · Sentadilla» si nombra las dos. */
@@ -124,6 +128,8 @@ function RetirarConsentimiento({ cuantas }: { cuantas: number }) {
       consultas.setQueryData(CLAVE_CONSENTIMIENTO, false);
       consultas.removeQueries({ queryKey: CLAVE_RESTRICCIONES });
       consultas.removeQueries({ queryKey: CLAVE_EFECTO });
+      // Retirar el consentimiento borra también el bloqueo (RF-46).
+      consultas.setQueryData(CLAVE_BLOQUEO, { bloquea: false, nivel: null });
     },
   });
 
@@ -147,10 +153,12 @@ function RetirarConsentimiento({ cuantas }: { cuantas: number }) {
 function Contenido() {
   const router = useRouter();
   const restricciones = useRestricciones();
+  const bloqueo = useBloqueoSalud();
   const tema = useTheme();
   const estilos = crearEstilos(tema);
   return (
     <>
+      {bloqueo.data?.bloquea ? <AvisoBloqueo nivel={bloqueo.data.nivel} conEnlace={false} /> : null}
       <Texto>{FINALIDAD}</Texto>
       <Texto estilo="nota" tono="secundario">{NOTA_PLAN}</Texto>
       <ConConsulta consulta={restricciones} cargando="Cargando tus limitaciones…">
@@ -162,6 +170,7 @@ function Contenido() {
               <FilaEnlace etiqueta="Cribado previo al ejercicio" detalle="Siete preguntas de sí o no" alPulsar={() => router.push('/cribado')} />
               <FilaEnlace etiqueta="Cuestionario de dolor" detalle="Dolor por zona y señales de aviso" alPulsar={() => router.push('/dolor')} />
             </View>
+            <RegenerarPlan etiqueta="Regenerar mi plan con mis limitaciones" avisoBloqueo={false} />
             <RetirarConsentimiento cuantas={lista.length} />
           </>
         )}

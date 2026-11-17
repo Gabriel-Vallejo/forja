@@ -149,6 +149,15 @@ export const esquemaResultadoBanderas = z.object({
 }) satisfies z.ZodType<Esquemas['RespuestaBanderas']>;
 export type ResultadoBanderas = z.infer<typeof esquemaResultadoBanderas>;
 
+/** Qué nivel de bloqueo recuerda el backend tras un cribado urgente o una bandera roja (`GET /banderas/estado`). */
+export const esquemaEstadoBloqueo = z.object({
+  bloquea: z.boolean(),
+  // Sin `satisfies` contra el OpenAPI generado: ahí `nivel` es `string` sin nulo y el backend manda `null`.
+  nivel: z.enum(['urgencias_hoy', 'profesional_en_dias', 'parar_urgencias']).nullish(),
+});
+export type EstadoBloqueo = z.infer<typeof esquemaEstadoBloqueo>;
+export type NivelBloqueo = NonNullable<EstadoBloqueo['nivel']>;
+
 /** Dolor de 0 a 10 por código de región (solo las marcadas) y las diez señales, todas obligatorias. */
 export type SolicitudBanderas = Required<Esquemas['SolicitudBanderas']>;
 
@@ -169,6 +178,8 @@ export const esquemaProblema = z.object({
   status: z.number().optional(),
   title: z.string().optional(),
   detail: z.string().optional(),
+  /** Código estable de algunos errores de negocio (p. ej. `bandera_roja_activa`). */
+  codigo: z.string().optional(),
   errores: z.array(z.object({ campo: z.string(), mensaje: z.string() })).optional(),
 });
 

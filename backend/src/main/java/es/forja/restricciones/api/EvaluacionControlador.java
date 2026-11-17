@@ -21,6 +21,9 @@ import es.forja.consentimiento.servicio.ServicioConsentimientos;
 import es.forja.restricciones.banderas.BanderaRoja;
 import es.forja.restricciones.banderas.BanderasRojas;
 import es.forja.restricciones.banderas.RespuestasGuiadas;
+import es.forja.restricciones.bloqueo.NivelBloqueo;
+import es.forja.restricciones.bloqueo.OrigenBloqueo;
+import es.forja.restricciones.bloqueo.ServicioBloqueo;
 import es.forja.restricciones.cribado.Cribado;
 import es.forja.restricciones.cribado.PreguntaCribado;
 import es.forja.restricciones.cribado.RespuestasCribado;
@@ -28,7 +31,7 @@ import es.forja.restricciones.cribado.ResultadoCribado;
 import es.forja.restricciones.modelo.Region;
 
 /**
- * Cribado previo y banderas rojas (ADR 0007): reglas deterministas que no guardan nada. Exigen el consentimiento
+ * Cribado previo y banderas rojas (ADR 0007): reglas deterministas que no guardan las respuestas, solo el nivel del resultado si bloquea (ADR 0007, enmienda). Exigen el consentimiento
  * de {@code limitaciones} antes de mirar siquiera el cuerpo. Dato de salud: nada de esto se escribe en el log.
  */
 @RestController
@@ -120,12 +123,18 @@ public class EvaluacionControlador {
 	public record RespuestaBanderas(boolean bloquea, List<RespuestaBandera> banderas) {
 	}
 
+	/** {@code nivel} nulo cuando no bloquea. */
+	public record EstadoBloqueo(boolean bloquea, String nivel) {
+	}
+
 	private final ServicioConsentimientos consentimientos;
+	private final ServicioBloqueo bloqueo;
 	private final Cribado cribado = new Cribado();
 	private final BanderasRojas banderas = new BanderasRojas();
 
-	public EvaluacionControlador(ServicioConsentimientos consentimientos) {
+	public EvaluacionControlador(ServicioConsentimientos consentimientos, ServicioBloqueo bloqueo) {
 		this.consentimientos = consentimientos;
+		this.bloqueo = bloqueo;
 	}
 
 	/** Texto fijo del cuestionario, para que la app no lo duplique: no mira al usuario, solo exige sesión. */
@@ -138,16 +147,34 @@ public class EvaluacionControlador {
 	@PostMapping("/cribado")
 	public RespuestaCribado cribar(@AuthenticationPrincipal UsuarioAutenticado actual,
 			@RequestBody(required = false) SolicitudCribado cuerpo) {
-		consentimientos.exigir(actual.usuario(), TipoConsentimiento.LIMITACIONES);
-		return RespuestaCribado.de(cribado.evaluar(solicitud(cuerpo).aDominio()));
+		long usuarioId = consentimientos.exigir(actual.usuario(), TipoConsentimiento.LIMITACIONES);
+		ResultadoCribado resultado = cribado.evaluar(solicitud(cuerpo).aDominio());
+		bloqueo.registrar(usuarioId, OrigenBloqueo.CRIBADO,
+				resultado.nivel() == ResultadoCribado.Nivel.PARAR_URGENCIAS ? NivelBloqueo.PARAR_URGENCIAS : null);
+		return RespuestaCribado.de(resultado);
+	}
+
+	/**
+	 * Si hay un bloqueo activo y de qué nivel, sin más. No exige el consentimiento: sin él no puede haber bloqueos
+	 * guardados (revocarlo los borra), así que la respuesta es {@code bloquea:false}.
+	 */
+	@GetMapping("/banderas/estado")
+	public EstadoBloqueo estado(@AuthenticationPrincipal UsuarioAutenticado actual) {
+		return bloqueo.nivelActivo(actual.usuario()).map(n -> new EstadoBloqueo(true, n.codigo()))
+				.orElse(new EstadoBloqueo(false, null));
 	}
 
 	@PostMapping("/banderas")
 	public RespuestaBanderas evaluarBanderas(@AuthenticationPrincipal UsuarioAutenticado actual,
 			@RequestBody(required = false) SolicitudBanderas cuerpo) {
-		consentimientos.exigir(actual.usuario(), TipoConsentimiento.LIMITACIONES);
+		long usuarioId = consentimientos.exigir(actual.usuario(), TipoConsentimiento.LIMITACIONES);
 		List<BanderaRoja> resultado = banderas.evaluar(solicitud(cuerpo).aDominio());
-		return new RespuestaBanderas(BanderasRojas.bloqueaLaRutina(resultado), resultado.stream()
+		boolean bloquea = BanderasRojas.bloqueaLaRutina(resultado);
+		// Las banderas salen con la más grave primero.
+		bloqueo.registrar(usuarioId, OrigenBloqueo.BANDERAS, !bloquea ? null
+				: resultado.get(0).nivel() == BanderaRoja.Nivel.URGENCIAS_HOY ? NivelBloqueo.URGENCIAS_HOY
+						: NivelBloqueo.PROFESIONAL_EN_DIAS);
+		return new RespuestaBanderas(bloquea, resultado.stream()
 				.map(b -> new RespuestaBandera(codigo(b.nivel()), b.motivo(), b.guia())).toList());
 	}
 

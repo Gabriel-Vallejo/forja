@@ -59,7 +59,7 @@ class CribadoBanderasApiTest extends SoporteLimitaciones {
 	}
 
 	@Test
-	void cribadoSinSiesDejaSeguirYNoGuardaNada() throws Exception {
+	void cribadoSinSiesDejaSeguirYNoGuardaRestricciones() throws Exception {
 		Cliente cliente = clienteConLimitaciones();
 		long antes = contar("SELECT COUNT(*) FROM restriccion");
 
@@ -147,7 +147,7 @@ class CribadoBanderasApiTest extends SoporteLimitaciones {
 	}
 
 	@Test
-	void banderasNoGuardaNada() throws Exception {
+	void banderasNoGuardaRestricciones() throws Exception {
 		Cliente cliente = clienteConLimitaciones();
 		long antes = contar("SELECT COUNT(*) FROM restriccion");
 

@@ -1,7 +1,7 @@
 import type { z } from 'zod';
 
 import type { AlmacenTokens } from '../sesion/almacenTokens';
-import { ErrorApi, mensajeDeProblema, RESPUESTA_INESPERADA, SESION_CADUCADA, SIN_CONEXION } from './errores';
+import { codigoDeProblema, ErrorApi, mensajeDeProblema, RESPUESTA_INESPERADA, SESION_CADUCADA, SIN_CONEXION } from './errores';
 import { esquemaDatosSesion } from './esquemas';
 
 export const RUTA_REFRESCO = '/api/v1/auth/refresco';
@@ -76,7 +76,8 @@ export function crearCliente({ urlBase, almacen, fetch: hacerFetch = fetch }: Op
   }
 
   async function error(respuesta: Response): Promise<ErrorApi> {
-    return new ErrorApi(respuesta.status, mensajeDeProblema(respuesta.status, await leerJson(respuesta)));
+    const cuerpo = await leerJson(respuesta);
+    return new ErrorApi(respuesta.status, mensajeDeProblema(respuesta.status, cuerpo), codigoDeProblema(cuerpo));
   }
 
   async function refrescar(): Promise<void> {

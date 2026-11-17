@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -14,6 +14,7 @@ import { SiNo } from '../componentes/SiNo';
 import { Texto } from '../componentes/Texto';
 import { Veredicto } from '../componentes/Veredicto';
 import { type CodigoRegion, codigos, REGIONES } from '../limitaciones/catalogo';
+import { CLAVE_BLOQUEO } from '../limitaciones/consultas';
 import { useSesion } from '../sesion/sesion';
 import { type Theme, useTheme } from '../theme';
 import { ConConsentimiento } from './ConConsentimiento';
@@ -59,10 +60,11 @@ function Bloqueo({ resultado, alVolver, alRepetir }: { resultado: ResultadoBande
   );
 }
 
-/** Las respuestas viven solo en este estado: el backend evalúa y no guarda nada. */
+/** Las respuestas viven solo en este estado: el backend evalúa y solo recuerda el nivel si bloquea (no las respuestas). */
 function Cuestionario() {
   const router = useRouter();
   const { api } = useSesion();
+  const consultas = useQueryClient();
   const tema = useTheme();
   const estilos = crearEstilos(tema);
   const [marcadas, setMarcadas] = useState<readonly CodigoRegion[]>([]);
@@ -70,7 +72,9 @@ function Cuestionario() {
   const [senales, setSenales] = useState<Senales>({});
   const envio = useMutation({
     mutationFn: (solicitud: SolicitudBanderas) => api.evaluarBanderas(solicitud),
-    onSuccess: (resultado) => {
+    onSuccess: async (resultado) => {
+      // El backend ha puesto o levantado el bloqueo: lo que enseñan Hoy y Mi plan tiene que reflejarlo.
+      await consultas.invalidateQueries({ queryKey: CLAVE_BLOQUEO });
       if (!resultado.bloquea) router.back();
     },
   });
