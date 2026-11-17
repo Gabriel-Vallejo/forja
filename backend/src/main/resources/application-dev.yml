@@ -1,0 +1,6 @@
+# Perfil de desarrollo (SPRING_PROFILES_ACTIVE=dev). La especificación no lleva datos de usuarios.
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true

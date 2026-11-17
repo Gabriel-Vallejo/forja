@@ -95,3 +95,10 @@ spring:
       ddl-auto: validate
   flyway:
     enabled: true
+# OpenAPI (springdoc): apagado por defecto. Solo el perfil dev sirve /v3/api-docs y Swagger UI
+# (application-dev.yml). El archivo docs/api/openapi.json lo escribe un test, no el servidor.
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

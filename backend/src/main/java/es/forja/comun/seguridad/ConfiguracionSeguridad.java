@@ -27,6 +27,8 @@ public class ConfiguracionSeguridad {
 
 	private static final List<String> ORIGENES_TAURI = List.of("tauri://localhost", "http://tauri.localhost");
 	private static final long SEGUNDOS_CACHE_CORS = 3600;
+	private static final String[] RUTAS_DOCUMENTACION = { "/v3/api-docs", "/v3/api-docs/**", "/swagger-ui.html",
+			"/swagger-ui/**" };
 
 	@Bean
 	ServicioJwt servicioJwt(Clock reloj, PropiedadesJwt propiedades) {
@@ -57,6 +59,8 @@ public class ConfiguracionSeguridad {
 						.requestMatchers(HttpMethod.POST, "/api/v1/auth/cerrar-sesion").authenticated()
 						.requestMatchers("/api/v1/auth/**", "/actuator/health", "/actuator/health/**", "/error")
 						.permitAll()
+						// Documentación de la API: sin datos de usuarios; fuera del perfil dev, springdoc no la sirve.
+						.requestMatchers(HttpMethod.GET, RUTAS_DOCUMENTACION).permitAll()
 						.anyRequest().authenticated())
 				.addFilterBefore(new FiltroJwt(jwt, dispositivos), BasicAuthenticationFilter.class);
 		return http.build();

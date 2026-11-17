@@ -1,0 +1,1628 @@
+{
+  "components" : {
+    "schemas" : {
+      "Alternativa" : {
+        "properties" : {
+          "alternativa" : {
+            "type" : "string"
+          },
+          "diferencia" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "elegido" : {
+            "type" : "string"
+          },
+          "mensaje" : {
+            "type" : "string"
+          },
+          "nombreAlternativa" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "BorrarCuenta" : {
+        "properties" : {
+          "contrasena" : {
+            "maxLength" : 128,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "contrasena" ],
+        "type" : "object"
+      },
+      "ContribucionEjercicio" : {
+        "properties" : {
+          "idExterno" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "terminos" : {
+            "additionalProperties" : {
+              "format" : "int64",
+              "type" : "integer"
+            },
+            "type" : "object"
+          }
+        },
+        "type" : "object"
+      },
+      "DatosDispositivo" : {
+        "properties" : {
+          "actual" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "plataforma" : {
+            "enum" : [ "movil", "pc" ],
+            "type" : "string"
+          },
+          "ultimaActividad" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "DatosSesion" : {
+        "properties" : {
+          "dispositivoId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "expiraEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "tokenAcceso" : {
+            "type" : "string"
+          },
+          "tokenRefresco" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Descarte" : {
+        "properties" : {
+          "idExterno" : {
+            "type" : "string"
+          },
+          "motivo" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "tipo" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "DiaEntreno" : {
+        "properties" : {
+          "dia" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "ejercicios" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ObjetivoEjercicio"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "DiaPlan" : {
+        "properties" : {
+          "dia" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "ejercicios" : {
+            "items" : {
+              "$ref" : "#/components/schemas/EjercicioPlan"
+            },
+            "type" : "array"
+          },
+          "segundos" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "EjercicioPlan" : {
+        "properties" : {
+          "anotaciones" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "idExterno" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "patron" : {
+            "type" : "string"
+          },
+          "posicionEstirada" : {
+            "type" : "boolean"
+          },
+          "series" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "Holgura" : {
+        "properties" : {
+          "codigo" : {
+            "type" : "string"
+          },
+          "faltan" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "mensaje" : {
+            "type" : "string"
+          },
+          "tipo" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Login" : {
+        "properties" : {
+          "contrasena" : {
+            "maxLength" : 128,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "correo" : {
+            "maxLength" : 254,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "dispositivoId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "nombreDispositivo" : {
+            "maxLength" : 80,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "plataforma" : {
+            "enum" : [ "movil", "pc" ],
+            "type" : "string"
+          }
+        },
+        "required" : [ "contrasena", "correo", "nombreDispositivo", "plataforma" ],
+        "type" : "object"
+      },
+      "Mensaje" : {
+        "properties" : {
+          "mensaje" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ObjetivoEjercicio" : {
+        "properties" : {
+          "cargaKg" : {
+            "type" : "number"
+          },
+          "estado" : {
+            "enum" : [ "acumulando", "subir_carga", "estancado", "deload" ],
+            "type" : "string"
+          },
+          "idExterno" : {
+            "type" : "string"
+          },
+          "incrementoKg" : {
+            "type" : "number"
+          },
+          "motivo" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "orden" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "repeticionesMax" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "repeticionesMin" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "rirObjetivo" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "series" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "PaginaSesiones" : {
+        "properties" : {
+          "pagina" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "sesiones" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SesionVista"
+            },
+            "type" : "array"
+          },
+          "tamano" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "PlanActual" : {
+        "properties" : {
+          "creadoEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "dias" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DiaEntreno"
+            },
+            "type" : "array"
+          },
+          "estado" : {
+            "type" : "string"
+          },
+          "uuid" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "PlanGenerado" : {
+        "properties" : {
+          "alternativas" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Alternativa"
+            },
+            "type" : "array"
+          },
+          "contribuciones" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ContribucionEjercicio"
+            },
+            "type" : "array"
+          },
+          "descartes" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Descarte"
+            },
+            "type" : "array"
+          },
+          "dias" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DiaPlan"
+            },
+            "type" : "array"
+          },
+          "estado" : {
+            "type" : "string"
+          },
+          "holguras" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Holgura"
+            },
+            "type" : "array"
+          },
+          "notas" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "objetivo" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "resumen" : {
+            "type" : "string"
+          },
+          "uuid" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "volumen" : {
+            "items" : {
+              "$ref" : "#/components/schemas/VolumenMusculo"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "ProgresionEjercicio" : {
+        "properties" : {
+          "cargaSiguienteKg" : {
+            "type" : "number"
+          },
+          "estado" : {
+            "enum" : [ "acumulando", "subir_carga", "estancado", "deload" ],
+            "type" : "string"
+          },
+          "historial" : {
+            "items" : {
+              "$ref" : "#/components/schemas/PuntoE1rm"
+            },
+            "type" : "array"
+          },
+          "idExterno" : {
+            "type" : "string"
+          },
+          "motivo" : {
+            "type" : "string"
+          },
+          "repeticionesMax" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "repeticionesMin" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "series" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "PuntoE1rm" : {
+        "properties" : {
+          "e1rm" : {
+            "type" : "number"
+          },
+          "realizadaEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "sesion" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Recuperar" : {
+        "properties" : {
+          "correo" : {
+            "maxLength" : 254,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "correo" ],
+        "type" : "object"
+      },
+      "Refresco" : {
+        "properties" : {
+          "tokenRefresco" : {
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "tokenRefresco" ],
+        "type" : "object"
+      },
+      "Registro" : {
+        "properties" : {
+          "contrasena" : {
+            "maxLength" : 128,
+            "minLength" : 12,
+            "type" : "string"
+          },
+          "correo" : {
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "fechaNacimiento" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        },
+        "required" : [ "contrasena", "correo", "fechaNacimiento" ],
+        "type" : "object"
+      },
+      "RespuestaBandera" : {
+        "properties" : {
+          "guia" : {
+            "type" : "string"
+          },
+          "motivo" : {
+            "type" : "string"
+          },
+          "nivel" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "RespuestaBanderas" : {
+        "properties" : {
+          "banderas" : {
+            "items" : {
+              "$ref" : "#/components/schemas/RespuestaBandera"
+            },
+            "type" : "array"
+          },
+          "bloquea" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "RespuestaConsentimiento" : {
+        "properties" : {
+          "dadoEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "tipo" : {
+            "type" : "string"
+          },
+          "versionTexto" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "RespuestaCribado" : {
+        "properties" : {
+          "motivos" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "nivel" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "RespuestaEfecto" : {
+        "properties" : {
+          "anotaciones" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "decision" : {
+            "type" : "string"
+          },
+          "idExterno" : {
+            "type" : "string"
+          },
+          "motivo" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "sustituto" : {
+            "$ref" : "#/components/schemas/Sustituto"
+          }
+        },
+        "type" : "object"
+      },
+      "RespuestaRestriccion" : {
+        "properties" : {
+          "estado" : {
+            "type" : "string"
+          },
+          "lado" : {
+            "type" : "string"
+          },
+          "origen" : {
+            "type" : "string"
+          },
+          "parametro" : {
+            "type" : "string"
+          },
+          "patron" : {
+            "type" : "string"
+          },
+          "region" : {
+            "type" : "string"
+          },
+          "textoOriginal" : {
+            "type" : "string"
+          },
+          "tipo" : {
+            "type" : "string"
+          },
+          "uuid" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Restablecer" : {
+        "properties" : {
+          "contrasenaNueva" : {
+            "maxLength" : 128,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "token" : {
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "contrasenaNueva", "token" ],
+        "type" : "object"
+      },
+      "RestriccionCodificada" : {
+        "properties" : {
+          "estado" : {
+            "type" : "string"
+          },
+          "lado" : {
+            "type" : "string"
+          },
+          "origen" : {
+            "type" : "string"
+          },
+          "parametro" : {
+            "type" : "string"
+          },
+          "patron" : {
+            "type" : "string"
+          },
+          "region" : {
+            "type" : "string"
+          },
+          "textoOriginal" : {
+            "type" : "string"
+          },
+          "tipo" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "SerieEntrada" : {
+        "properties" : {
+          "anulada" : {
+            "type" : "boolean"
+          },
+          "calentamiento" : {
+            "type" : "boolean"
+          },
+          "corrigeA" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "dolor" : {
+            "format" : "int32",
+            "maximum" : 10,
+            "minimum" : 0,
+            "type" : "integer"
+          },
+          "ejercicio" : {
+            "maxLength" : 120,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "orden" : {
+            "format" : "int32",
+            "maximum" : 1000,
+            "minimum" : 0,
+            "type" : "integer"
+          },
+          "pesoKg" : {
+            "maximum" : 1000,
+            "minimum" : 0,
+            "type" : "number"
+          },
+          "realizadaEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "repeticiones" : {
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 0,
+            "type" : "integer"
+          },
+          "rir" : {
+            "format" : "int32",
+            "maximum" : 10,
+            "minimum" : 0,
+            "type" : "integer"
+          },
+          "rpe" : {
+            "maximum" : 10,
+            "minimum" : 1,
+            "type" : "number"
+          },
+          "uuid" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "required" : [ "ejercicio", "orden", "pesoKg", "realizadaEn", "repeticiones", "uuid" ],
+        "type" : "object"
+      },
+      "SerieVista" : {
+        "properties" : {
+          "anulada" : {
+            "type" : "boolean"
+          },
+          "calentamiento" : {
+            "type" : "boolean"
+          },
+          "corrigeA" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "dolor" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "ejercicio" : {
+            "type" : "string"
+          },
+          "orden" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "pesoKg" : {
+            "type" : "number"
+          },
+          "realizadaEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "repeticiones" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "rir" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "rpe" : {
+            "type" : "number"
+          },
+          "uuid" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "SesionEntrada" : {
+        "properties" : {
+          "diaPlan" : {
+            "format" : "int32",
+            "maximum" : 7,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "planVersion" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "realizadaEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "series" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SerieEntrada"
+            },
+            "maxItems" : 200,
+            "minItems" : 0,
+            "type" : "array"
+          }
+        },
+        "required" : [ "realizadaEn", "series" ],
+        "type" : "object"
+      },
+      "SesionVista" : {
+        "properties" : {
+          "diaPlan" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "planVersion" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "realizadaEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "recibidaEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "relojDesfasado" : {
+            "type" : "boolean"
+          },
+          "series" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SerieVista"
+            },
+            "type" : "array"
+          },
+          "uuid" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "SolicitudBanderas" : {
+        "properties" : {
+          "dolorEnReposo" : {
+            "type" : "boolean"
+          },
+          "dolorNocturnoQueDespierta" : {
+            "type" : "boolean"
+          },
+          "dolorPorZona" : {
+            "additionalProperties" : {
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "type" : "object"
+          },
+          "dolorToracico" : {
+            "type" : "boolean"
+          },
+          "fiebreConDolorDeEspalda" : {
+            "type" : "boolean"
+          },
+          "hormigueoOEntumecimiento" : {
+            "type" : "boolean"
+          },
+          "mareoODesmayo" : {
+            "type" : "boolean"
+          },
+          "perdidaControlEsfinteresOAnestesiaSillaDeMontar" : {
+            "type" : "boolean"
+          },
+          "perdidaDeFuerza" : {
+            "type" : "boolean"
+          },
+          "perdidaDePesoSinExplicacion" : {
+            "type" : "boolean"
+          },
+          "traumatismoReciente" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "SolicitudConsentimiento" : {
+        "properties" : {
+          "tipo" : {
+            "minLength" : 1,
+            "type" : "string"
+          },
+          "versionTexto" : {
+            "minLength" : 1,
+            "type" : "string"
+          }
+        },
+        "required" : [ "tipo", "versionTexto" ],
+        "type" : "object"
+      },
+      "SolicitudCribado" : {
+        "properties" : {
+          "recientes" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "respuestas" : {
+            "additionalProperties" : {
+              "type" : "boolean"
+            },
+            "type" : "object"
+          }
+        },
+        "type" : "object"
+      },
+      "SolicitudRutina" : {
+        "properties" : {
+          "diasPorSemana" : {
+            "format" : "int32",
+            "maximum" : 6,
+            "minimum" : 2,
+            "type" : "integer"
+          },
+          "exclusiones" : {
+            "items" : {
+              "maxLength" : 120,
+              "minLength" : 0,
+              "type" : "string"
+            },
+            "maxItems" : 100,
+            "minItems" : 0,
+            "type" : "array"
+          },
+          "frecuenciaMinima" : {
+            "format" : "int32",
+            "maximum" : 2,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "material" : {
+            "items" : {
+              "maxLength" : 30,
+              "minLength" : 0,
+              "type" : "string"
+            },
+            "maxItems" : 20,
+            "minItems" : 0,
+            "type" : "array"
+          },
+          "minutosPorSesion" : {
+            "format" : "int32",
+            "maximum" : 120,
+            "minimum" : 30,
+            "type" : "integer"
+          },
+          "prioritarios" : {
+            "items" : {
+              "maxLength" : 30,
+              "minLength" : 0,
+              "type" : "string"
+            },
+            "maxItems" : 3,
+            "minItems" : 0,
+            "type" : "array"
+          }
+        },
+        "required" : [ "diasPorSemana", "material", "minutosPorSesion" ],
+        "type" : "object"
+      },
+      "Sustituto" : {
+        "properties" : {
+          "idExterno" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Token" : {
+        "properties" : {
+          "token" : {
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "token" ],
+        "type" : "object"
+      },
+      "VolumenMusculo" : {
+        "properties" : {
+          "fuente" : {
+            "type" : "string"
+          },
+          "maximo" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "minimo" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "musculo" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "objetivo" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "series" : {
+            "format" : "double",
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      }
+    }
+  },
+  "info" : {
+    "title" : "OpenAPI definition",
+    "version" : "v0"
+  },
+  "openapi" : "3.1.0",
+  "paths" : {
+    "/api/v1/auth/cerrar-sesion" : {
+      "post" : {
+        "operationId" : "cerrarSesion",
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "auth-controlador" ]
+      }
+    },
+    "/api/v1/auth/login" : {
+      "post" : {
+        "operationId" : "entrar",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Login"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DatosSesion"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "auth-controlador" ]
+      }
+    },
+    "/api/v1/auth/recuperar" : {
+      "post" : {
+        "operationId" : "recuperar",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Recuperar"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Mensaje"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "auth-controlador" ]
+      }
+    },
+    "/api/v1/auth/refresco" : {
+      "post" : {
+        "operationId" : "refrescar",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Refresco"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DatosSesion"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "auth-controlador" ]
+      }
+    },
+    "/api/v1/auth/registro" : {
+      "post" : {
+        "operationId" : "registrar",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Registro"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Mensaje"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "auth-controlador" ]
+      }
+    },
+    "/api/v1/auth/restablecer" : {
+      "post" : {
+        "operationId" : "restablecer",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Restablecer"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "auth-controlador" ]
+      }
+    },
+    "/api/v1/auth/verificar" : {
+      "post" : {
+        "operationId" : "verificar",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Token"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "auth-controlador" ]
+      }
+    },
+    "/api/v1/banderas" : {
+      "post" : {
+        "operationId" : "evaluarBanderas",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SolicitudBanderas"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RespuestaBanderas"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluacion-controlador" ]
+      }
+    },
+    "/api/v1/consentimientos" : {
+      "get" : {
+        "operationId" : "listar_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/RespuestaConsentimiento"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "consentimientos-controlador" ]
+      },
+      "post" : {
+        "operationId" : "dar",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SolicitudConsentimiento"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RespuestaConsentimiento"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "consentimientos-controlador" ]
+      }
+    },
+    "/api/v1/consentimientos/{tipo}" : {
+      "delete" : {
+        "operationId" : "revocar_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "tipo",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "consentimientos-controlador" ]
+      }
+    },
+    "/api/v1/cribado" : {
+      "post" : {
+        "operationId" : "cribar",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SolicitudCribado"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RespuestaCribado"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluacion-controlador" ]
+      }
+    },
+    "/api/v1/cuenta" : {
+      "delete" : {
+        "operationId" : "borrar_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BorrarCuenta"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "cuenta-controlador" ]
+      }
+    },
+    "/api/v1/dispositivos" : {
+      "get" : {
+        "operationId" : "listar_3",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/DatosDispositivo"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "cuenta-controlador" ]
+      }
+    },
+    "/api/v1/dispositivos/{uuid}" : {
+      "delete" : {
+        "operationId" : "revocar",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "uuid",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "cuenta-controlador" ]
+      }
+    },
+    "/api/v1/planes/actual" : {
+      "get" : {
+        "operationId" : "actual",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanActual"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "planes-controlador" ]
+      }
+    },
+    "/api/v1/progresion/{idExterno}" : {
+      "get" : {
+        "operationId" : "progresion",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "idExterno",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProgresionEjercicio"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "progresion-controlador" ]
+      }
+    },
+    "/api/v1/restricciones" : {
+      "get" : {
+        "operationId" : "listar",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/RespuestaRestriccion"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "restricciones-controlador" ]
+      },
+      "post" : {
+        "operationId" : "crear",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RestriccionCodificada"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RespuestaRestriccion"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "restricciones-controlador" ]
+      }
+    },
+    "/api/v1/restricciones/efecto" : {
+      "get" : {
+        "operationId" : "efecto",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/RespuestaEfecto"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "restricciones-controlador" ]
+      }
+    },
+    "/api/v1/restricciones/{uuid}" : {
+      "delete" : {
+        "operationId" : "borrar",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "uuid",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "restricciones-controlador" ]
+      },
+      "put" : {
+        "operationId" : "actualizar",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "uuid",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RestriccionCodificada"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RespuestaRestriccion"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "restricciones-controlador" ]
+      }
+    },
+    "/api/v1/rutinas/generar" : {
+      "post" : {
+        "operationId" : "generar",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SolicitudRutina"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanGenerado"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "rutinas-controlador" ]
+      }
+    },
+    "/api/v1/sesiones" : {
+      "get" : {
+        "operationId" : "listar_2",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "desde",
+          "required" : false,
+          "schema" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "pagina",
+          "required" : false,
+          "schema" : {
+            "default" : 0,
+            "format" : "int32",
+            "maximum" : 100000,
+            "minimum" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "tamano",
+          "required" : false,
+          "schema" : {
+            "default" : 20,
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaginaSesiones"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "sesiones-controlador" ]
+      }
+    },
+    "/api/v1/sesiones/{uuid}" : {
+      "put" : {
+        "operationId" : "guardar",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "uuid",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SesionEntrada"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SesionVista"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "sesiones-controlador" ]
+      }
+    }
+  },
+  "servers" : [ {
+    "description" : "Generated server url",
+    "url" : "http://localhost"
+  } ]
+}

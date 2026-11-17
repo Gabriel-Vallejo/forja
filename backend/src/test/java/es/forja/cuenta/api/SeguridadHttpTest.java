@@ -131,6 +131,12 @@ class SeguridadHttpTest extends ApiCuentaSoporte {
 	}
 
 	@Test
+	void fueraDelPerfilDevNoSeSirveLaDocumentacionDeLaApi() throws Exception {
+		mvc.perform(get("/v3/api-docs")).andExpect(status().isNotFound());
+		mvc.perform(get("/swagger-ui/index.html")).andExpect(status().isNotFound());
+	}
+
+	@Test
 	void corsAceptaLaWebYTauriYRechazaCualquierOtroOrigen() throws Exception {
 		for (String origen : new String[] { "https://forja.test", "tauri://localhost", "http://tauri.localhost" }) {
 			mvc.perform(options("/api/v1/auth/login").header("Origin", origen)

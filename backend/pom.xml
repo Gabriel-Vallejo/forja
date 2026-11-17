@@ -22,6 +22,7 @@
 		<bouncycastle.version>1.87</bouncycastle.version>
 		<bucket4j.version>8.22.0</bucket4j.version>
 		<ortools.version>9.15.6755</ortools.version>
+		<springdoc.version>3.1.1</springdoc.version>
 		<!-- Vacío por defecto: JaCoCo le añade su agente, y si se salta, surefire no recibe un @{argLine} sin resolver -->
 		<argLine></argLine>
 	</properties>
@@ -71,6 +72,12 @@
 			<groupId>com.google.ortools</groupId>
 			<artifactId>ortools-java</artifactId>
 			<version>${ortools.version}</version>
+		</dependency>
+		<!-- OpenAPI exportado a docs/api/ y Swagger UI solo en el perfil dev. Licencia: Apache 2.0 -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${springdoc.version}</version>
 		</dependency>
 
 		<dependency>

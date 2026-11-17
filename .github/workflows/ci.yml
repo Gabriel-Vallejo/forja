@@ -66,6 +66,10 @@ jobs:
       - name: Verificar
         if: steps.codigo.outputs.existe == 'true'
         run: ./mvnw -B verify
+      - name: El OpenAPI commiteado coincide con el generado
+        # Lo escribe EspecificacionOpenApiTest durante verify; de él sale el cliente del frontend.
+        if: steps.codigo.outputs.existe == 'true'
+        run: git diff --exit-code -- ../docs/api/openapi.json
 
   database:
     runs-on: ubuntu-latest
@@ -166,6 +170,17 @@ jobs:
       - name: Instalar dependencias
         if: steps.codigo.outputs.existe == 'true'
         run: npm ci
+      - name: Lint
+        if: steps.codigo.outputs.existe == 'true'
+        run: npm run lint
+      - name: Tipos
+        if: steps.codigo.outputs.existe == 'true'
+        run: npx tsc --noEmit
       - name: Tests
         if: steps.codigo.outputs.existe == 'true'
         run: npm test
+      - name: Los tipos generados coinciden con el OpenAPI
+        if: steps.codigo.outputs.existe == 'true'
+        run: |
+          npm run api
+          git diff --exit-code -- src/api/esquema.d.ts
