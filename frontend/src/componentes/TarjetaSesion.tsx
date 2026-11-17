@@ -1,15 +1,15 @@
 import { StyleSheet, View } from 'react-native';
 
+import type { Musculo } from '../api/esquemas';
 import { type Theme, useTheme } from '../theme';
 import { Boton } from './Boton';
 import { Chips } from './Chips';
-import { Cuerpo } from './Cuerpo';
-import type { ColoresCuerpo } from './FiguraCuerpo';
+import { CuerpoDoble } from './CuerpoDoble';
 import { Texto } from './Texto';
 
 export const ANCHO_TARJETA = 330;
 const ALTO_TARJETA = 392;
-const ANCHO_CUERPO = 88;
+const ANCHO_CUERPO = 60;
 const CUERPO_ARRIBA = 22;
 const CUERPO_DERECHA = 12;
 
@@ -20,15 +20,14 @@ interface PropsTarjetaSesion {
   titulo: string;
   datos?: string;
   musculos?: readonly string[];
-  colores?: ColoresCuerpo;
-  /** Cara del cuerpo que se dibuja. */
-  cara?: 'frente' | 'espalda';
+  /** Músculos que se resaltan en el cuerpo (frente y espalda). */
+  cuerpo?: readonly Musculo[];
   /** Sin él, la tarjeta es la de un día siguiente: apagada y sin botón. */
   alEmpezar?: () => void;
 }
 
 /** Tarjeta de la semana en Hoy (boceto Hoy.dc.html). */
-export function TarjetaSesion({ cuando, etiqueta, titulo, datos, musculos = [], colores, cara, alEmpezar }: PropsTarjetaSesion) {
+export function TarjetaSesion({ cuando, etiqueta, titulo, datos, musculos = [], cuerpo = [], alEmpezar }: PropsTarjetaSesion) {
   const tema = useTheme();
   const estilos = crearEstilos(tema);
   const hoy = alEmpezar !== undefined;
@@ -42,7 +41,7 @@ export function TarjetaSesion({ cuando, etiqueta, titulo, datos, musculos = [], 
       ) : null}
       {hoy ? (
         <View style={estilos.cuerpo}>
-          <Cuerpo ancho={ANCHO_CUERPO} girable={false} colores={colores} cara={cara} decorativo />
+          <CuerpoDoble musculos={cuerpo} ancho={ANCHO_CUERPO} />
         </View>
       ) : null}
       <View style={estilos.pie}>

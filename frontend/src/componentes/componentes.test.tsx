@@ -4,6 +4,7 @@ import type { ReactElement } from 'react';
 import { Marco } from '../pruebas/renderizar';
 
 import { Cuerpo } from './Cuerpo';
+import { CuerpoDoble } from './CuerpoDoble';
 import { Emblema, etiquetaEmblema, type Grado, TIPOS_RANGO } from './Emblema';
 import { TabBar } from './TabBar';
 
@@ -64,6 +65,15 @@ describe('Cuerpo', () => {
 
     expect(screen.getAllByTestId('grupo-dorsal-espalda').length).toBeGreaterThan(0);
     expect(screen.queryAllByTestId('grupo-pecho-frente')).toHaveLength(0);
+  });
+});
+
+describe('CuerpoDoble', () => {
+  test('dibuja el frente y la espalda a la vez, cada uno con sus músculos', async () => {
+    await render(<CuerpoDoble ancho={50} musculos={[{ grupo: 'cuadriceps', rol: 'primario' }, { grupo: 'gluteos', rol: 'primario' }]} />);
+
+    expect(screen.getAllByTestId('grupo-cuadriceps-frente', { includeHiddenElements: true }).length).toBeGreaterThan(0);
+    expect(screen.getAllByTestId('grupo-gluteos-espalda', { includeHiddenElements: true }).length).toBeGreaterThan(0);
   });
 });
 

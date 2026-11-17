@@ -8,7 +8,7 @@ import { Pantalla } from '../componentes/Pantalla';
 import { TarjetaSesion } from '../componentes/TarjetaSesion';
 import { Texto } from '../componentes/Texto';
 import { RACHA } from '../datos/ejemplo';
-import { caraDelCuerpo, coloresCuerpo, gruposPrincipales, musculosDelDia } from '../plan/musculos';
+import { gruposPrincipales, musculosDelDia } from '../plan/musculos';
 import { diaDeLaSemana, diasDesdeHoy, seriesDe } from '../plan/plan';
 import { type Theme, useTheme } from '../theme';
 import { ConPlan } from './ConPlan';
@@ -29,8 +29,6 @@ function Semana({ plan }: { plan: PlanActual }) {
   const [hoy, ...despues] = diasDesdeHoy(plan);
   if (!hoy) return null;
   const total = plan.dias.length;
-  const musculos = musculosDelDia(hoy);
-  const cara = caraDelCuerpo(musculos);
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={estilos.carrusel} contentContainerStyle={estilos.carruselDentro}>
@@ -40,8 +38,7 @@ function Semana({ plan }: { plan: PlanActual }) {
         titulo={hoy.nombre}
         datos={`${hoy.ejercicios.length} ejercicios · ${seriesDe(hoy)} series`}
         musculos={gruposPrincipales(hoy)}
-        cara={cara}
-        colores={coloresCuerpo(musculos, tema, cara)}
+        cuerpo={musculosDelDia(hoy)}
         alEmpezar={() => router.push('/sesion')}
       />
       {despues.map((d) => (

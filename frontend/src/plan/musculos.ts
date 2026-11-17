@@ -38,13 +38,6 @@ export const etiquetaMusculo = (m: Musculo) => NOMBRE_GRUPO[m.grupo] + (m.rol ==
 
 const gruposDe = (cara: Cara) => (cara === 'frente' ? FRENTE : ESPALDA).grupos.map((g) => g.grupo);
 
-/** La cara del cuerpo donde se ve más trabajo (primario pesa el doble que secundario); en empate, el frente. */
-export function caraDelCuerpo(musculos: readonly Musculo[]): Cara {
-  const peso = (cara: Cara) =>
-    musculos.filter((m) => gruposDe(cara).includes(m.grupo)).reduce((t, m) => t + (m.rol === 'primario' ? 2 : 1), 0);
-  return peso('espalda') > peso('frente') ? 'espalda' : 'frente';
-}
-
 /** Primarios en `primary`, secundarios en `secondary` y el resto de esa cara en el neutro del tema. */
 export function coloresCuerpo(musculos: readonly Musculo[], tema: Theme, cara: Cara): ColoresCuerpo {
   const colores: ColoresCuerpo = Object.fromEntries(gruposDe(cara).map((g) => [g, tema.cuerpo.neutro]));

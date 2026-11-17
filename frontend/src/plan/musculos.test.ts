@@ -1,5 +1,5 @@
 import { dark } from '../theme';
-import { caraDelCuerpo, coloresCuerpo, etiquetaMusculo, gruposPrincipales, musculosDelDia } from './musculos';
+import { coloresCuerpo, etiquetaMusculo, gruposPrincipales, musculosDelDia } from './musculos';
 import { objetivo, planDePrueba } from '../pruebas/dobles';
 
 const [torso, pierna] = planDePrueba().dias;
@@ -22,12 +22,6 @@ describe('músculos del plan', () => {
   test('los secundarios llevan «½» en la etiqueta', () => {
     expect(etiquetaMusculo({ grupo: 'pecho', rol: 'primario' })).toBe('Pecho');
     expect(etiquetaMusculo({ grupo: 'triceps', rol: 'secundario' })).toBe('Tríceps ½');
-  });
-
-  test('se dibuja la cara donde se ven más grupos trabajados, y el frente si empatan', () => {
-    expect(caraDelCuerpo([{ grupo: 'pecho', rol: 'primario' }])).toBe('frente');
-    expect(caraDelCuerpo([{ grupo: 'dorsal', rol: 'primario' }, { grupo: 'lumbar', rol: 'primario' }])).toBe('espalda');
-    expect(caraDelCuerpo([])).toBe('frente');
   });
 
   test('primarios en primary, secundarios en secondary y el resto en el neutro', () => {
