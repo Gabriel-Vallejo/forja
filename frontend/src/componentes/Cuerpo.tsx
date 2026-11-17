@@ -148,12 +148,13 @@ function CuerpoGirable({ colores, seleccion, alTocar, etiqueta, ancho, alto, est
           accessibilityActions={acciones}
           onAccessibilityAction={alAccion}
         >
-          <Animated.View style={[estilos.cara, estiloFrente]}>
+          {/* Las dos caras están apiladas y `backfaceVisibility` solo oculta la de atrás: sin esto la espalda, que queda encima, se lleva los toques del frente. */}
+          <Animated.View style={[estilos.cara, estiloFrente, espalda ? estilos.sinToques : estilos.conToques]}>
             <Svg viewBox={VISTA} width={ancho} height={alto}>
               <FiguraCuerpo cara={FRENTE} lado="frente" colores={colores} seleccion={seleccion} alTocar={tocar} />
             </Svg>
           </Animated.View>
-          <Animated.View style={[estilos.cara, estiloEspalda]}>
+          <Animated.View style={[estilos.cara, estiloEspalda, espalda ? estilos.conToques : estilos.sinToques]}>
             <Svg viewBox={VISTA} width={ancho} height={alto}>
               <FiguraCuerpo cara={ESPALDA} lado="espalda" colores={colores} seleccion={seleccion} alTocar={tocar} />
             </Svg>
@@ -175,6 +176,8 @@ function CuerpoGirable({ colores, seleccion, alTocar, etiqueta, ancho, alto, est
 function crearEstilos(tema: Theme) {
   return StyleSheet.create({
     cara: { ...StyleSheet.absoluteFill, backfaceVisibility: 'hidden' },
+    conToques: { pointerEvents: 'auto' },
+    sinToques: { pointerEvents: 'none' },
     girar: {
       position: 'absolute',
       right: 0,

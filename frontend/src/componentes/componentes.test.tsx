@@ -18,10 +18,24 @@ describe('Cuerpo', () => {
     await render(<Cuerpo alTocar={alTocar} />);
 
     await fireEvent.press(screen.getAllByTestId('grupo-pecho-frente')[0]!);
-    await fireEvent.press(screen.getAllByTestId('grupo-isquios-espalda')[0]!);
 
-    expect(alTocar).toHaveBeenNthCalledWith(1, 'pecho');
-    expect(alTocar).toHaveBeenNthCalledWith(2, 'isquios');
+    expect(alTocar).toHaveBeenCalledTimes(1);
+    expect(alTocar).toHaveBeenCalledWith('pecho');
+  });
+
+  test('solo responde la cara que se ve: con el frente, la espalda no recibe toques, y al girar, al revés', async () => {
+    const alTocar = jest.fn();
+    await render(<Cuerpo alTocar={alTocar} etiqueta="Mapa" />);
+
+    await fireEvent.press(screen.getAllByTestId('grupo-isquios-espalda')[0]!);
+    expect(alTocar).not.toHaveBeenCalled();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Ver la espalda' }));
+    await fireEvent.press(screen.getAllByTestId('grupo-pecho-frente')[0]!);
+    expect(alTocar).not.toHaveBeenCalled();
+    await fireEvent.press(screen.getAllByTestId('grupo-isquios-espalda')[0]!);
+    expect(alTocar).toHaveBeenCalledTimes(1);
+    expect(alTocar).toHaveBeenCalledWith('isquios');
   });
 
   test('el grupo seleccionado cambia su trazo', async () => {
