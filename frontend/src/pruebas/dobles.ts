@@ -1,5 +1,5 @@
 // Dobles de prueba compartidos. Datos sintéticos: nada real (ADR 0004).
-import type { ObjetivoEjercicio, PlanActual } from '../api/esquemas';
+import type { EfectoEjercicio, ObjetivoEjercicio, PlanActual, PreguntaCribado, Restriccion } from '../api/esquemas';
 import type { ApiForja } from '../api/forja';
 import type { AlmacenTokens, SesionGuardada } from '../sesion/almacenTokens';
 
@@ -52,6 +52,17 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
     cerrarSesion: jest.fn().mockResolvedValue(undefined),
     planActual: jest.fn().mockResolvedValue(null),
     generarPlan: jest.fn().mockResolvedValue(undefined),
+    tieneConsentimientoLimitaciones: jest.fn().mockResolvedValue(false),
+    darConsentimientoLimitaciones: jest.fn().mockResolvedValue(undefined),
+    retirarConsentimientoLimitaciones: jest.fn().mockResolvedValue(undefined),
+    preguntasCribado: jest.fn().mockResolvedValue([]),
+    cribar: jest.fn().mockResolvedValue({ nivel: 'seguir', motivos: [] }),
+    evaluarBanderas: jest.fn().mockResolvedValue({ bloquea: false, banderas: [] }),
+    restricciones: jest.fn().mockResolvedValue([]),
+    crearRestriccion: jest.fn().mockResolvedValue(restriccion()),
+    actualizarRestriccion: jest.fn().mockResolvedValue(restriccion()),
+    borrarRestriccion: jest.fn().mockResolvedValue(undefined),
+    efectoRestricciones: jest.fn().mockResolvedValue([]),
     alCaducar: jest.fn().mockReturnValue(() => undefined),
     ...cambios,
   } as jest.Mocked<ApiForja>;
@@ -118,4 +129,38 @@ export function planDePrueba(primeraSemana = false, diaDeHoy = 1): PlanActual {
       },
     ],
   };
+}
+
+/** Una limitación sintética; `cambios` pisa lo que haga falta. */
+export function restriccion(cambios: Partial<Restriccion> = {}): Restriccion {
+  return {
+    uuid: '0193a3c4-7b2e-7c1d-9f00-0000000000a1',
+    region: 'rodilla',
+    lado: 'izquierdo',
+    tipo: 'sin_impacto',
+    estado: 'actual',
+    origen: 'usuario',
+    ...cambios,
+  };
+}
+
+/** Las siete preguntas del cribado con textos de prueba; solo las dos primeras admiten «reciente». */
+export function preguntasDePrueba(): PreguntaCribado[] {
+  const nombres = ['sintomas_en_esfuerzo', 'desmayo_o_mareo', 'enfermedad_conocida', 'medicacion', 'problema_musculoesqueletico', 'indicacion_supervisada', 'embarazo'];
+  return nombres.map((codigo, i) => ({ codigo, texto: `Pregunta ${i + 1}`, admiteReciente: i < 2 }));
+}
+
+export function efectoDePrueba(): EfectoEjercicio[] {
+  return [
+    { idExterno: 'sentadilla_barra', nombre: 'Sentadilla con barra', decision: 'excluido', motivo: 'Sin carga axial en la rodilla.', anotaciones: [] },
+    {
+      idExterno: 'zancada_barra',
+      nombre: 'Zancada con barra',
+      decision: 'sustituido',
+      motivo: 'Sin impacto en la rodilla.',
+      sustituto: { idExterno: 'prensa', nombre: 'Prensa de piernas' },
+      anotaciones: [],
+    },
+    { idExterno: 'extension', nombre: 'Extensión de cuádriceps', decision: 'con_anotaciones', anotaciones: ['Limitar carga: ligera'] },
+  ];
 }

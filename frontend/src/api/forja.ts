@@ -2,17 +2,33 @@ import type { AlmacenTokens } from '../sesion/almacenTokens';
 import type { ClienteApi } from './cliente';
 import { ErrorApi } from './errores';
 import {
+  type DatosRestriccion,
+  type EfectoEjercicio,
+  esquemaConsentimientos,
   esquemaDatosSesion,
+  esquemaEfecto,
   esquemaMensaje,
   esquemaPlanActual,
   esquemaPlanGenerado,
+  esquemaPreguntasCribado,
+  esquemaResultadoBanderas,
+  esquemaResultadoCribado,
+  esquemaRestriccion,
+  esquemaRestricciones,
   type PlanActual,
   type Plataforma,
+  type PreguntaCribado,
+  type ResultadoBanderas,
+  type ResultadoCribado,
+  type Restriccion,
+  type SolicitudBanderas,
+  type SolicitudCribado,
   type SolicitudRegistro,
   type SolicitudRutina,
 } from './esquemas';
 
 const NO_ENCONTRADO = 404;
+const TIPO_LIMITACIONES = 'limitaciones';
 
 /** Lo que se genera con «Generar mi plan» mientras no haya pantalla para elegirlo. */
 export const RUTINA_POR_DEFECTO: SolicitudRutina = {
@@ -40,6 +56,19 @@ export interface ApiForja {
   cerrarSesion(): Promise<void>;
   planActual(): Promise<PlanActual | null>;
   generarPlan(): Promise<void>;
+  // Limitaciones (ADR 0007). Datos de salud: ninguna de estas respuestas se guarda fuera de la memoria.
+  tieneConsentimientoLimitaciones(): Promise<boolean>;
+  darConsentimientoLimitaciones(versionTexto: string): Promise<void>;
+  /** Borra también todas las limitaciones guardadas (lo hace el backend). */
+  retirarConsentimientoLimitaciones(): Promise<void>;
+  preguntasCribado(): Promise<PreguntaCribado[]>;
+  cribar(solicitud: SolicitudCribado): Promise<ResultadoCribado>;
+  evaluarBanderas(solicitud: SolicitudBanderas): Promise<ResultadoBanderas>;
+  restricciones(): Promise<Restriccion[]>;
+  crearRestriccion(datos: DatosRestriccion): Promise<Restriccion>;
+  actualizarRestriccion(uuid: string, datos: DatosRestriccion): Promise<Restriccion>;
+  borrarRestriccion(uuid: string): Promise<void>;
+  efectoRestricciones(): Promise<EfectoEjercicio[]>;
   alCaducar(oyente: () => void): () => void;
 }
 
@@ -102,6 +131,34 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
         esquema: esquemaPlanGenerado,
       });
     },
+    async tieneConsentimientoLimitaciones() {
+      const consentimientos = await cliente.pedir({ ruta: '/api/v1/consentimientos', esquema: esquemaConsentimientos });
+      return consentimientos.some((c) => c.tipo === TIPO_LIMITACIONES);
+    },
+    async darConsentimientoLimitaciones(versionTexto) {
+      await cliente.pedir({
+        metodo: 'POST',
+        ruta: '/api/v1/consentimientos',
+        cuerpo: { tipo: TIPO_LIMITACIONES, versionTexto },
+      });
+    },
+    async retirarConsentimientoLimitaciones() {
+      await cliente.pedir({ metodo: 'DELETE', ruta: `/api/v1/consentimientos/${TIPO_LIMITACIONES}` });
+    },
+    preguntasCribado: () => cliente.pedir({ ruta: '/api/v1/cribado/preguntas', esquema: esquemaPreguntasCribado }),
+    cribar: (solicitud) =>
+      cliente.pedir({ metodo: 'POST', ruta: '/api/v1/cribado', cuerpo: solicitud, esquema: esquemaResultadoCribado }),
+    evaluarBanderas: (solicitud) =>
+      cliente.pedir({ metodo: 'POST', ruta: '/api/v1/banderas', cuerpo: solicitud, esquema: esquemaResultadoBanderas }),
+    restricciones: () => cliente.pedir({ ruta: '/api/v1/restricciones', esquema: esquemaRestricciones }),
+    crearRestriccion: (datos) =>
+      cliente.pedir({ metodo: 'POST', ruta: '/api/v1/restricciones', cuerpo: datos, esquema: esquemaRestriccion }),
+    actualizarRestriccion: (uuid, datos) =>
+      cliente.pedir({ metodo: 'PUT', ruta: `/api/v1/restricciones/${uuid}`, cuerpo: datos, esquema: esquemaRestriccion }),
+    async borrarRestriccion(uuid) {
+      await cliente.pedir({ metodo: 'DELETE', ruta: `/api/v1/restricciones/${uuid}` });
+    },
+    efectoRestricciones: () => cliente.pedir({ ruta: '/api/v1/restricciones/efecto', esquema: esquemaEfecto }),
     alCaducar: (oyente) => cliente.alCaducar(oyente),
   };
 }

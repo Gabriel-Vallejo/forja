@@ -130,7 +130,6 @@ export const PERFIL = {
     { etiqueta: 'Objetivo', valor: 'Fuerza e hipertrofia' },
     { etiqueta: 'Días y minutos', valor: '3 × 60 min', dato: true },
     { etiqueta: 'Material y gimnasio', valor: 'Completo' },
-    { etiqueta: 'Limitaciones', valor: '2 confirmadas' },
     { etiqueta: 'Tests de movilidad', valor: 'Pendientes', pendiente: true },
   ],
   personaliza: [

@@ -12,25 +12,30 @@ import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
 import { PERFIL, RACHA, RANGO_GLOBAL } from '../datos/ejemplo';
 import { mensajeDeError } from '../api/errores';
+import { useResumenLimitaciones } from '../limitaciones/consultas';
 import { nombreRangoMayusculas } from '../rango/rango';
 import { useSesion } from '../sesion/sesion';
 import { type Theme, useTheme } from '../theme';
 
 const EMBLEMA = 64;
 const ICONO_BORRAR = 18;
+/** Posición de «Limitaciones» entre las filas de ejemplo de Entreno. */
+const LUGAR_LIMITACIONES = 3;
 
 interface Opcion {
   etiqueta: string;
   valor: string;
   dato?: boolean;
   pendiente?: boolean;
+  /** Pantalla a la que lleva; sin ella, «Próximamente». */
+  ruta?: string;
 }
 
 function Grupo({ titulo, opciones, peligro }: { titulo: string; opciones: readonly Opcion[]; peligro?: string }) {
   const router = useRouter();
   const tema = useTheme();
   const estilos = crearEstilos(tema);
-  const ir = (titulo: string) => router.push({ pathname: '/proximamente', params: { titulo } });
+  const ir = (o: Opcion) => (o.ruta ? router.push(o.ruta) : router.push({ pathname: '/proximamente', params: { titulo: o.etiqueta } }));
   return (
     <>
       <Texto estilo="etiquetaEstrecha" tono="secundario" encabezado>{titulo}</Texto>
@@ -40,7 +45,7 @@ function Grupo({ titulo, opciones, peligro }: { titulo: string; opciones: readon
             key={o.etiqueta}
             accessibilityRole="button"
             accessibilityLabel={o.valor ? `${o.etiqueta}: ${o.valor}` : o.etiqueta}
-            onPress={() => ir(o.etiqueta)}
+            onPress={() => ir(o)}
             style={({ pressed }) => [estilos.opcion, i > 0 && estilos.separada, pressed && estilos.pulsada]}
           >
             <Texto estilo="body">{o.etiqueta}</Texto>
@@ -52,7 +57,7 @@ function Grupo({ titulo, opciones, peligro }: { titulo: string; opciones: readon
         {peligro ? (
           <Pressable
             accessibilityRole="button"
-            onPress={() => ir(peligro)}
+            onPress={() => ir({ etiqueta: peligro, valor: '' })}
             style={({ pressed }) => [estilos.opcion, estilos.separada, pressed && estilos.pulsada]}
           >
             <View style={estilos.peligro}>
@@ -74,6 +79,13 @@ export function Perfil() {
   const { salir } = useSesion();
   const cierre = useMutation({ mutationFn: salir });
   const g = RANGO_GLOBAL;
+  const limitaciones = useResumenLimitaciones();
+  // «Limitaciones» es el dato real; el resto de la sección sigue siendo de ejemplo hasta su bloque.
+  const entreno: readonly Opcion[] = [
+    ...PERFIL.entreno.slice(0, LUGAR_LIMITACIONES),
+    { etiqueta: 'Limitaciones', ...limitaciones, ruta: '/limitaciones' },
+    ...PERFIL.entreno.slice(LUGAR_LIMITACIONES),
+  ];
   const estadisticas = [
     { valor: PERFIL.sesiones, texto: 'sesiones' },
     { valor: RACHA.semanas, texto: 'semanas de racha', acento: true },
@@ -106,7 +118,7 @@ export function Perfil() {
           ))}
         </View>
       </View>
-      <Grupo titulo="Entreno" opciones={PERFIL.entreno} />
+      <Grupo titulo="Entreno" opciones={entreno} />
       <Grupo titulo="Personaliza" opciones={PERFIL.personaliza} />
       <Grupo titulo="Privacidad" opciones={PERFIL.privacidad} peligro="Borrar mi cuenta" />
       {cierre.isError ? <Aviso tipo="error" mensaje={mensajeDeError(cierre.error)} /> : null}
