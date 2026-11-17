@@ -20,6 +20,7 @@ Además, cada elección tiene que poder explicarse («por qué hack y no barra b
 2. **Las restricciones duras del modelo son pocas y siempre satisfacibles:**
    - duración máxima por sesión,
    - máximo de ejercicios por patrón y día,
+   - máximo de series por patrón y día (enmienda de 2026-11-17),
    - no repetir un básico pesado en días consecutivos.
 3. **El volumen y la frecuencia son metas con holgura,** no restricciones duras. Cada una tiene una variable de holgura con una penalización alta en el objetivo, así que el solver siempre devuelve un plan. Si usa holgura, la app lo dice: «con 3 días y 45 min no llegas a 10 series de espalda; te quedan 8».
    - Las series de los músculos secundarios cuentan como 0,5 (Pelland 2026).
@@ -62,3 +63,7 @@ La dieta usa el mismo paquete (OR-Tools): GLOP para la programación lineal, o C
 
 ## Enmienda (2026-11-16)
 - **Restricciones de la entrada de limitaciones** ([0007](0007-motor-de-seleccion-de-ejercicios.md)): solo `evitar` o una restricción con origen profesional excluyen ejercicios en el filtro previo. `limitar_rango` y `limitar_carga` eligen otra variante de la escalera de sustitución. La propiedad de test «con lesión de hombro no hay press por encima de la cabeza» pasa a ser: «con `evitar` en un patrón, ningún ejercicio de ese patrón; con `limitar`, solo variantes permitidas».
+
+## Enmienda (2026-11-17)
+- **Tope de series por patrón y día (duro):** como máximo **6 series** de un mismo patrón de movimiento en una sesión (`series-maximas-por-patron-y-dia` en `application.yml`), además del máximo de ejercicios por patrón y día. Sin él, 3×60 daba 10 series de empuje horizontal el mismo día (press de banca 5 + fondos 5) y 4×60 llegaba a 7 de sentadilla. Es una heurística de entrenadores, no ciencia: pasado ese punto se suma fatiga con poco estímulo, y el volumen semanal se reparte entre días. Quedan **exentos** aislamiento, core, acarreo, pliometría, movilidad y cardio, porque cada uno mezcla músculos distintos.
+- **Valor:** con 7 falló el test de 4×60 (dorsales por encima del margen del objetivo); con 5 todo pasaba, pero el pecho quedaba en 7,5 en 2×60 y en 8 en 3×45. El 6 sale de ese compromiso y depende en parte de la búsqueda (el solver suele cortar por tiempo con una solución buena, no la mejor); si cambian los pesos o el modelo, conviene revisarlo.

@@ -37,6 +37,17 @@ function Sonda() {
 }
 
 describe('Generar mi plan con bloqueo', () => {
+  test('con un cribado urgente el aviso habla del cribado y el botón lo repite', async () => {
+    const api = sinPlan({ estadoBloqueo: jest.fn().mockResolvedValue({ bloquea: true, nivel: 'parar_urgencias' }) });
+    await renderizar(<Hoy />, api);
+
+    expect(await screen.findByText(/por lo que has marcado en el cribado/)).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Repetir el cuestionario' })).toBeNull();
+    await fireEvent.press(screen.getByRole('button', { name: 'Repetir el cribado' }));
+    expect(mockRouter.push).toHaveBeenCalledWith('/limitaciones');
+    expect(JSON.stringify(screen.toJSON())).not.toMatch(PALABRAS_PROHIBIDAS);
+  });
+
   test('con bandera urgente queda deshabilitado, explica por qué y lleva a repetir el cuestionario', async () => {
     const api = sinPlan({ estadoBloqueo: jest.fn().mockResolvedValue(URGENTE) });
     await renderizar(<Hoy />, api);

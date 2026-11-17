@@ -129,7 +129,7 @@ Horas de [CONTEXT](../CONTEXT.md) §1.8 **[estimación]**. Cada versión es publ
 |---|---|---|---|
 | RF-12 | Filtro previo por material, restricciones «evitar» o de un profesional y exclusiones del usuario, con el motivo de cada descarte | v0.1 | [0002](adr/0002-solver-cp-sat.md), [0007](adr/0007-motor-de-seleccion-de-ejercicios.md) |
 | RF-13 | «Limitar rango» o «limitar carga» bajan por la escalera: misma familia → menos rango → otro implemento → otro patrón | v0.1 | [0007](adr/0007-motor-de-seleccion-de-ejercicios.md) |
-| RF-14 | Duras: duración por sesión, máximo de ejercicios por patrón y día, sin básico pesado en días seguidos, máximo de series por músculo | v0.1 | [0002](adr/0002-solver-cp-sat.md) |
+| RF-14 | Duras: duración por sesión, máximo de ejercicios y de series (6) por patrón y día, sin básico pesado en días seguidos, máximo de series por músculo | v0.1 | [0002](adr/0002-solver-cp-sat.md) |
 | RF-15 | Mínimo de volumen y frecuencia ≥ 2 como metas con holgura; si se usa holgura, la app lo dice («con 3 días y 45 min no llegas a 10 series de espalda; te quedan 8»); el usuario puede bajar la frecuencia a 1 | v0.1 | [0002](adr/0002-solver-cp-sat.md) |
 | RF-16 | Series de los músculos secundarios a 0,5 (Pelland 2026) | v0.1 | [0002](adr/0002-solver-cp-sat.md), [referencias](referencias.md) |
 | RF-17 | Objetivo ponderado (pesos en configuración): prioridades, movilidad, palancas con peso bajo, preferencias, fatiga y holgura | v0.1 | [0002](adr/0002-solver-cp-sat.md) |

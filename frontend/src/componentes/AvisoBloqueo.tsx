@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 
 import type { NivelBloqueo } from '../api/esquemas';
-import { mensajeBloqueo } from '../limitaciones/textos';
+import { etiquetaRepetir, mensajeBloqueo } from '../limitaciones/textos';
 import { Aviso } from './Aviso';
 import { Boton } from './Boton';
 
@@ -18,7 +18,7 @@ export function AvisoBloqueo({ nivel, conEnlace = true }: PropsAvisoBloqueo) {
     <>
       <Aviso tipo="aviso" mensaje={mensajeBloqueo(nivel)} />
       {conEnlace ? (
-        <Boton variante="secundario" etiqueta="Repetir el cuestionario" onPress={() => router.push('/limitaciones')} />
+        <Boton variante="secundario" etiqueta={etiquetaRepetir(nivel)} onPress={() => router.push('/limitaciones')} />
       ) : null}
     </>
   );

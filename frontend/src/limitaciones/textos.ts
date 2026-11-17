@@ -17,5 +17,12 @@ export function mensajeBloqueo(nivel: NivelBloqueo | null | undefined): string {
   if (nivel === 'profesional_en_dias') {
     return 'No generamos tu plan por ahora: antes habla con un profesional sanitario. Cuando lo hayas hecho, puedes repetir el cuestionario.';
   }
-  return 'No generamos tu plan por ahora: con lo que has contestado, acude hoy a urgencias o llama al 112 antes de entrenar. Cuando un profesional sanitario te lo permita, repite el cuestionario.';
+  if (nivel === 'parar_urgencias') {
+    return 'No generamos tu plan por ahora: por lo que has marcado en el cribado, no entrenes y acude hoy a urgencias o llama al 112. Cuando un profesional sanitario te lo permita, repite el cribado.';
+  }
+  return 'No generamos tu plan por ahora: con lo que has contestado en el cuestionario, acude hoy a urgencias o llama al 112 antes de entrenar. Cuando un profesional sanitario te lo permita, repite el cuestionario.';
 }
+
+/** El botón lleva al cuestionario que puso el bloqueo: el cribado (`parar_urgencias`) o el de dolor. */
+export const etiquetaRepetir = (nivel: NivelBloqueo | null | undefined) =>
+  nivel === 'parar_urgencias' ? 'Repetir el cribado' : 'Repetir el cuestionario';
