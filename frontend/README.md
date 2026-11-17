@@ -45,10 +45,25 @@ Los dos archivos se versionan y el CI falla si no coinciden con lo generado. Las
 ## Estructura
 
 ```
-app/                rutas de Expo Router (finas: solo eligen pantalla)
-src/theme.ts        tokens de Crimson Ink; único sitio con colores y tamaños
-src/componentes/    Boton, CampoTexto, Pantalla, Aviso y Texto
-src/pantallas/      registro, «revisa tu correo», entrar y portada
-src/api/            cliente HTTP (renovación de sesión única), esquemas Zod y tipos generados
-src/sesion/         almacén de tokens (.native.ts / .web.ts), sesión y validación del alta
+app/                      rutas de Expo Router (finas: leen y validan parámetros y eligen pantalla)
+app/(dentro)/             todo lo que pide sesión; sin ella, a /entrar
+app/(dentro)/(tabs)/      Hoy, Entreno, Forja IA, Progreso y Perfil, con la barra propia
+app/(dentro)/*.tsx        apiladas: ejercicio, escala, rango, calculadora, racha, sesión y «próximamente»
+src/theme.ts              tokens de Crimson Ink y del boceto aprobado; único sitio con colores y tamaños
+src/componentes/          Cuerpo (SVG, giro con gesture-handler y Reanimated), Emblema, TabBar, TarjetaSesion,
+                          FilaEjercicio, FilaRango, Regla y los básicos (Boton, Texto, Aviso, Pantalla…)
+src/pantallas/            una por ruta; ConPlan resuelve cargando, error y «sin plan»
+src/plan/  src/rango/     ayudas del plan (prescripción, primera semana) y del rango (e1RM de Epley)
+src/datos/ejemplo.ts      datos de ejemplo de rangos, racha y perfil hasta la v0.2 (cada pantalla lo avisa)
+src/api/                  cliente HTTP (renovación de sesión única), esquemas Zod y tipos generados
+src/sesion/               almacén de tokens (.native.ts / .web.ts), sesión y validación del alta
 ```
+
+Los trazados del cuerpo (`src/componentes/cuerpoTrazados.ts`) son los del boceto aprobado, copiados tal cual: no se retocan a mano.
+
+## Licencias de terceros
+
+| Recurso | Licencia |
+|---|---|
+| Inter, JetBrains Mono y Noto Serif JP (vía `@expo-google-fonts/*`) | SIL Open Font License 1.1 (las fuentes); MIT (los paquetes) |
+| react-native-svg, react-native-gesture-handler, react-native-reanimated, react-native-worklets | MIT |

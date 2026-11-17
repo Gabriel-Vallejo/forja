@@ -2,7 +2,7 @@ import DateTimePicker, { type DateTimePickerEvent } from '@react-native-communit
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { texto, type Theme, useTheme } from '../theme';
+import { letra, texto, type Theme, useTheme } from '../theme';
 import type { PropsSelectorFecha } from './SelectorFecha';
 
 const MESES = [
@@ -78,7 +78,7 @@ export function SelectorFecha({ etiqueta, valor, alCambiar, error, ayuda }: Prop
 function crearEstilos(tema: Theme) {
   return StyleSheet.create({
     contenedor: { gap: tema.space.s2 },
-    etiqueta: { ...texto(tema, 'body'), fontWeight: '700', color: tema.color.onBackground },
+    etiqueta: { ...texto(tema, 'body'), ...letra(tema, 'sans', '700'), color: tema.color.onBackground },
     campo: {
       minHeight: tema.hit.min,
       justifyContent: 'center',

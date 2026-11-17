@@ -1,43 +1,15 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 
-import type { PlanActual } from '../api/esquemas';
 import { ErrorApi } from '../api/errores';
 import { apiFalsa } from '../pruebas/dobles';
 import { renderizar } from '../pruebas/renderizar';
 import { Entrar } from './Entrar';
-import { Portada } from './Portada';
 import { Registro } from './Registro';
 import { RevisaTuCorreo } from './RevisaTuCorreo';
 
 const mockRouter = { replace: jest.fn(), push: jest.fn() };
 const router = mockRouter;
 jest.mock('expo-router', () => ({ useRouter: () => mockRouter }));
-
-const PLAN: PlanActual = {
-  uuid: '0193a3c4-7b2e-7c1d-9f00-000000000001',
-  creadoEn: '2026-11-16T10:00:00Z',
-  estado: 'OPTIMAL',
-  dias: [
-    {
-      dia: 1,
-      ejercicios: [
-        {
-          idExterno: 'press_banca',
-          nombre: 'Press de banca',
-          orden: 1,
-          series: 4,
-          repeticionesMin: 6,
-          repeticionesMax: 10,
-          rirObjetivo: 2,
-          cargaKg: 80,
-          incrementoKg: 2.5,
-          estado: 'acumulando',
-          motivo: 'Repite la carga hasta completar el rango alto.',
-        },
-      ],
-    },
-  ],
-};
 
 // La ruleta nativa no existe en Jest: un botón que «elige» la fecha que diga el test.
 let mockFechaElegida = '2000-01-01';
@@ -142,44 +114,5 @@ describe('Revisa tu correo', () => {
     expect(screen.getByRole('header', { name: 'Revisa tu correo' })).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Ir a entrar' }));
     expect(router.replace).toHaveBeenCalledWith('/entrar');
-  });
-});
-
-describe('Portada', () => {
-  test('enseña el plan actual con su prescripción', async () => {
-    await renderizar(<Portada />, apiFalsa({ planActual: jest.fn().mockResolvedValue(PLAN) }));
-
-    expect(await screen.findByText('Press de banca')).toBeOnTheScreen();
-    expect(screen.getByText('4 × 6-10 · RIR 2 · 80 kg')).toBeOnTheScreen();
-    expect(screen.getByRole('header', { name: 'Día 1' })).toBeOnTheScreen();
-  });
-
-  test('sin plan, ofrece generarlo y vuelve a pedir el plan', async () => {
-    const planActual = jest.fn().mockResolvedValueOnce(null).mockResolvedValue(PLAN);
-    const api = apiFalsa({ planActual });
-    await renderizar(<Portada />, api);
-
-    await fireEvent.press(await screen.findByRole('button', { name: 'Generar mi plan' }));
-
-    expect(await screen.findByText('Press de banca')).toBeOnTheScreen();
-    expect(api.generarPlan).toHaveBeenCalledTimes(1);
-  });
-
-  test('si falla la carga, enseña el error y deja reintentar', async () => {
-    const planActual = jest.fn().mockRejectedValueOnce(new ErrorApi(0, 'Sin red.')).mockResolvedValue(PLAN);
-    await renderizar(<Portada />, apiFalsa({ planActual }));
-
-    await fireEvent.press(await screen.findByRole('button', { name: 'Reintentar' }));
-
-    expect(await screen.findByText('Press de banca')).toBeOnTheScreen();
-  });
-
-  test('cerrar sesión llama a la API', async () => {
-    const api = apiFalsa();
-    await renderizar(<Portada />, api);
-
-    await fireEvent.press(await screen.findByRole('button', { name: 'Cerrar sesión' }));
-
-    await waitFor(() => expect(api.cerrarSesion).toHaveBeenCalledTimes(1));
   });
 });

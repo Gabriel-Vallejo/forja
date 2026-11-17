@@ -2,7 +2,6 @@ import { Redirect } from 'expo-router';
 
 import { Pantalla } from '../src/componentes/Pantalla';
 import { Texto } from '../src/componentes/Texto';
-import { Portada } from '../src/pantallas/Portada';
 import { useSesion } from '../src/sesion/sesion';
 
 export default function Inicio() {
@@ -14,5 +13,5 @@ export default function Inicio() {
       </Pantalla>
     );
   }
-  return estado === 'dentro' ? <Portada /> : <Redirect href="/entrar" />;
+  return <Redirect href={estado === 'dentro' ? '/hoy' : '/entrar'} />;
 }

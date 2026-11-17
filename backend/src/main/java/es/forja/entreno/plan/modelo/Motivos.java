@@ -7,6 +7,8 @@ final class Motivos {
 
 	private static final BigDecimal MITAD = new BigDecimal("0.5");
 	private static final BigDecimal CIEN = BigDecimal.valueOf(100);
+	// La app reconoce este comienzo para avisar una sola vez de la primera semana (frontend/src/plan/plan.ts).
+	private static final String SIN_SESIONES = "Todavía no hay sesiones de este ejercicio: ";
 
 	private Motivos() {
 	}
@@ -16,8 +18,17 @@ final class Motivos {
 	}
 
 	static String sinSesiones(ReglaEjercicio regla) {
-		return "Todavía no hay sesiones de este ejercicio: elige una carga con la que te queden unas "
-				+ regla.rirObjetivo() + " repeticiones en reserva.";
+		int rir = regla.rirObjetivo();
+		if (regla.pesoCorporal()) {
+			return SIN_SESIONES + "haz cada serie con tu peso corporal dejando " + (rir == 1 ? "" : "unas ")
+					+ repeticiones(rir) + " en reserva.";
+		}
+		return SIN_SESIONES + "elige una carga con la que te " + (rir == 1 ? "quede " : "queden unas ")
+				+ repeticiones(rir) + " en reserva.";
+	}
+
+	private static String repeticiones(int n) {
+		return n + (n == 1 ? " repetición" : " repeticiones");
 	}
 
 	static String deload(ParametrosProgresion.Deload d) {

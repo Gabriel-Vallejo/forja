@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { StyleSheet, Text, TextInput, type TextInputProps, View } from 'react-native';
 
-import { texto, type Theme, useTheme } from '../theme';
+import { letra, texto, type Theme, useTheme } from '../theme';
 
 interface PropsCampoTexto
   extends Pick<TextInputProps, 'secureTextEntry' | 'keyboardType' | 'autoComplete' | 'textContentType'> {
@@ -46,7 +46,7 @@ export function CampoTexto({ etiqueta, valor, alCambiar, error, ayuda, ...resto 
 function crearEstilos(tema: Theme) {
   return StyleSheet.create({
     contenedor: { gap: tema.space.s2 },
-    etiqueta: { ...texto(tema, 'body'), fontWeight: '700', color: tema.color.onBackground },
+    etiqueta: { ...texto(tema, 'body'), ...letra(tema, 'sans', '700'), color: tema.color.onBackground },
     campo: {
       ...texto(tema, 'body'),
       minHeight: tema.hit.min,

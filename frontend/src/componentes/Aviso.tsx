@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { texto, type Theme, useTheme } from '../theme';
+import { letra, texto, type Theme, useTheme } from '../theme';
 
 export type TipoAviso = 'error' | 'aviso' | 'info' | 'exito';
 
@@ -60,7 +60,7 @@ function crearEstilos(tema: Theme) {
       borderWidth: tema.border.foco,
       backgroundColor: tema.color.surfaceHigh,
     },
-    palabra: { ...texto(tema, 'body'), fontWeight: '700' },
+    palabra: { ...texto(tema, 'body'), ...letra(tema, 'sans', '700') },
     mensaje: { ...texto(tema, 'body'), color: tema.color.onBackground },
   });
 }

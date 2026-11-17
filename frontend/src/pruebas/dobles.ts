@@ -1,4 +1,5 @@
 // Dobles de prueba compartidos. Datos sintéticos: nada real (ADR 0004).
+import type { ObjetivoEjercicio, PlanActual } from '../api/esquemas';
 import type { ApiForja } from '../api/forja';
 import type { AlmacenTokens, SesionGuardada } from '../sesion/almacenTokens';
 
@@ -54,4 +55,45 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
     alCaducar: jest.fn().mockReturnValue(() => undefined),
     ...cambios,
   } as jest.Mocked<ApiForja>;
+}
+
+/** Un ejercicio del plan con valores por defecto; `cambios` pisa lo que haga falta. */
+export function objetivo(cambios: Partial<ObjetivoEjercicio> = {}): ObjetivoEjercicio {
+  return {
+    idExterno: 'press_banca',
+    nombre: 'Press de banca',
+    orden: 1,
+    series: 4,
+    repeticionesMin: 6,
+    repeticionesMax: 10,
+    rirObjetivo: 2,
+    cargaKg: 80,
+    incrementoKg: 2.5,
+    estado: 'acumulando',
+    motivo: 'Repite 80 kg: te falta completar 10 repeticiones con 2 en reserva o menos en todas las series de trabajo.',
+    ...cambios,
+  };
+}
+
+const SIN_SESIONES = 'Todavía no hay sesiones de este ejercicio: elige una carga con la que te queden unas 2 repeticiones en reserva.';
+
+/** Plan sintético de dos días; con `primeraSemana`, ningún ejercicio tiene sesiones aún. */
+export function planDePrueba(primeraSemana = false): PlanActual {
+  const motivo = primeraSemana ? { motivo: SIN_SESIONES } : {};
+  return {
+    uuid: '0193a3c4-7b2e-7c1d-9f00-000000000001',
+    creadoEn: '2026-11-16T10:00:00Z',
+    estado: 'factible',
+    dias: [
+      {
+        dia: 1,
+        ejercicios: [
+          objetivo(motivo),
+          objetivo({ idExterno: 'remo', nombre: 'Remo en máquina', orden: 2, cargaKg: 60, ...motivo }),
+          objetivo({ idExterno: 'fondos', nombre: 'Fondos en paralelas', orden: 3, incrementoKg: 0, cargaKg: undefined, ...motivo }),
+        ],
+      },
+      { dia: 2, ejercicios: [objetivo({ idExterno: 'sentadilla', nombre: 'Sentadilla', cargaKg: 100, ...motivo })] },
+    ],
+  };
 }
