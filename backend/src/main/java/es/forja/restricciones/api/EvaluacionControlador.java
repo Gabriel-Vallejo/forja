@@ -63,6 +63,10 @@ public class EvaluacionControlador {
 	public record RespuestaPregunta(String codigo, String texto, boolean admiteReciente) {
 	}
 
+	/** {@code semanasReciente}: hasta cuándo cuenta un síntoma como reciente ({@link RespuestasCribado#SEMANAS_RECIENTE}). */
+	public record RespuestaPreguntas(int semanasReciente, List<RespuestaPregunta> preguntas) {
+	}
+
 	public record RespuestaCribado(String nivel, List<String> motivos) {
 		static RespuestaCribado de(ResultadoCribado r) {
 			return new RespuestaCribado(codigo(r.nivel()), r.motivos());
@@ -126,9 +130,9 @@ public class EvaluacionControlador {
 
 	/** Texto fijo del cuestionario, para que la app no lo duplique: no mira al usuario, solo exige sesión. */
 	@GetMapping("/cribado/preguntas")
-	public List<RespuestaPregunta> preguntas() {
-		return java.util.Arrays.stream(PreguntaCribado.values())
-				.map(p -> new RespuestaPregunta(codigo(p), p.texto(), p.admiteReciente())).toList();
+	public RespuestaPreguntas preguntas() {
+		return new RespuestaPreguntas(RespuestasCribado.SEMANAS_RECIENTE, java.util.Arrays.stream(PreguntaCribado.values())
+				.map(p -> new RespuestaPregunta(codigo(p), p.texto(), p.admiteReciente())).toList());
 	}
 
 	@PostMapping("/cribado")

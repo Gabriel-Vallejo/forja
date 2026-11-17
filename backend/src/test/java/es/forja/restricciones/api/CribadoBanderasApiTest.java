@@ -11,6 +11,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import es.forja.restricciones.cribado.RespuestasCribado;
+
 class CribadoBanderasApiTest extends SoporteLimitaciones {
 
 	private static final List<String> PREGUNTAS = List.of("sintomas_en_esfuerzo", "desmayo_o_mareo",
@@ -41,11 +43,13 @@ class CribadoBanderasApiTest extends SoporteLimitaciones {
 		Cliente cliente = clienteConLimitaciones();
 
 		consultar("/api/v1/cribado/preguntas", cliente).andExpect(status().isOk())
-				.andExpect(jsonPath("$", hasSize(PREGUNTAS.size())))
-				.andExpect(jsonPath("$[0].codigo").value("sintomas_en_esfuerzo"))
-				.andExpect(jsonPath("$[0].texto").isNotEmpty()).andExpect(jsonPath("$[0].admiteReciente").value(true))
-				.andExpect(jsonPath("$[6].codigo").value("embarazo"))
-				.andExpect(jsonPath("$[6].admiteReciente").value(false));
+				.andExpect(jsonPath("$.semanasReciente").value(RespuestasCribado.SEMANAS_RECIENTE))
+				.andExpect(jsonPath("$.preguntas", hasSize(PREGUNTAS.size())))
+				.andExpect(jsonPath("$.preguntas[0].codigo").value("sintomas_en_esfuerzo"))
+				.andExpect(jsonPath("$.preguntas[0].texto").isNotEmpty())
+				.andExpect(jsonPath("$.preguntas[0].admiteReciente").value(true))
+				.andExpect(jsonPath("$.preguntas[6].codigo").value("embarazo"))
+				.andExpect(jsonPath("$.preguntas[6].admiteReciente").value(false));
 	}
 
 	@Test

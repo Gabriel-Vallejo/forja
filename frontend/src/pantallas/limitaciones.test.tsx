@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react-native';
 
 import { ErrorApi } from '../api/errores';
-import { apiFalsa, efectoDePrueba, preguntasDePrueba, restriccion } from '../pruebas/dobles';
+import { apiFalsa, cuestionarioDePrueba, efectoDePrueba, preguntasDePrueba, restriccion } from '../pruebas/dobles';
 import { renderizar } from '../pruebas/renderizar';
 import { Cribado } from './Cribado';
 import { Dolor } from './Dolor';
@@ -223,7 +223,7 @@ describe('Lista de limitaciones', () => {
 
 describe('Cribado', () => {
   const conPreguntas = (cambios: Parameters<typeof apiFalsa>[0] = {}) =>
-    conConsentimiento({ preguntasCribado: jest.fn().mockResolvedValue(preguntasDePrueba()), ...cambios });
+    conConsentimiento({ preguntasCribado: jest.fn().mockResolvedValue(cuestionarioDePrueba()), ...cambios });
 
   async function contestarTodas(sinSintomas = true) {
     for (const p of preguntasDePrueba()) {
@@ -252,6 +252,16 @@ describe('Cribado', () => {
 
     await contestarTodas(false);
     expect(screen.getByRole('button', { name: 'Ver resultado' })).toBeDisabled();
+  });
+
+  test('las semanas de «reciente» las dice el backend, no la app', async () => {
+    const preguntasCribado = jest.fn().mockResolvedValue({ ...cuestionarioDePrueba(), semanasReciente: 6 });
+    await renderizar(<Cribado />, conPreguntas({ preguntasCribado }));
+    await screen.findByText('Pregunta 1');
+
+    await elegir('Pregunta 1', 'Sí');
+
+    expect(screen.getByText('Cuenta lo de las últimas 6 semanas.')).toBeOnTheScreen();
   });
 
   test('cambiar un sí a no quita lo de «reciente» de lo que se envía', async () => {
@@ -362,7 +372,7 @@ describe('Cribado', () => {
   });
 
   test('si no cargan las preguntas, error con reintento', async () => {
-    const preguntasCribado = jest.fn().mockRejectedValueOnce(new ErrorApi(0, 'Sin red.')).mockResolvedValue(preguntasDePrueba());
+    const preguntasCribado = jest.fn().mockRejectedValueOnce(new ErrorApi(0, 'Sin red.')).mockResolvedValue(cuestionarioDePrueba());
     await renderizar(<Cribado />, conConsentimiento({ preguntasCribado }));
 
     expect(await screen.findByText('Sin red.')).toBeOnTheScreen();
@@ -372,7 +382,7 @@ describe('Cribado', () => {
   });
 
   test('sin consentimiento no enseña el cuestionario y lleva a Limitaciones', async () => {
-    const api = apiFalsa({ preguntasCribado: jest.fn().mockResolvedValue(preguntasDePrueba()) });
+    const api = apiFalsa({ preguntasCribado: jest.fn().mockResolvedValue(cuestionarioDePrueba()) });
     await renderizar(<Cribado />, api);
 
     await fireEvent.press(await screen.findByRole('button', { name: 'Ir a Limitaciones' }));

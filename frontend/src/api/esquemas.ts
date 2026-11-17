@@ -117,10 +117,17 @@ export interface DatosRestriccion {
   textoOriginal?: string;
 }
 
-export const esquemaPreguntasCribado = z.array(
-  z.object({ codigo: z.string(), texto: z.string(), admiteReciente: z.boolean() }),
-) satisfies z.ZodType<Esquemas['RespuestaPregunta'][]>;
-export type PreguntaCribado = z.infer<typeof esquemaPreguntasCribado>[number];
+const esquemaPreguntaCribado = z.object({ codigo: z.string(), texto: z.string(), admiteReciente: z.boolean() }) satisfies z.ZodType<
+  Esquemas['RespuestaPregunta']
+>;
+export type PreguntaCribado = z.infer<typeof esquemaPreguntaCribado>;
+
+/** Las preguntas y cuántas semanas cuenta un síntoma como reciente: las dos cosas las pone el backend. */
+export const esquemaCuestionarioCribado = z.object({
+  semanasReciente: z.number().int(),
+  preguntas: z.array(esquemaPreguntaCribado),
+}) satisfies z.ZodType<Esquemas['RespuestaPreguntas']>;
+export type CuestionarioCribado = z.infer<typeof esquemaCuestionarioCribado>;
 
 export const esquemaResultadoCribado = z.object({
   nivel: z.enum(['seguir', 'consultar_profesional', 'parar_urgencias']),

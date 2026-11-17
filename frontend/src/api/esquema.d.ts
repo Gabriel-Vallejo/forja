@@ -586,6 +586,11 @@ export interface components {
             codigo?: string;
             texto?: string;
         };
+        RespuestaPreguntas: {
+            preguntas?: components["schemas"]["RespuestaPregunta"][];
+            /** Format: int32 */
+            semanasReciente?: number;
+        };
         RespuestaRestriccion: {
             estado?: string;
             lado?: string;
@@ -1027,7 +1032,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["RespuestaPregunta"][];
+                    "*/*": components["schemas"]["RespuestaPreguntas"];
                 };
             };
         };

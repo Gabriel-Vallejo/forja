@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
 import { mensajeDeError } from '../api/errores';
-import type { PreguntaCribado, ResultadoCribado, SolicitudCribado } from '../api/esquemas';
+import type { CuestionarioCribado, PreguntaCribado, ResultadoCribado, SolicitudCribado } from '../api/esquemas';
 import { Aviso } from '../componentes/Aviso';
 import { Boton } from '../componentes/Boton';
 import { ConConsulta } from '../componentes/ConConsulta';
@@ -18,8 +18,8 @@ import { ConConsentimiento } from './ConConsentimiento';
 
 type Mapa = Readonly<Record<string, boolean>>;
 
-/** El backend cuenta como reciente lo de las últimas 4 semanas (`RespuestasCribado.SEMANAS_RECIENTE`, provisional). */
-const AYUDA_RECIENTE = 'Cuenta lo de las últimas 4 semanas.';
+/** Las semanas las dice el backend (`RespuestasCribado.SEMANAS_RECIENTE`): aquí no se repite el número. */
+const ayudaReciente = (semanas: number) => `Cuenta lo de ${semanas === 1 ? 'la última semana' : `las últimas ${semanas} semanas`}.`;
 
 function Resultado({ resultado, alVolver, alRepetir }: { resultado: ResultadoCribado; alVolver: () => void; alRepetir: () => void }) {
   const motivos = resultado.motivos.map((texto) => ({ texto }));
@@ -47,7 +47,7 @@ function Resultado({ resultado, alVolver, alRepetir }: { resultado: ResultadoCri
 }
 
 /** Las respuestas viven solo en este estado: no se guardan en ningún sitio (datos de salud, ADR 0004). */
-function Cuestionario({ preguntas }: { preguntas: PreguntaCribado[] }) {
+function Cuestionario({ cuestionario: { preguntas, semanasReciente } }: { cuestionario: CuestionarioCribado }) {
   const router = useRouter();
   const { api } = useSesion();
   const [respuestas, setRespuestas] = useState<Mapa>({});
@@ -81,6 +81,7 @@ function Cuestionario({ preguntas }: { preguntas: PreguntaCribado[] }) {
         <Pregunta
           key={p.codigo}
           pregunta={p}
+          semanasReciente={semanasReciente}
           respuesta={respuestas[p.codigo]}
           reciente={recientes[p.codigo]}
           alContestar={(v) => contestar(p, v)}
@@ -101,18 +102,19 @@ function Cuestionario({ preguntas }: { preguntas: PreguntaCribado[] }) {
 
 interface PropsPregunta {
   pregunta: PreguntaCribado;
+  semanasReciente: number;
   respuesta: boolean | undefined;
   reciente: boolean | undefined;
   alContestar: (valor: boolean) => void;
   alMarcarReciente: (valor: boolean) => void;
 }
 
-function Pregunta({ pregunta, respuesta, reciente, alContestar, alMarcarReciente }: PropsPregunta) {
+function Pregunta({ pregunta, semanasReciente, respuesta, reciente, alContestar, alMarcarReciente }: PropsPregunta) {
   return (
     <>
       <SiNo etiqueta={pregunta.texto} valor={respuesta} alCambiar={alContestar} />
       {pregunta.admiteReciente && respuesta ? (
-        <SiNo etiqueta="¿Fue hace poco?" ayuda={AYUDA_RECIENTE} valor={reciente} alCambiar={alMarcarReciente} />
+        <SiNo etiqueta="¿Fue hace poco?" ayuda={ayudaReciente(semanasReciente)} valor={reciente} alCambiar={alMarcarReciente} />
       ) : null}
     </>
   );
@@ -131,5 +133,5 @@ export function Cribado() {
 
 function Preguntas() {
   const preguntas = usePreguntasCribado();
-  return <ConConsulta consulta={preguntas} cargando="Cargando las preguntas…">{(lista) => <Cuestionario preguntas={lista} />}</ConConsulta>;
+  return <ConConsulta consulta={preguntas} cargando="Cargando las preguntas…">{(cuestionario) => <Cuestionario cuestionario={cuestionario} />}</ConConsulta>;
 }

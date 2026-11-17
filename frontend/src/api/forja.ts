@@ -10,14 +10,14 @@ import {
   esquemaMensaje,
   esquemaPlanActual,
   esquemaPlanGenerado,
-  esquemaPreguntasCribado,
+  esquemaCuestionarioCribado,
   esquemaResultadoBanderas,
   esquemaResultadoCribado,
   esquemaRestriccion,
   esquemaRestricciones,
   type PlanActual,
   type Plataforma,
-  type PreguntaCribado,
+  type CuestionarioCribado,
   type ResultadoBanderas,
   type ResultadoCribado,
   type Restriccion,
@@ -61,7 +61,7 @@ export interface ApiForja {
   darConsentimientoLimitaciones(versionTexto: string): Promise<void>;
   /** Borra también todas las limitaciones guardadas (lo hace el backend). */
   retirarConsentimientoLimitaciones(): Promise<void>;
-  preguntasCribado(): Promise<PreguntaCribado[]>;
+  preguntasCribado(): Promise<CuestionarioCribado>;
   cribar(solicitud: SolicitudCribado): Promise<ResultadoCribado>;
   evaluarBanderas(solicitud: SolicitudBanderas): Promise<ResultadoBanderas>;
   restricciones(): Promise<Restriccion[]>;
@@ -145,7 +145,7 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
     async retirarConsentimientoLimitaciones() {
       await cliente.pedir({ metodo: 'DELETE', ruta: `/api/v1/consentimientos/${TIPO_LIMITACIONES}` });
     },
-    preguntasCribado: () => cliente.pedir({ ruta: '/api/v1/cribado/preguntas', esquema: esquemaPreguntasCribado }),
+    preguntasCribado: () => cliente.pedir({ ruta: '/api/v1/cribado/preguntas', esquema: esquemaCuestionarioCribado }),
     cribar: (solicitud) =>
       cliente.pedir({ metodo: 'POST', ruta: '/api/v1/cribado', cuerpo: solicitud, esquema: esquemaResultadoCribado }),
     evaluarBanderas: (solicitud) =>

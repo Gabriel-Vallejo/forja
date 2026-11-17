@@ -1,4 +1,4 @@
-import { almacenEnMemoria, datosSesion, efectoDePrueba, preguntasDePrueba, respuesta, restriccion } from '../pruebas/dobles';
+import { almacenEnMemoria, datosSesion, efectoDePrueba, cuestionarioDePrueba, respuesta, restriccion } from '../pruebas/dobles';
 import { crearCliente } from './cliente';
 import { crearApiForja } from './forja';
 
@@ -94,12 +94,13 @@ describe('API de limitaciones', () => {
   });
 
   test('las preguntas del cribado salen del backend', async () => {
-    const fetchFalso = jest.fn(async () => respuesta(200, preguntasDePrueba()));
+    const fetchFalso = jest.fn(async () => respuesta(200, cuestionarioDePrueba()));
 
-    const preguntas = await montar(fetchFalso).preguntasCribado();
+    const cuestionario = await montar(fetchFalso).preguntasCribado();
 
     expect(llamada(fetchFalso)[0]).toBe(`${URL_BASE}/api/v1/cribado/preguntas`);
-    expect(preguntas).toHaveLength(7);
+    expect(cuestionario.preguntas).toHaveLength(7);
+    expect(cuestionario.semanasReciente).toBe(4);
   });
 
   test('cribar manda respuestas y recientes y devuelve el nivel', async () => {

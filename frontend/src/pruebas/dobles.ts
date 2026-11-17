@@ -1,5 +1,5 @@
 // Dobles de prueba compartidos. Datos sintéticos: nada real (ADR 0004).
-import type { EfectoEjercicio, ObjetivoEjercicio, PlanActual, PreguntaCribado, Restriccion } from '../api/esquemas';
+import type { CuestionarioCribado, EfectoEjercicio, ObjetivoEjercicio, PlanActual, PreguntaCribado, Restriccion } from '../api/esquemas';
 import type { ApiForja } from '../api/forja';
 import type { AlmacenTokens, SesionGuardada } from '../sesion/almacenTokens';
 
@@ -55,7 +55,7 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
     tieneConsentimientoLimitaciones: jest.fn().mockResolvedValue(false),
     darConsentimientoLimitaciones: jest.fn().mockResolvedValue(undefined),
     retirarConsentimientoLimitaciones: jest.fn().mockResolvedValue(undefined),
-    preguntasCribado: jest.fn().mockResolvedValue([]),
+    preguntasCribado: jest.fn().mockResolvedValue({ semanasReciente: 4, preguntas: [] }),
     cribar: jest.fn().mockResolvedValue({ nivel: 'seguir', motivos: [] }),
     evaluarBanderas: jest.fn().mockResolvedValue({ bloquea: false, banderas: [] }),
     restricciones: jest.fn().mockResolvedValue([]),
@@ -91,7 +91,7 @@ export function objetivo(cambios: Partial<ObjetivoEjercicio> = {}): ObjetivoEjer
   };
 }
 
-const SIN_SESIONES = 'Todavía no hay sesiones de este ejercicio: elige una carga con la que te queden unas 2 repeticiones en reserva.';
+const SIN_SESIONES = 'Elige una carga con la que te queden unas 2 repeticiones en reserva.';
 
 /**
  * Plan sintético de dos días (1 TORSO, 2 PIERNA); con `primeraSemana`, ningún ejercicio tiene sesiones aún.
@@ -148,6 +148,10 @@ export function restriccion(cambios: Partial<Restriccion> = {}): Restriccion {
 export function preguntasDePrueba(): PreguntaCribado[] {
   const nombres = ['sintomas_en_esfuerzo', 'desmayo_o_mareo', 'enfermedad_conocida', 'medicacion', 'problema_musculoesqueletico', 'indicacion_supervisada', 'embarazo'];
   return nombres.map((codigo, i) => ({ codigo, texto: `Pregunta ${i + 1}`, admiteReciente: i < 2 }));
+}
+
+export function cuestionarioDePrueba(): CuestionarioCribado {
+  return { semanasReciente: 4, preguntas: preguntasDePrueba() };
 }
 
 export function efectoDePrueba(): EfectoEjercicio[] {

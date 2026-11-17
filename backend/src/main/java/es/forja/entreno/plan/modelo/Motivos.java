@@ -7,7 +7,6 @@ final class Motivos {
 
 	private static final BigDecimal MITAD = new BigDecimal("0.5");
 	private static final BigDecimal CIEN = BigDecimal.valueOf(100);
-	private static final String SIN_SESIONES = "Todavía no hay sesiones de este ejercicio: ";
 
 	private Motivos() {
 	}
@@ -19,10 +18,10 @@ final class Motivos {
 	static String sinSesiones(ReglaEjercicio regla) {
 		int rir = regla.rirObjetivo();
 		if (regla.pesoCorporal()) {
-			return SIN_SESIONES + "haz cada serie con tu peso corporal dejando " + (rir == 1 ? "" : "unas ")
+			return "Haz cada serie con tu peso corporal dejando " + (rir == 1 ? "" : "unas ")
 					+ repeticiones(rir) + " en reserva.";
 		}
-		return SIN_SESIONES + "elige una carga con la que te " + (rir == 1 ? "quede " : "queden unas ")
+		return "Elige una carga con la que te " + (rir == 1 ? "quede " : "queden unas ")
 				+ repeticiones(rir) + " en reserva.";
 	}
 

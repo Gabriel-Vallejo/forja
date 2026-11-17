@@ -597,6 +597,21 @@
         },
         "type" : "object"
       },
+      "RespuestaPreguntas" : {
+        "properties" : {
+          "preguntas" : {
+            "items" : {
+              "$ref" : "#/components/schemas/RespuestaPregunta"
+            },
+            "type" : "array"
+          },
+          "semanasReciente" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
       "RespuestaRestriccion" : {
         "properties" : {
           "estado" : {
@@ -1328,10 +1343,7 @@
             "content" : {
               "*/*" : {
                 "schema" : {
-                  "items" : {
-                    "$ref" : "#/components/schemas/RespuestaPregunta"
-                  },
-                  "type" : "array"
+                  "$ref" : "#/components/schemas/RespuestaPreguntas"
                 }
               }
             },
