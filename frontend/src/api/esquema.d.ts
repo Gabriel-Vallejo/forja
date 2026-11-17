@@ -180,6 +180,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/cribado/preguntas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["preguntas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/cuenta": {
         parameters: {
             query?: never;
@@ -564,6 +580,11 @@ export interface components {
             motivo?: string;
             nombre?: string;
             sustituto?: components["schemas"]["Sustituto"];
+        };
+        RespuestaPregunta: {
+            admiteReciente?: boolean;
+            codigo?: string;
+            texto?: string;
         };
         RespuestaRestriccion: {
             estado?: string;
@@ -987,6 +1008,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["RespuestaCribado"];
+                };
+            };
+        };
+    };
+    preguntas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RespuestaPregunta"][];
                 };
             };
         };

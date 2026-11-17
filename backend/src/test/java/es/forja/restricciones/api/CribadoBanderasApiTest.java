@@ -37,6 +37,24 @@ class CribadoBanderasApiTest extends SoporteLimitaciones {
 	}
 
 	@Test
+	void laListaDePreguntasSaleEnOrdenConSuTextoYQuePreguntasAdmitenReciente() throws Exception {
+		Cliente cliente = clienteConLimitaciones();
+
+		consultar("/api/v1/cribado/preguntas", cliente).andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(PREGUNTAS.size())))
+				.andExpect(jsonPath("$[0].codigo").value("sintomas_en_esfuerzo"))
+				.andExpect(jsonPath("$[0].texto").isNotEmpty()).andExpect(jsonPath("$[0].admiteReciente").value(true))
+				.andExpect(jsonPath("$[6].codigo").value("embarazo"))
+				.andExpect(jsonPath("$[6].admiteReciente").value(false));
+	}
+
+	@Test
+	void laListaDePreguntasExigeSesion() throws Exception {
+		mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/v1/cribado/preguntas"))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
 	void cribadoSinSiesDejaSeguirYNoGuardaNada() throws Exception {
 		Cliente cliente = clienteConLimitaciones();
 		long antes = contar("SELECT COUNT(*) FROM restriccion");

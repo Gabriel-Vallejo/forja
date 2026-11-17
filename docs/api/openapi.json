@@ -583,6 +583,20 @@
         },
         "type" : "object"
       },
+      "RespuestaPregunta" : {
+        "properties" : {
+          "admiteReciente" : {
+            "type" : "boolean"
+          },
+          "codigo" : {
+            "type" : "string"
+          },
+          "texto" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "RespuestaRestriccion" : {
         "properties" : {
           "estado" : {
@@ -1297,6 +1311,27 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/RespuestaCribado"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluacion-controlador" ]
+      }
+    },
+    "/api/v1/cribado/preguntas" : {
+      "get" : {
+        "operationId" : "preguntas",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/RespuestaPregunta"
+                  },
+                  "type" : "array"
                 }
               }
             },

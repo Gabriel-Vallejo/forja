@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,6 +57,10 @@ public class EvaluacionControlador {
 			}
 			throw ErrorNegocio.datosNoValidos("Hay una pregunta del cribado que no existe.");
 		}
+	}
+
+	/** Una pregunta del cribado tal cual se enseña; {@code admiteReciente}: si se puede marcar el síntoma como reciente. */
+	public record RespuestaPregunta(String codigo, String texto, boolean admiteReciente) {
 	}
 
 	public record RespuestaCribado(String nivel, List<String> motivos) {
@@ -117,6 +122,13 @@ public class EvaluacionControlador {
 
 	public EvaluacionControlador(ServicioConsentimientos consentimientos) {
 		this.consentimientos = consentimientos;
+	}
+
+	/** Texto fijo del cuestionario, para que la app no lo duplique: no mira al usuario, solo exige sesión. */
+	@GetMapping("/cribado/preguntas")
+	public List<RespuestaPregunta> preguntas() {
+		return java.util.Arrays.stream(PreguntaCribado.values())
+				.map(p -> new RespuestaPregunta(codigo(p), p.texto(), p.admiteReciente())).toList();
 	}
 
 	@PostMapping("/cribado")
