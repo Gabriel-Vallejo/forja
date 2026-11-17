@@ -44,7 +44,11 @@ class GeneradorCatalogoRealTest {
 	private static final int MARGEN_OBJETIVO = 4;
 	private static final double FRACCION_MINIMA_SESION = 0.75;
 	private static final String BASICO = "basico";
-	private static final long MILISEGUNDOS_MAXIMOS = 10_000;
+	/**
+	 * Alarma contra regresiones grandes, no un benchmark: el objetivo de producto es < 10 s (en el portátil salen 6-9 s;
+	 * falta medirlo en el VPS) y el tiempo de reloj en una JVM de tests compartida varía con la máquina.
+	 */
+	private static final long MILISEGUNDOS_MAXIMOS = 15_000;
 
 	@Autowired
 	private ServicioRutina servicio;
