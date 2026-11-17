@@ -1,5 +1,14 @@
 // Dobles de prueba compartidos. Datos sintéticos: nada real (ADR 0004).
-import type { CuestionarioCribado, EfectoEjercicio, ObjetivoEjercicio, PlanActual, PreguntaCribado, Restriccion } from '../api/esquemas';
+import type {
+  CuestionarioCribado,
+  EfectoEjercicio,
+  Material,
+  ObjetivoEjercicio,
+  PerfilEntreno,
+  PlanActual,
+  PreguntaCribado,
+  Restriccion,
+} from '../api/esquemas';
 import type { ApiForja } from '../api/forja';
 import type { AlmacenTokens, SesionGuardada } from '../sesion/almacenTokens';
 
@@ -52,6 +61,9 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
     cerrarSesion: jest.fn().mockResolvedValue(undefined),
     planActual: jest.fn().mockResolvedValue(null),
     generarPlan: jest.fn().mockResolvedValue(undefined),
+    perfilEntreno: jest.fn().mockResolvedValue(perfilDePrueba()),
+    guardarPerfilEntreno: jest.fn().mockImplementation(async (a) => ({ ...a, porDefecto: false })),
+    materiales: jest.fn().mockResolvedValue(materialesDePrueba()),
     tieneConsentimientoLimitaciones: jest.fn().mockResolvedValue(false),
     darConsentimientoLimitaciones: jest.fn().mockResolvedValue(undefined),
     retirarConsentimientoLimitaciones: jest.fn().mockResolvedValue(undefined),
@@ -168,4 +180,32 @@ export function efectoDePrueba(): EfectoEjercicio[] {
     },
     { idExterno: 'extension', nombre: 'Extensión de cuádriceps', decision: 'con_anotaciones', anotaciones: ['Limitar carga: ligera'] },
   ];
+}
+
+/** Ajustes por defecto del backend: 3 días, 60 minutos y los 8 materiales de un gimnasio completo. */
+export function perfilDePrueba(cambios: Partial<PerfilEntreno> = {}): PerfilEntreno {
+  return {
+    diasPorSemana: 3,
+    minutosPorSesion: 60,
+    material: ['barra', 'mancuerna', 'maquina', 'polea', 'peso_corporal', 'kettlebell', 'banda', 'barra_ez'],
+    porDefecto: true,
+    ...cambios,
+  };
+}
+
+/** Lo que ofrece `GET /catalogo/materiales`: todo menos «otro». */
+export function materialesDePrueba(): Material[] {
+  return [
+    ['barra', 'Barra'],
+    ['mancuerna', 'Mancuerna'],
+    ['maquina', 'Máquina'],
+    ['polea', 'Polea'],
+    ['peso_corporal', 'Peso corporal'],
+    ['kettlebell', 'Kettlebell'],
+    ['banda', 'Banda elástica'],
+    ['barra_ez', 'Barra EZ'],
+    ['balon_medicinal', 'Balón medicinal'],
+    ['fitball', 'Fitball'],
+    ['rodillo', 'Rodillo'],
+  ].map(([codigo, nombre]) => ({ codigo: codigo as string, nombre: nombre as string }));
 }

@@ -183,6 +183,24 @@ export const esquemaProblema = z.object({
   errores: z.array(z.object({ campo: z.string(), mensaje: z.string() })).optional(),
 });
 
+/** Ajustes del plan: lo que se guarda con `PUT /perfil/entreno` y lo que usa «Generar mi plan». */
+export type AjustesEntreno = Required<Esquemas['AjustesEntreno']>;
+
+export const esquemaPerfilEntreno = z.object({
+  diasPorSemana: z.number().int(),
+  minutosPorSesion: z.number().int(),
+  material: z.array(z.string()),
+  // True mientras el usuario no ha guardado los suyos: son los valores por defecto del backend.
+  porDefecto: z.boolean(),
+}) satisfies z.ZodType<Esquemas['PerfilEntreno']>;
+export type PerfilEntreno = z.infer<typeof esquemaPerfilEntreno>;
+
+/** Material que el backend deja elegir (`GET /catalogo/materiales`). */
+export const esquemaMateriales = z.array(z.object({ codigo: z.string(), nombre: z.string() })) satisfies z.ZodType<
+  Esquemas['Opcion'][]
+>;
+export type Material = z.infer<typeof esquemaMateriales>[number];
+
 export type SolicitudRegistro = Required<Esquemas['Registro']>;
 export type SolicitudRutina = Esquemas['SolicitudRutina'];
 export type Plataforma = NonNullable<Esquemas['Login']['plataforma']>;

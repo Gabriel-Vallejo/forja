@@ -1,6 +1,34 @@
 {
   "components" : {
     "schemas" : {
+      "AjustesEntreno" : {
+        "properties" : {
+          "diasPorSemana" : {
+            "format" : "int32",
+            "maximum" : 6,
+            "minimum" : 2,
+            "type" : "integer"
+          },
+          "material" : {
+            "items" : {
+              "maxLength" : 30,
+              "minLength" : 0,
+              "type" : "string"
+            },
+            "maxItems" : 20,
+            "minItems" : 0,
+            "type" : "array"
+          },
+          "minutosPorSesion" : {
+            "format" : "int32",
+            "maximum" : 120,
+            "minimum" : 30,
+            "type" : "integer"
+          }
+        },
+        "required" : [ "diasPorSemana", "material", "minutosPorSesion" ],
+        "type" : "object"
+      },
       "Alternativa" : {
         "properties" : {
           "alternativa" : {
@@ -306,6 +334,17 @@
         },
         "type" : "object"
       },
+      "Opcion" : {
+        "properties" : {
+          "codigo" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "PaginaSesiones" : {
         "properties" : {
           "pagina" : {
@@ -325,6 +364,28 @@
           "total" : {
             "format" : "int64",
             "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "PerfilEntreno" : {
+        "properties" : {
+          "diasPorSemana" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "material" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "minutosPorSesion" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "porDefecto" : {
+            "type" : "boolean"
           }
         },
         "type" : "object"
@@ -1271,6 +1332,27 @@
         "tags" : [ "evaluacion-controlador" ]
       }
     },
+    "/api/v1/catalogo/materiales" : {
+      "get" : {
+        "operationId" : "materiales",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/Opcion"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "perfil-entreno-controlador" ]
+      }
+    },
     "/api/v1/consentimientos" : {
       "get" : {
         "operationId" : "listar_1",
@@ -1442,6 +1524,50 @@
           }
         },
         "tags" : [ "cuenta-controlador" ]
+      }
+    },
+    "/api/v1/perfil/entreno" : {
+      "get" : {
+        "operationId" : "obtener",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PerfilEntreno"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "perfil-entreno-controlador" ]
+      },
+      "put" : {
+        "operationId" : "guardar_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AjustesEntreno"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PerfilEntreno"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "perfil-entreno-controlador" ]
       }
     },
     "/api/v1/planes/actual" : {

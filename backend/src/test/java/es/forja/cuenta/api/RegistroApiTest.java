@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,9 @@ import org.junit.jupiter.api.Test;
 import es.forja.ClavesDePrueba;
 
 class RegistroApiTest extends ApiCuentaSoporte {
+
+	/** El servidor calcula la edad con el día UTC: entre las 00:00 y la 01:00 de Madrid no es el día local. */
+	private static final java.util.function.Supplier<LocalDate> HOY_UTC = () -> LocalDate.now(ZoneOffset.UTC);
 
 	private static final String RUTA = "/api/v1/auth/registro";
 
@@ -45,7 +49,7 @@ class RegistroApiTest extends ApiCuentaSoporte {
 	@Test
 	void rechazaAUnMenorDeEdadYNoGuardaNada() throws Exception {
 		String correo = correoNuevo();
-		String hace17Anios = LocalDate.now().minusYears(17).toString();
+		String hace17Anios = HOY_UTC.get().minusYears(17).toString();
 
 		enviar(RUTA, cuerpoRegistro(correo, CONTRASENA, hace17Anios)).andExpect(status().isBadRequest());
 
@@ -55,7 +59,7 @@ class RegistroApiTest extends ApiCuentaSoporte {
 
 	@Test
 	void admiteAQuienCumpleDieciochoHoy() throws Exception {
-		enviar(RUTA, cuerpoRegistro(correoNuevo(), CONTRASENA, LocalDate.now().minusYears(18).toString()))
+		enviar(RUTA, cuerpoRegistro(correoNuevo(), CONTRASENA, HOY_UTC.get().minusYears(18).toString()))
 				.andExpect(status().isAccepted());
 	}
 
@@ -80,7 +84,7 @@ class RegistroApiTest extends ApiCuentaSoporte {
 	@Test
 	void rechazaUnCorreoInvalidoYUnaFechaFuturaYUnCuerpoRoto() throws Exception {
 		enviar(RUTA, cuerpoRegistro("no-es-un-correo", CONTRASENA, "1998-04-12")).andExpect(status().isBadRequest());
-		enviar(RUTA, cuerpoRegistro(correoNuevo(), CONTRASENA, LocalDate.now().plusDays(1).toString()))
+		enviar(RUTA, cuerpoRegistro(correoNuevo(), CONTRASENA, HOY_UTC.get().plusDays(1).toString()))
 				.andExpect(status().isBadRequest());
 		mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post(RUTA)
 				.contentType("application/json").content("{no es json").with(p -> {

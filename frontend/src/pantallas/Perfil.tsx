@@ -13,14 +13,17 @@ import { Texto } from '../componentes/Texto';
 import { PERFIL, RACHA, RANGO_GLOBAL } from '../datos/ejemplo';
 import { mensajeDeError } from '../api/errores';
 import { useResumenLimitaciones } from '../limitaciones/consultas';
+import { resumenDiasYMinutos, resumenMaterial, usePerfilEntreno } from '../plan/ajustes';
 import { nombreRangoMayusculas } from '../rango/rango';
 import { useSesion } from '../sesion/sesion';
 import { type Theme, useTheme } from '../theme';
 
 const EMBLEMA = 64;
 const ICONO_BORRAR = 18;
-/** Posición de «Limitaciones» entre las filas de ejemplo de Entreno. */
-const LUGAR_LIMITACIONES = 3;
+
+const RUTA_AJUSTES = '/ajustes-plan';
+
+const textoSinAjustes = (fallo: boolean) => (fallo ? 'No disponible' : '…');
 
 interface Opcion {
   etiqueta: string;
@@ -80,11 +83,24 @@ export function Perfil() {
   const cierre = useMutation({ mutationFn: salir });
   const g = RANGO_GLOBAL;
   const limitaciones = useResumenLimitaciones();
-  // «Limitaciones» es el dato real; el resto de la sección sigue siendo de ejemplo hasta su bloque.
+  const ajustes = usePerfilEntreno();
+  const [objetivo, ...otras] = PERFIL.entreno;
+  // «Días y minutos», «Material y gimnasio» y «Limitaciones» son datos reales; el resto sigue siendo de ejemplo.
   const entreno: readonly Opcion[] = [
-    ...PERFIL.entreno.slice(0, LUGAR_LIMITACIONES),
+    objetivo,
+    {
+      etiqueta: 'Días y minutos',
+      valor: ajustes.data ? resumenDiasYMinutos(ajustes.data) : textoSinAjustes(ajustes.isError),
+      dato: true,
+      ruta: RUTA_AJUSTES,
+    },
+    {
+      etiqueta: 'Material y gimnasio',
+      valor: ajustes.data ? resumenMaterial(ajustes.data) : textoSinAjustes(ajustes.isError),
+      ruta: RUTA_AJUSTES,
+    },
     { etiqueta: 'Limitaciones', ...limitaciones, ruta: '/limitaciones' },
-    ...PERFIL.entreno.slice(LUGAR_LIMITACIONES),
+    ...otras,
   ];
   const estadisticas = [
     { valor: PERFIL.sesiones, texto: 'sesiones' },

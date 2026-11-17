@@ -1,13 +1,14 @@
+import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 
 import { mensajeDeError } from '../api/errores';
 import type { PlanActual } from '../api/esquemas';
-import { RUTINA_POR_DEFECTO } from '../api/forja';
 import { Aviso } from '../componentes/Aviso';
 import { AvisoBloqueo } from '../componentes/AvisoBloqueo';
 import { Boton } from '../componentes/Boton';
 import { Texto } from '../componentes/Texto';
 import { useBloqueoSalud } from '../limitaciones/consultas';
+import { frasePerfil, usePerfilEntreno } from '../plan/ajustes';
 import { useGenerarPlan } from '../plan/generar';
 import { usePlanActual } from '../plan/plan';
 
@@ -16,22 +17,35 @@ function SinPlan() {
   // Si el estado no carga no se bloquea aquí: el backend responde 409 y se enseña su mensaje.
   const bloqueo = useBloqueoSalud();
   const bloqueado = bloqueo.data?.bloquea === true;
-  const { diasPorSemana, minutosPorSesion } = RUTINA_POR_DEFECTO;
+  const ajustes = usePerfilEntreno();
+  const router = useRouter();
 
   return (
     <>
       <Texto>Todavía no tienes plan.</Texto>
-      <Texto tono="secundario">
-        {`Lo armamos con ${diasPorSemana} días por semana, ${minutosPorSesion} minutos por sesión y el material de un gimnasio completo. Podrás cambiarlo más adelante.`}
-      </Texto>
+      {ajustes.isPending ? <Texto tono="secundario">Cargando tus ajustes…</Texto> : null}
+      {ajustes.isError ? (
+        <>
+          <Aviso tipo="error" mensaje={mensajeDeError(ajustes.error)} />
+          <Boton variante="secundario" etiqueta="Reintentar" onPress={() => ajustes.refetch()} />
+        </>
+      ) : null}
+      {ajustes.data ? (
+        <>
+          <Texto tono="secundario">{`Lo armamos con ${frasePerfil(ajustes.data)}.`}</Texto>
+          <Boton variante="secundario" etiqueta="Cambiar ajustes del plan" onPress={() => router.push('/ajustes-plan')} />
+        </>
+      ) : null}
       {bloqueado ? <AvisoBloqueo nivel={bloqueo.data?.nivel} /> : null}
       {generar.isError ? <Aviso tipo="error" mensaje={mensajeDeError(generar.error)} /> : null}
-      <Boton
-        etiqueta="Generar mi plan"
-        deshabilitado={bloqueado}
-        cargando={generar.isPending}
-        onPress={() => generar.mutate()}
-      />
+      {ajustes.data ? (
+        <Boton
+          etiqueta="Generar mi plan"
+          deshabilitado={bloqueado}
+          cargando={generar.isPending}
+          onPress={() => generar.mutate()}
+        />
+      ) : null}
     </>
   );
 }

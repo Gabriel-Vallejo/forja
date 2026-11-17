@@ -111,7 +111,7 @@ describe('Regenerar mi plan', () => {
     await fireEvent.press(await screen.findByRole('button', { name: 'Regenerar mi plan' }));
 
     expect(
-      screen.getByText('Se crea un plan nuevo con tus limitaciones actuales. Las sesiones que ya has registrado se conservan.'),
+      screen.getByText('Se crea un plan nuevo con tus limitaciones actuales y con 3 días por semana, 60 minutos por sesión y el material de un gimnasio completo. Las sesiones que ya has registrado se conservan.'),
     ).toBeOnTheScreen();
     expect(api.generarPlan).not.toHaveBeenCalled();
     await fireEvent.press(screen.getByRole('button', { name: 'Cancelar' }));
@@ -176,7 +176,7 @@ describe('Hub de limitaciones con bloqueo y regeneración', () => {
     await renderizar(<Limitaciones />, api);
 
     expect(await screen.findByText(/cuentan cuando regeneras tu plan/)).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Regenerar mi plan con mis limitaciones' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Regenerar mi plan con mis limitaciones' }));
     expect(api.generarPlan).not.toHaveBeenCalled();
     await fireEvent.press(screen.getByRole('button', { name: 'Sí, regenerar' }));
 

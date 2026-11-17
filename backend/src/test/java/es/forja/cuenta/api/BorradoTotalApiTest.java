@@ -72,6 +72,12 @@ class BorradoTotalApiTest extends SoporteSesiones {
 		serie.put("dolor", 3);
 		guardarSesion(movil, java.util.UUID.randomUUID(),
 				sesion(plan, java.time.Instant.now().minusSeconds(60), List.of(serie))).andExpect(status().isOk());
+		// Ajustes del plan: perfil_entreno y su tabla puente de material también se vacían.
+		mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/v1/perfil/entreno")
+				.header("Authorization", movil.cabecera()).contentType(MediaType.APPLICATION_JSON)
+				.content(json.writeValueAsString(Map.of("diasPorSemana", 4, "minutosPorSesion", 45, "material",
+						List.of("barra", "mancuerna")))))
+				.andExpect(status().isOk());
 		// Después de generar el plan: con bandera roja activa ya no se genera.
 		// Bandera roja: deja un bloqueo guardado, que también se borra con la cuenta.
 		enviarAutenticado("/api/v1/banderas", movil, banderasConDolorToracico()).andExpect(status().isOk());
@@ -80,7 +86,7 @@ class BorradoTotalApiTest extends SoporteSesiones {
 				.query(Long.class).list();
 		Map<String, Long> antes = filasDelUsuario(usuarioId, dispositivos);
 		assertThat(antes).containsKeys("usuario", "dispositivo", "token_refresco", "token_un_uso", "consentimiento",
-				"restriccion", "bloqueo_salud");
+				"restriccion", "bloqueo_salud", "perfil_entreno", "perfil_entreno_material");
 		assertThat(antes.get("consentimiento")).isEqualTo(CONSENTIMIENTOS.size());
 		assertThat(antes.get("restriccion")).isEqualTo(2);
 		assertThat(antes).containsKeys("plan_version", "sesion");

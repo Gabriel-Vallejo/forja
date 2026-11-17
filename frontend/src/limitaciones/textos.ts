@@ -9,8 +9,9 @@ export const FINALIDAD = 'Forja elige ejercicios compatibles con las limitacione
  * Qué pasa al regenerar, según `ServicioPlan` y el ADR 0008 §6: cada plan es una versión nueva e inmutable y las
  * sesiones ya registradas siguen apuntando a su versión.
  */
-export const CONFIRMAR_REGENERAR =
-  'Se crea un plan nuevo con tus limitaciones actuales. Las sesiones que ya has registrado se conservan.';
+export function confirmarRegenerar(ajustes: string): string {
+  return `Se crea un plan nuevo con tus limitaciones actuales y con ${ajustes}. Las sesiones que ya has registrado se conservan.`;
+}
 
 /** Por qué no se genera el plan y qué hacer, según el nivel que recuerda el backend. Sin diagnóstico. */
 export function mensajeBloqueo(nivel: NivelBloqueo | null | undefined): string {
