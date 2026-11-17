@@ -121,6 +121,9 @@
               "$ref" : "#/components/schemas/ObjetivoEjercicio"
             },
             "type" : "array"
+          },
+          "nombre" : {
+            "type" : "string"
           }
         },
         "type" : "object"
@@ -226,6 +229,19 @@
         },
         "type" : "object"
       },
+      "MusculoEjercicio" : {
+        "properties" : {
+          "grupo" : {
+            "enum" : [ "pecho", "hombros", "brazos", "triceps", "antebrazos", "abdomen", "cuadriceps", "aductores", "gemelos", "trapecio", "dorsal", "lumbar", "gluteos", "isquios" ],
+            "type" : "string"
+          },
+          "rol" : {
+            "enum" : [ "primario", "secundario" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "ObjetivoEjercicio" : {
         "properties" : {
           "cargaKg" : {
@@ -244,12 +260,21 @@
           "motivo" : {
             "type" : "string"
           },
+          "musculos" : {
+            "items" : {
+              "$ref" : "#/components/schemas/MusculoEjercicio"
+            },
+            "type" : "array"
+          },
           "nombre" : {
             "type" : "string"
           },
           "orden" : {
             "format" : "int32",
             "type" : "integer"
+          },
+          "primeraSesion" : {
+            "type" : "boolean"
           },
           "repeticionesMax" : {
             "format" : "int32",
@@ -298,6 +323,10 @@
           "creadoEn" : {
             "format" : "date-time",
             "type" : "string"
+          },
+          "diaDeHoy" : {
+            "format" : "int32",
+            "type" : "integer"
           },
           "dias" : {
             "items" : {

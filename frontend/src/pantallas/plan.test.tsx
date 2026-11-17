@@ -1,9 +1,11 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { processColor } from 'react-native';
 
 import { ErrorApi } from '../api/errores';
 import { AVISO_PRIMERA_SEMANA } from '../plan/plan';
 import { apiFalsa, planDePrueba } from '../pruebas/dobles';
 import { renderizar } from '../pruebas/renderizar';
+import { dark } from '../theme';
 import { Ejercicio } from './Ejercicio';
 import { Hoy } from './Hoy';
 import { MiPlan } from './MiPlan';
@@ -14,7 +16,11 @@ jest.mock('expo-router', () => ({ useRouter: () => mockRouter }));
 
 beforeEach(() => jest.clearAllMocks());
 
-const conPlan = (primeraSemana = false) => apiFalsa({ planActual: jest.fn().mockResolvedValue(planDePrueba(primeraSemana)) });
+/** Relleno del primer trazo del grupo (el cuerpo es decorativo y su espejo repite el testID). */
+const fill = (testID: string) => screen.getAllByTestId(testID, { includeHiddenElements: true })[0]?.props.fill?.payload;
+
+const conPlan = (primeraSemana = false, diaDeHoy = 1) =>
+  apiFalsa({ planActual: jest.fn().mockResolvedValue(planDePrueba(primeraSemana, diaDeHoy)) });
 
 describe('Hoy', () => {
   test('la sesión de hoy sale del plan y «Empezar sesión» lleva a la sesión', async () => {
@@ -22,10 +28,21 @@ describe('Hoy', () => {
 
     expect(await screen.findByText('Día 1 de 2')).toBeOnTheScreen();
     expect(screen.getByText('3 ejercicios · 12 series')).toBeOnTheScreen();
-    expect(screen.getByText('DÍA 2')).toBeOnTheScreen();
+    expect(screen.getByText('TORSO')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Después · Día 2: PIERNA')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Empezar sesión' }));
 
     expect(mockRouter.push).toHaveBeenCalledWith('/sesion');
+  });
+
+  test('hoy es el día que dice el servidor, con su nombre, sus grupos y el cuerpo coloreado', async () => {
+    await renderizar(<Hoy />, conPlan(false, 2));
+
+    expect(await screen.findByText('Día 2 de 2')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Después · Día 1: TORSO')).toBeOnTheScreen();
+    expect(screen.getByText('Cuádriceps')).toBeOnTheScreen();
+    expect(fill('grupo-cuadriceps-frente')).toBe(processColor(dark.color.primary));
+    expect(fill('grupo-abdomen-frente')).toBe(processColor(dark.cuerpo.neutro));
   });
 
   test('avisa de que la racha es de ejemplo', async () => {
@@ -83,8 +100,9 @@ describe('Plan', () => {
   test('los días son pestañas y una fila abre su detalle', async () => {
     await renderizar(<MiPlan />, conPlan());
 
-    await fireEvent.press(await screen.findByRole('tab', { name: 'Día 2' }));
-    expect(screen.getByRole('tab', { name: 'Día 2' })).toBeSelected();
+    expect(await screen.findByRole('tab', { name: 'Día 1, TORSO, hoy' })).toBeSelected();
+    await fireEvent.press(screen.getByRole('tab', { name: 'Día 2, PIERNA' }));
+    expect(screen.getByRole('tab', { name: 'Día 2, PIERNA' })).toBeSelected();
     await fireEvent.press(screen.getByRole('button', { name: /^01\. Sentadilla/ }));
 
     expect(mockRouter.push).toHaveBeenCalledWith({ pathname: '/ejercicio', params: { dia: '2', id: 'sentadilla' } });
@@ -92,6 +110,15 @@ describe('Plan', () => {
 });
 
 describe('Detalle de ejercicio', () => {
+  test('chips con los músculos (los secundarios con «½») y el cuerpo con ellos resaltados', async () => {
+    await renderizar(<Ejercicio dia={1} idExterno="remo" />, conPlan());
+
+    expect(await screen.findByText('Dorsal')).toBeOnTheScreen();
+    expect(screen.getByText('Bíceps ½')).toBeOnTheScreen();
+    expect(fill('grupo-dorsal-espalda')).toBe(processColor(dark.color.primary));
+    expect(fill('grupo-lumbar-espalda')).toBe(processColor(dark.cuerpo.neutro));
+  });
+
   test('enseña el ejercicio del plan con lo que toca y «Empezar» lleva a la sesión', async () => {
     await renderizar(<Ejercicio dia={1} idExterno="remo" />, conPlan());
 

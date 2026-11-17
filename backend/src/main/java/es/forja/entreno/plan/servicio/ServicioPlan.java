@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.forja.comun.api.ErrorNegocio;
 import es.forja.cuenta.repositorio.UsuarioRepositorio;
+import es.forja.entreno.plan.modelo.GrupoMuscular;
+import es.forja.entreno.plan.modelo.GrupoMuscular.MusculoEjercicio;
 import es.forja.entreno.plan.modelo.HistorialSesiones;
 import es.forja.entreno.plan.modelo.PlanActual;
 import es.forja.entreno.plan.modelo.PlanActual.DiaEntreno;
@@ -23,6 +26,7 @@ import es.forja.entreno.plan.modelo.PlanGenerado;
 import es.forja.entreno.plan.modelo.MaquinaProgresion;
 import es.forja.entreno.plan.modelo.ProgresionEjercicio;
 import es.forja.entreno.plan.modelo.ReglaEjercicio;
+import es.forja.entreno.plan.modelo.ReglasDia;
 import es.forja.entreno.plan.modelo.ResultadoProgresion;
 import es.forja.entreno.plan.modelo.SesionEjercicio;
 import es.forja.entreno.plan.modelo.TrazaGuardada;
@@ -92,13 +96,26 @@ public class ServicioPlan {
 		long usuarioId = idDe(usuario);
 		CabeceraPlan cabecera = planes.ultimo(usuarioId)
 				.orElseThrow(() -> ErrorNegocio.noEncontrado("Todavía no has generado ningún plan."));
+		List<FilaLeida> filas = planes.ejercicios(cabecera.id());
+		Map<Long, List<MusculoEjercicio>> musculos = musculosDe(filas);
 		Map<Integer, List<ObjetivoEjercicio>> porDia = new LinkedHashMap<>();
-		for (FilaLeida leida : planes.ejercicios(cabecera.id())) {
-			porDia.computeIfAbsent(leida.fila().dia(), d -> new ArrayList<>()).add(objetivo(usuarioId, leida));
+		for (FilaLeida leida : filas) {
+			porDia.computeIfAbsent(leida.fila().dia(), d -> new ArrayList<>())
+					.add(objetivo(usuarioId, leida, musculos.getOrDefault(leida.fila().ejercicioId(), List.of())));
 		}
-		List<DiaEntreno> dias = porDia.entrySet().stream().map(e -> new DiaEntreno(e.getKey(), e.getValue()))
-				.toList();
-		return new PlanActual(cabecera.uuid(), cabecera.creadoEn(), cabecera.estado(), dias);
+		List<DiaEntreno> dias = porDia.entrySet().stream()
+				.map(e -> new DiaEntreno(e.getKey(), ReglasDia.nombre(e.getValue()), e.getValue())).toList();
+		int diaDeHoy = ReglasDia.diaDeHoy(dias.stream().map(DiaEntreno::dia).toList(),
+				historial.ultimoDiaDePlan(usuarioId, cabecera.id()));
+		return new PlanActual(cabecera.uuid(), cabecera.creadoEn(), cabecera.estado(), diaDeHoy, dias);
+	}
+
+	/** Los grupos del cuerpo de cada ejercicio del plan, con una sola consulta. */
+	private Map<Long, List<MusculoEjercicio>> musculosDe(List<FilaLeida> filas) {
+		Map<Long, List<MusculoEjercicio>> musculos = new HashMap<>();
+		planes.musculos(filas.stream().map(f -> f.fila().ejercicioId()).distinct().toList())
+				.forEach((ejercicio, lista) -> musculos.put(ejercicio, GrupoMuscular.agrupar(lista)));
+		return musculos;
 	}
 
 	/** El id interno de una versión del plan, si es de este usuario. */
@@ -125,17 +142,22 @@ public class ServicioPlan {
 	}
 
 	private ResultadoProgresion evaluar(long usuarioId, FilaEjercicio f) {
-		ReglaEjercicio regla = new ReglaEjercicio(f.series(), f.repeticionesMin(), f.repeticionesMax(),
-				f.rirObjetivo(), f.incrementoKg(), f.cargaKg());
-		return MaquinaProgresion.evaluar(historial.sesionesDeTrabajo(usuarioId, f.ejercicioId()), regla,
-				progresion.parametros());
+		return evaluar(f, historial.sesionesDeTrabajo(usuarioId, f.ejercicioId()));
 	}
 
-	private ObjetivoEjercicio objetivo(long usuarioId, FilaLeida leida) {
+	private ResultadoProgresion evaluar(FilaEjercicio f, List<SesionEjercicio> sesiones) {
+		ReglaEjercicio regla = new ReglaEjercicio(f.series(), f.repeticionesMin(), f.repeticionesMax(),
+				f.rirObjetivo(), f.incrementoKg(), f.cargaKg());
+		return MaquinaProgresion.evaluar(sesiones, regla, progresion.parametros());
+	}
+
+	private ObjetivoEjercicio objetivo(long usuarioId, FilaLeida leida, List<MusculoEjercicio> musculos) {
 		FilaEjercicio f = leida.fila();
-		ResultadoProgresion r = evaluar(usuarioId, f);
+		List<SesionEjercicio> sesiones = historial.sesionesDeTrabajo(usuarioId, f.ejercicioId());
+		ResultadoProgresion r = evaluar(f, sesiones);
 		return new ObjetivoEjercicio(leida.idExterno(), leida.nombre(), f.orden(), r.series(), r.repeticionesMin(),
-				r.repeticionesMax(), f.rirObjetivo(), r.cargaKg(), f.incrementoKg(), r.estado(), r.motivo());
+				r.repeticionesMax(), f.rirObjetivo(), r.cargaKg(), f.incrementoKg(), r.estado(), r.motivo(),
+				musculos, sesiones.isEmpty());
 	}
 
 	private FilaEjercicio filaPorDefecto(FichaEjercicio ficha) {

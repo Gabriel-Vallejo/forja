@@ -1,5 +1,5 @@
-import { objetivo } from '../pruebas/dobles';
-import { calidadPlan, numeroDeOrden, prescripcion, sinSesiones } from './plan';
+import { objetivo, planDePrueba } from '../pruebas/dobles';
+import { calidadPlan, diasDesdeHoy, esPrimeraSemana, numeroDeOrden, prescripcion } from './plan';
 
 describe('plan', () => {
   test('la prescripción lleva la carga, o «tu peso» si es de peso corporal', () => {
@@ -8,9 +8,14 @@ describe('plan', () => {
     expect(prescripcion(objetivo({ incrementoKg: 0, cargaKg: 0 }))).toBe('4 × 6-10 · RIR 2 · tu peso');
   });
 
-  test('reconoce el motivo de un ejercicio sin sesiones', () => {
-    expect(sinSesiones(objetivo({ motivo: 'Todavía no hay sesiones de este ejercicio: haz…' }))).toBe(true);
-    expect(sinSesiones(objetivo())).toBe(false);
+  test('la primera semana sale de `primeraSesion`, no del texto del motivo', () => {
+    expect(esPrimeraSemana(planDePrueba(true))).toBe(true);
+    expect(esPrimeraSemana(planDePrueba(false))).toBe(false);
+  });
+
+  test('los días salen empezando por el de hoy y siguiendo el ciclo', () => {
+    expect(diasDesdeHoy(planDePrueba(false, 1)).map((d) => d.dia)).toEqual([1, 2]);
+    expect(diasDesdeHoy(planDePrueba(false, 2)).map((d) => d.dia)).toEqual([2, 1]);
   });
 
   test('calidad del plan y número de orden', () => {

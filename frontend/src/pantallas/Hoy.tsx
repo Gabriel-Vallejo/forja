@@ -8,7 +8,8 @@ import { Pantalla } from '../componentes/Pantalla';
 import { TarjetaSesion } from '../componentes/TarjetaSesion';
 import { Texto } from '../componentes/Texto';
 import { RACHA } from '../datos/ejemplo';
-import { diaDeLaSemana, seriesDe } from '../plan/plan';
+import { caraDelCuerpo, coloresCuerpo, gruposPrincipales, musculosDelDia } from '../plan/musculos';
+import { diaDeLaSemana, diasDesdeHoy, seriesDe } from '../plan/plan';
 import { type Theme, useTheme } from '../theme';
 import { ConPlan } from './ConPlan';
 
@@ -25,22 +26,26 @@ function Semana({ plan }: { plan: PlanActual }) {
   const router = useRouter();
   const tema = useTheme();
   const estilos = crearEstilos(tema);
-  // shortcut: hoy toca el día 1 hasta que haya sesiones registradas (bloque 3); entonces, el siguiente sin hacer.
-  const [hoy, ...despues] = plan.dias;
+  const [hoy, ...despues] = diasDesdeHoy(plan);
   if (!hoy) return null;
   const total = plan.dias.length;
+  const musculos = musculosDelDia(hoy);
+  const cara = caraDelCuerpo(musculos);
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={estilos.carrusel} contentContainerStyle={estilos.carruselDentro}>
       <TarjetaSesion
         cuando={`Hoy · ${diaDeLaSemana(new Date())}`}
         etiqueta={`Día ${hoy.dia} de ${total}`}
-        titulo={`DÍA ${hoy.dia}`}
+        titulo={hoy.nombre}
         datos={`${hoy.ejercicios.length} ejercicios · ${seriesDe(hoy)} series`}
+        musculos={gruposPrincipales(hoy)}
+        cara={cara}
+        colores={coloresCuerpo(musculos, tema, cara)}
         alEmpezar={() => router.push('/sesion')}
       />
       {despues.map((d) => (
-        <TarjetaSesion key={d.dia} etiqueta="Después" titulo={`DÍA ${d.dia}`} />
+        <TarjetaSesion key={d.dia} etiqueta={`Después · Día ${d.dia}`} titulo={d.nombre} />
       ))}
     </ScrollView>
   );

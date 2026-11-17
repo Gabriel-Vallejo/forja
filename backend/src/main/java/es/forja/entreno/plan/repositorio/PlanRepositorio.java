@@ -15,6 +15,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import es.forja.comun.repositorio.Conversiones;
+import es.forja.entreno.plan.modelo.GrupoMuscular.MusculoCatalogo;
+import es.forja.entreno.plan.modelo.RolMuscular;
 
 /** Acceso a {@code plan_version} y {@code ejercicio_plan}; las versiones solo se insertan, nunca se actualizan. */
 @Repository
@@ -92,6 +94,23 @@ public class PlanRepositorio {
 	public Optional<Long> idDeVersion(long usuarioId, UUID uuid) {
 		return jdbc.sql("SELECT id FROM plan_version WHERE usuario_id = :usuario AND uuid = :uuid")
 				.param("usuario", usuarioId).param("uuid", Conversiones.aBytes(uuid)).query(Long.class).optional();
+	}
+
+	/** Los músculos de todos esos ejercicios en una sola consulta; primarios antes que secundarios. */
+	public Map<Long, List<MusculoCatalogo>> musculos(Collection<Long> ejercicioIds) {
+		Map<Long, List<MusculoCatalogo>> porEjercicio = new LinkedHashMap<>();
+		if (ejercicioIds.isEmpty()) {
+			return porEjercicio;
+		}
+		jdbc.sql("""
+				SELECT em.ejercicio_id, m.codigo, em.rol FROM ejercicio_musculo em
+				JOIN musculo m ON m.id = em.musculo_id WHERE em.ejercicio_id IN (:ids)
+				ORDER BY em.ejercicio_id, em.rol, m.codigo""").param("ids", ejercicioIds).query((rs, n) -> {
+					porEjercicio.computeIfAbsent(rs.getLong("ejercicio_id"), k -> new java.util.ArrayList<>())
+							.add(new MusculoCatalogo(rs.getString("codigo"), RolMuscular.deCodigo(rs.getString("rol"))));
+					return 0;
+				}).list();
+		return porEjercicio;
 	}
 
 	public List<FilaLeida> ejercicios(long planId) {

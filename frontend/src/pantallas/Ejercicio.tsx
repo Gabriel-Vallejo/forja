@@ -5,18 +5,20 @@ import type { PlanActual } from '../api/esquemas';
 import { Aviso } from '../componentes/Aviso';
 import { Boton } from '../componentes/Boton';
 import { BotonIcono } from '../componentes/BotonIcono';
+import { Chips } from '../componentes/Chips';
 import { Cuerpo } from '../componentes/Cuerpo';
 import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
+import { caraDelCuerpo, coloresCuerpo, etiquetaMusculo } from '../plan/musculos';
 import { NOMBRE_ESTADO, numeroDeOrden, prescripcion } from '../plan/plan';
 import { type Theme, useTheme } from '../theme';
 import { ConPlan } from './ConPlan';
 
 const ANCHO_FIGURA = 96;
 const ALTO_FIGURA = 150;
-const ANCHO_CUERPO = 126;
-const CUERPO_IZQUIERDA = -15;
-const CUERPO_ARRIBA = -32;
+// El cuerpo entero dentro de la ventana de la figura (el lienzo es el doble de alto que de ancho): así se ve
+// cualquier músculo, también gemelos o espalda.
+const ANCHO_CUERPO = ALTO_FIGURA / 2;
 
 interface PropsEjercicio {
   dia: number;
@@ -31,6 +33,7 @@ function Detalle({ plan, dia, idExterno }: PropsEjercicio & { plan: PlanActual }
   const indice = ejercicios.findIndex((e) => e.idExterno === idExterno);
   const e = ejercicios[indice];
   if (!e) return <Aviso tipo="aviso" mensaje="Este ejercicio ya no está en tu plan." />;
+  const cara = caraDelCuerpo(e.musculos);
 
   return (
     <>
@@ -39,10 +42,11 @@ function Detalle({ plan, dia, idExterno }: PropsEjercicio & { plan: PlanActual }
         <View style={estilos.fichaTextos}>
           <Texto estilo="ejercicio" encabezado>{e.nombre.toUpperCase()}</Texto>
           <Texto estilo="data" tono="secundario">{prescripcion(e)}</Texto>
+          <Chips textos={e.musculos.map(etiquetaMusculo)} />
         </View>
         <View style={estilos.figura}>
           <View style={estilos.cuerpo}>
-            <Cuerpo ancho={ANCHO_CUERPO} girable={false} decorativo />
+            <Cuerpo ancho={ANCHO_CUERPO} girable={false} cara={cara} colores={coloresCuerpo(e.musculos, tema, cara)} decorativo />
           </View>
         </View>
       </View>
@@ -81,8 +85,8 @@ function crearEstilos(tema: Theme) {
       overflow: 'hidden',
     },
     fichaTextos: { flex: 1, gap: tema.space.s2 },
-    figura: { width: ANCHO_FIGURA, height: ALTO_FIGURA, overflow: 'hidden' },
-    cuerpo: { position: 'absolute', left: CUERPO_IZQUIERDA, top: CUERPO_ARRIBA },
+    figura: { width: ANCHO_FIGURA, height: ALTO_FIGURA, alignItems: 'center' },
+    cuerpo: { width: ANCHO_CUERPO, height: ALTO_FIGURA },
     tarjeta: {
       gap: tema.space.s25,
       paddingVertical: tema.space.s35,

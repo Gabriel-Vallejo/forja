@@ -7,7 +7,6 @@ final class Motivos {
 
 	private static final BigDecimal MITAD = new BigDecimal("0.5");
 	private static final BigDecimal CIEN = BigDecimal.valueOf(100);
-	// La app reconoce este comienzo para avisar una sola vez de la primera semana (frontend/src/plan/plan.ts).
 	private static final String SIN_SESIONES = "Todavía no hay sesiones de este ejercicio: ";
 
 	private Motivos() {

@@ -58,6 +58,13 @@ describe('Cuerpo', () => {
     expect(screen.queryByRole('button')).toBeNull();
     expect(screen.getByLabelText('Miniatura')).toBeOnTheScreen();
   });
+
+  test('sin girar se puede dibujar la espalda', async () => {
+    await render(<Cuerpo girable={false} cara="espalda" />);
+
+    expect(screen.getAllByTestId('grupo-dorsal-espalda').length).toBeGreaterThan(0);
+    expect(screen.queryAllByTestId('grupo-pecho-frente')).toHaveLength(0);
+  });
 });
 
 describe('Emblema', () => {

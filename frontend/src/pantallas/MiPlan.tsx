@@ -12,9 +12,9 @@ import {
   AVISO_PRIMERA_SEMANA,
   calidadPlan,
   numeroDeOrden,
+  esPrimeraSemana,
   prescripcion,
   seriesDe,
-  sinSesiones,
 } from '../plan/plan';
 import { type Theme, useTheme } from '../theme';
 import { ConPlan } from './ConPlan';
@@ -32,9 +32,9 @@ function Plan({ plan }: { plan: PlanActual }) {
   const router = useRouter();
   const tema = useTheme();
   const estilos = crearEstilos(tema);
-  const [elegido, setElegido] = useState(plan.dias[0]?.dia ?? 1);
+  const [elegido, setElegido] = useState(plan.diaDeHoy);
   const dia = plan.dias.find((d) => d.dia === elegido) ?? plan.dias[0];
-  const primeraSemana = plan.dias.some((d) => d.ejercicios.some(sinSesiones));
+  const primeraSemana = esPrimeraSemana(plan);
   const optimo = plan.estado === 'optimo';
 
   return (
@@ -47,22 +47,23 @@ function Plan({ plan }: { plan: PlanActual }) {
         <Texto estilo="data" tono="secundario">{`${plan.dias.length} días por semana`}</Texto>
       </View>
       <View accessibilityRole="tablist" accessibilityLabel="Días" style={estilos.dias}>
-        {plan.dias.map((d, i) => {
+        {plan.dias.map((d) => {
           const sel = d.dia === dia?.dia;
+          const hoy = d.dia === plan.diaDeHoy;
           return (
             <Pressable
               key={d.dia}
               accessibilityRole="tab"
-              accessibilityLabel={`Día ${d.dia}${i === 0 ? ', hoy' : ''}`}
+              accessibilityLabel={`Día ${d.dia}, ${d.nombre}${hoy ? ', hoy' : ''}`}
               accessibilityState={{ selected: sel }}
               onPress={() => setElegido(d.dia)}
               style={[estilos.dia, sel && estilos.diaElegido]}
             >
               <Texto estilo="etiquetaDia" color={sel ? tema.color.primary : tema.color.onSurfaceVariant}>
-                {i === 0 ? `Día ${d.dia} · hoy` : `Día ${d.dia}`}
+                {hoy ? `Día ${d.dia} · hoy` : `Día ${d.dia}`}
               </Texto>
-              <Texto estilo="destacado" peso="800" tono={sel ? 'principal' : 'secundario'}>
-                {`${d.ejercicios.length} EJ.`}
+              <Texto estilo="nota" peso="800" tono={sel ? 'principal' : 'secundario'} lineas={1}>
+                {d.nombre}
               </Texto>
             </Pressable>
           );
@@ -83,7 +84,7 @@ function Plan({ plan }: { plan: PlanActual }) {
                 numero={numeroDeOrden(i)}
                 nombre={e.nombre}
                 prescripcion={prescripcion(e)}
-                nota={sinSesiones(e) ? undefined : e.motivo}
+                nota={e.primeraSesion ? undefined : e.motivo}
                 alPulsar={() => router.push({ pathname: '/ejercicio', params: { dia: String(dia.dia), id: e.idExterno } })}
               />
             ))}

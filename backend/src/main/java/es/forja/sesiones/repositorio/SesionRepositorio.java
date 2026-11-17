@@ -177,6 +177,15 @@ public class SesionRepositorio implements HistorialSesiones {
 				WHERE x.usuario_id = :usuario AND s.dolor IS NOT NULL""").param("usuario", usuarioId).update();
 	}
 
+	@Override
+	public Optional<Integer> ultimoDiaDePlan(long usuarioId, long planVersionId) {
+		return jdbc.sql("""
+				SELECT dia_plan FROM sesion
+				WHERE usuario_id = :usuario AND plan_version_id = :plan AND dia_plan IS NOT NULL
+				ORDER BY realizada_en DESC, recibida_en DESC, uuid DESC LIMIT 1""").param("usuario", usuarioId)
+				.param("plan", planVersionId).query(Integer.class).optional();
+	}
+
 	/** Todo el historial del ejercicio. shortcut: sin tope; si un usuario acumula años de sesiones, limitar a los últimos meses. */
 	@Override
 	public List<SesionEjercicio> sesionesDeTrabajo(long usuarioId, long ejercicioId) {

@@ -17,6 +17,15 @@ export const esquemaDatosSesion = z.object({
 }) satisfies z.ZodType<Esquemas['DatosSesion']>;
 export type DatosSesion = z.infer<typeof esquemaDatosSesion>;
 
+const esquemaMusculo = z.object({
+  grupo: z.enum([
+    'pecho', 'hombros', 'brazos', 'triceps', 'antebrazos', 'abdomen', 'cuadriceps',
+    'aductores', 'gemelos', 'trapecio', 'dorsal', 'lumbar', 'gluteos', 'isquios',
+  ]),
+  rol: z.enum(['primario', 'secundario']),
+});
+export type Musculo = z.infer<typeof esquemaMusculo>;
+
 const esquemaObjetivoEjercicio = z.object({
   idExterno: z.string(),
   nombre: z.string(),
@@ -33,6 +42,8 @@ const esquemaObjetivoEjercicio = z.object({
   incrementoKg: z.number(),
   estado: z.enum(['acumulando', 'subir_carga', 'estancado', 'deload']),
   motivo: z.string(),
+  musculos: z.array(esquemaMusculo),
+  primeraSesion: z.boolean(),
 }) satisfies z.ZodType<Esquemas['ObjetivoEjercicio']>;
 export type ObjetivoEjercicio = z.infer<typeof esquemaObjetivoEjercicio>;
 
@@ -40,9 +51,11 @@ export const esquemaPlanActual = z.object({
   uuid: z.uuid(),
   creadoEn: z.iso.datetime(),
   estado: z.string(),
+  diaDeHoy: z.number().int().positive(),
   dias: z.array(
     z.object({
       dia: z.number().int().positive(),
+      nombre: z.string(),
       ejercicios: z.array(esquemaObjetivoEjercicio),
     }),
   ),

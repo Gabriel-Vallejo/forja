@@ -71,29 +71,51 @@ export function objetivo(cambios: Partial<ObjetivoEjercicio> = {}): ObjetivoEjer
     incrementoKg: 2.5,
     estado: 'acumulando',
     motivo: 'Repite 80 kg: te falta completar 10 repeticiones con 2 en reserva o menos en todas las series de trabajo.',
+    musculos: [
+      { grupo: 'pecho', rol: 'primario' },
+      { grupo: 'triceps', rol: 'secundario' },
+    ],
+    primeraSesion: false,
     ...cambios,
   };
 }
 
 const SIN_SESIONES = 'Todavía no hay sesiones de este ejercicio: elige una carga con la que te queden unas 2 repeticiones en reserva.';
 
-/** Plan sintético de dos días; con `primeraSemana`, ningún ejercicio tiene sesiones aún. */
-export function planDePrueba(primeraSemana = false): PlanActual {
-  const motivo = primeraSemana ? { motivo: SIN_SESIONES } : {};
+/**
+ * Plan sintético de dos días (1 TORSO, 2 PIERNA); con `primeraSemana`, ningún ejercicio tiene sesiones aún.
+ * `diaDeHoy` es el que toca hoy.
+ */
+export function planDePrueba(primeraSemana = false, diaDeHoy = 1): PlanActual {
+  const motivo = primeraSemana ? { motivo: SIN_SESIONES, primeraSesion: true } : {};
+  const dorsal: ObjetivoEjercicio['musculos'] = [
+    { grupo: 'dorsal', rol: 'primario' },
+    { grupo: 'brazos', rol: 'secundario' },
+  ];
+  const piernas: ObjetivoEjercicio['musculos'] = [
+    { grupo: 'cuadriceps', rol: 'primario' },
+    { grupo: 'gluteos', rol: 'secundario' },
+  ];
   return {
     uuid: '0193a3c4-7b2e-7c1d-9f00-000000000001',
     creadoEn: '2026-11-16T10:00:00Z',
     estado: 'factible',
+    diaDeHoy,
     dias: [
       {
         dia: 1,
+        nombre: 'TORSO',
         ejercicios: [
           objetivo(motivo),
-          objetivo({ idExterno: 'remo', nombre: 'Remo en máquina', orden: 2, cargaKg: 60, ...motivo }),
+          objetivo({ idExterno: 'remo', nombre: 'Remo en máquina', orden: 2, cargaKg: 60, musculos: dorsal, ...motivo }),
           objetivo({ idExterno: 'fondos', nombre: 'Fondos en paralelas', orden: 3, incrementoKg: 0, cargaKg: undefined, ...motivo }),
         ],
       },
-      { dia: 2, ejercicios: [objetivo({ idExterno: 'sentadilla', nombre: 'Sentadilla', cargaKg: 100, ...motivo })] },
+      {
+        dia: 2,
+        nombre: 'PIERNA',
+        ejercicios: [objetivo({ idExterno: 'sentadilla', nombre: 'Sentadilla', cargaKg: 100, musculos: piernas, ...motivo })],
+      },
     ],
   };
 }

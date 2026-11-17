@@ -28,6 +28,8 @@ export interface PropsCuerpo {
   seleccion?: Grupo | '';
   alTocar?: (grupo: Grupo) => void;
   girable?: boolean;
+  /** Cara que se dibuja cuando no es girable. */
+  cara?: 'frente' | 'espalda';
   ancho?: number;
   etiqueta?: string;
   /** Miniaturas: el lector de pantalla lo salta (el texto de al lado ya lo dice). */
@@ -40,6 +42,7 @@ export function Cuerpo({
   seleccion = '',
   alTocar,
   girable = true,
+  cara = 'frente',
   ancho = ANCHO_POR_DEFECTO,
   etiqueta = 'Cuerpo',
   decorativo = false,
@@ -54,7 +57,13 @@ export function Cuerpo({
       <View style={tam} accessible={!decorativo} accessibilityRole="image" accessibilityLabel={etiqueta}
         accessibilityElementsHidden={decorativo} importantForAccessibility={decorativo ? 'no-hide-descendants' : 'auto'}>
         <Svg viewBox={VISTA} width={ancho} height={alto}>
-          <FiguraCuerpo cara={FRENTE} lado="frente" colores={colores} seleccion={seleccion} alTocar={alTocar} />
+          <FiguraCuerpo
+            cara={cara === 'frente' ? FRENTE : ESPALDA}
+            lado={cara}
+            colores={colores}
+            seleccion={seleccion}
+            alTocar={alTocar}
+          />
         </Svg>
       </View>
     );

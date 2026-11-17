@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { type Theme, useTheme } from '../theme';
 import { Boton } from './Boton';
+import { Chips } from './Chips';
 import { Cuerpo } from './Cuerpo';
 import type { ColoresCuerpo } from './FiguraCuerpo';
 import { Texto } from './Texto';
@@ -20,12 +21,14 @@ interface PropsTarjetaSesion {
   datos?: string;
   musculos?: readonly string[];
   colores?: ColoresCuerpo;
+  /** Cara del cuerpo que se dibuja. */
+  cara?: 'frente' | 'espalda';
   /** Sin él, la tarjeta es la de un día siguiente: apagada y sin botón. */
   alEmpezar?: () => void;
 }
 
 /** Tarjeta de la semana en Hoy (boceto Hoy.dc.html). */
-export function TarjetaSesion({ cuando, etiqueta, titulo, datos, musculos = [], colores, alEmpezar }: PropsTarjetaSesion) {
+export function TarjetaSesion({ cuando, etiqueta, titulo, datos, musculos = [], colores, cara, alEmpezar }: PropsTarjetaSesion) {
   const tema = useTheme();
   const estilos = crearEstilos(tema);
   const hoy = alEmpezar !== undefined;
@@ -39,22 +42,14 @@ export function TarjetaSesion({ cuando, etiqueta, titulo, datos, musculos = [], 
       ) : null}
       {hoy ? (
         <View style={estilos.cuerpo}>
-          <Cuerpo ancho={ANCHO_CUERPO} girable={false} colores={colores} decorativo />
+          <Cuerpo ancho={ANCHO_CUERPO} girable={false} colores={colores} cara={cara} decorativo />
         </View>
       ) : null}
       <View style={estilos.pie}>
         <Texto estilo="etiqueta" tono="secundario">{etiqueta}</Texto>
         <Texto estilo="hero" tono={hoy ? 'principal' : 'secundario'}>{titulo}</Texto>
         {datos ? <Texto estilo="data" tono="secundario">{datos}</Texto> : null}
-        {musculos.length > 0 ? (
-          <View style={estilos.chips}>
-            {musculos.map((m) => (
-              <View key={m} style={estilos.chip}>
-                <Texto estilo="mini">{m}</Texto>
-              </View>
-            ))}
-          </View>
-        ) : null}
+        <Chips textos={musculos} />
         {alEmpezar ? <Boton etiqueta="Empezar sesión" icono="play" grande onPress={alEmpezar} /> : null}
       </View>
     </View>
@@ -84,14 +79,5 @@ function crearEstilos(tema: Theme) {
     },
     cuerpo: { position: 'absolute', top: CUERPO_ARRIBA, right: CUERPO_DERECHA },
     pie: { gap: tema.space.s25 },
-    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: tema.space.s15 },
-    chip: {
-      paddingHorizontal: tema.space.s2,
-      paddingVertical: tema.space.s075,
-      borderRadius: tema.radius.sm,
-      borderWidth: tema.border.fino,
-      borderColor: tema.color.outline,
-      backgroundColor: tema.color.surfaceLow,
-    },
   });
 }

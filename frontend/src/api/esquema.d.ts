@@ -406,6 +406,7 @@ export interface components {
             /** Format: int32 */
             dia?: number;
             ejercicios?: components["schemas"]["ObjetivoEjercicio"][];
+            nombre?: string;
         };
         DiaPlan: {
             /** Format: int32 */
@@ -442,6 +443,12 @@ export interface components {
         Mensaje: {
             mensaje?: string;
         };
+        MusculoEjercicio: {
+            /** @enum {string} */
+            grupo?: "pecho" | "hombros" | "brazos" | "triceps" | "antebrazos" | "abdomen" | "cuadriceps" | "aductores" | "gemelos" | "trapecio" | "dorsal" | "lumbar" | "gluteos" | "isquios";
+            /** @enum {string} */
+            rol?: "primario" | "secundario";
+        };
         ObjetivoEjercicio: {
             cargaKg?: number;
             /** @enum {string} */
@@ -449,9 +456,11 @@ export interface components {
             idExterno?: string;
             incrementoKg?: number;
             motivo?: string;
+            musculos?: components["schemas"]["MusculoEjercicio"][];
             nombre?: string;
             /** Format: int32 */
             orden?: number;
+            primeraSesion?: boolean;
             /** Format: int32 */
             repeticionesMax?: number;
             /** Format: int32 */
@@ -473,6 +482,8 @@ export interface components {
         PlanActual: {
             /** Format: date-time */
             creadoEn?: string;
+            /** Format: int32 */
+            diaDeHoy?: number;
             dias?: components["schemas"]["DiaEntreno"][];
             estado?: string;
             /** Format: uuid */

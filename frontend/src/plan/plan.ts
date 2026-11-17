@@ -23,11 +23,14 @@ export function prescripcion(e: ObjetivoEjercicio): string {
 
 export const seriesDe = (dia: Dia) => dia.ejercicios.reduce((total, e) => total + e.series, 0);
 
-// Acoplado al texto de `Motivos.sinSesiones` del backend: la API no dice si ya hay sesiones del ejercicio.
-const PREFIJO_SIN_SESIONES = 'Todavía no hay sesiones de este ejercicio';
+/** Algún ejercicio sin sesiones: su motivo es el genérico de elegir carga, que el plan dice una sola vez arriba. */
+export const esPrimeraSemana = (plan: PlanActual) => plan.dias.some((d) => d.ejercicios.some((e) => e.primeraSesion));
 
-/** Primera vez con el ejercicio: su motivo es el genérico de elegir carga, que el plan dice una sola vez arriba. */
-export const sinSesiones = (e: ObjetivoEjercicio) => e.motivo.startsWith(PREFIJO_SIN_SESIONES);
+/** El día de hoy primero y, detrás, los demás en el orden del ciclo. */
+export function diasDesdeHoy(plan: PlanActual): Dia[] {
+  const posicion = Math.max(0, plan.dias.findIndex((d) => d.dia === plan.diaDeHoy));
+  return [...plan.dias.slice(posicion), ...plan.dias.slice(0, posicion)];
+}
 
 export const AVISO_PRIMERA_SEMANA =
   'Primera semana: todavía no hay sesiones de estos ejercicios. Elige en cada uno una carga con la que te queden las repeticiones en reserva (RIR) que marca.';
