@@ -9,10 +9,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import es.forja.PruebaConMysql;
 import es.forja.entreno.rutina.modelo.CatalogoRutina;
+import es.forja.entreno.rutina.modelo.ConfiguracionRutina;
 import es.forja.entreno.rutina.modelo.EjercicioRutina;
 import es.forja.entreno.rutina.modelo.EntradaRutina;
 import es.forja.entreno.rutina.modelo.PlanRutina;
@@ -41,6 +44,7 @@ class GeneradorCatalogoRealTest {
 	private static final int MARGEN_OBJETIVO = 4;
 	private static final double FRACCION_MINIMA_SESION = 0.75;
 	private static final String BASICO = "basico";
+	private static final long MILISEGUNDOS_MAXIMOS = 10_000;
 
 	@Autowired
 	private ServicioRutina servicio;
@@ -91,6 +95,38 @@ class GeneradorCatalogoRealTest {
 		int masLarga = plan.dias().stream().mapToInt(DiaPlan::segundos).max().orElseThrow();
 		plan.dias().forEach(d -> assertThat(d.segundos()).as("día " + d.dia())
 				.isGreaterThanOrEqualTo((int) (FRACCION_MINIMA_SESION * masLarga)));
+	}
+
+	/**
+	 * Caso real: 3×60 metía 9 series de sentadilla en un día (5 + 4 de hack). Con 2×60 y 3×45 el mínimo ya iba
+	 * con holgura antes del tope, así que solo se exige en 3×60 y 4×60.
+	 */
+	@ParameterizedTest(name = "{0}×{1}")
+	@CsvSource({ "2, 60, false", "3, 45, false", "3, 60, true", "4, 60, true" })
+	void ningunPatronPasaDelTopeDeSeriesEnUnDiaYElPlanSigueSiendoBueno(int dias, int minutos, boolean llegaAlMinimo) {
+		ConfiguracionRutina config = ConfiguracionDePrueba.estandar();
+		Map<String, EjercicioRutina> porId = porId();
+		long inicio = System.nanoTime();
+		PlanRutina plan = generar(entrada(dias, minutos, MATERIAL_COMPLETO, List.of()));
+		long milisegundos = (System.nanoTime() - inicio) / 1_000_000;
+
+		assertThat(plan.estado()).isIn(PlanRutina.OPTIMO, PlanRutina.FACTIBLE);
+		assertThat(milisegundos).isLessThan(MILISEGUNDOS_MAXIMOS);
+		for (DiaPlan dia : plan.dias()) {
+			Map<Patron, Integer> series = dia.ejercicios().stream().collect(Collectors.toMap(
+					e -> porId.get(e.idExterno()).patron(), EjercicioPlan::series, Integer::sum));
+			series.forEach((p, n) -> {
+				if (!ModeloRutina.SIN_TOPE_DE_SERIES_POR_DIA.contains(p)) {
+					assertThat(n).as("día %d, %s", dia.dia(), p)
+							.isLessThanOrEqualTo(config.sesion().seriesMaximasPorPatronYDia());
+				}
+			});
+		}
+		if (llegaAlMinimo) {
+			plan.volumen().stream().filter(v -> config.volumen().musculosConMinimo().contains(v.musculo()))
+					.forEach(v -> assertThat(v.series()).as(v.musculo())
+							.isGreaterThanOrEqualTo(config.volumen().rango(v.musculo()).minimo()));
+		}
 	}
 
 	@Test

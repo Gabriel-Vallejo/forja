@@ -68,9 +68,12 @@ public record ConfiguracionRutina(Pesos pesos, Volumen volumen, Basicos basicos,
 		}
 	}
 
-	/** @param porcentajeMinimoDelTiempo ninguna sesión por debajo de este porcentaje del tiempo disponible */
+	/**
+	 * @param porcentajeMinimoDelTiempo ninguna sesión por debajo de este porcentaje del tiempo disponible
+	 * @param seriesMaximasPorPatronYDia tope de series de un mismo patrón en una sesión (salvo los de aislamiento)
+	 */
 	public record Sesion(int seriesMinimasPorEjercicio, int seriesMaximasPorEjercicio, int ejerciciosMinimos,
-			int ejerciciosMaximos, int maximoPorPatron, int porcentajeMinimoDelTiempo) {
+			int ejerciciosMaximos, int maximoPorPatron, int porcentajeMinimoDelTiempo, int seriesMaximasPorPatronYDia) {
 	}
 
 	/**

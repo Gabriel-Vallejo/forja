@@ -1,7 +1,9 @@
 package es.forja.entreno.rutina.solver;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -24,8 +26,8 @@ import es.forja.restricciones.modelo.Patron;
  * dobles (primario 2, secundario 1) para contar los secundarios a 0,5.
  *
  * <ul>
- * <li>Duras: duración por sesión, ejercicios por patrón y día, básico pesado sin repetir en días seguidos, máximo
- * de series por músculo, ejercicios por sesión y sesión mínima (porcentaje del tiempo).</li>
+ * <li>Duras: duración por sesión, ejercicios y series por patrón y día, básico pesado sin repetir en días
+ * seguidos, máximo de series por músculo, ejercicios por sesión y sesión mínima (porcentaje del tiempo).</li>
  * <li>Con holgura: mínimo de series y frecuencia mínima de los músculos con meta, y cada patrón principal al
  * menos una vez con un compuesto.</li>
  * <li>Volumen objetivo por músculo, lineal a trozos: premio por serie hasta el objetivo y penalización suave por
@@ -40,6 +42,9 @@ final class ModeloRutina {
 	}
 
 	static final int REPETICIONES_SIN_PENALIZAR = 2;
+	/** Sin tope de series por día: el aislamiento mezcla músculos (bíceps y tríceps) y el resto apenas carga. */
+	static final Set<Patron> SIN_TOPE_DE_SERIES_POR_DIA = EnumSet.of(Patron.AISLAMIENTO_BRAZO,
+			Patron.AISLAMIENTO_PIERNA, Patron.CORE, Patron.ACARREO, Patron.PLIOMETRIA, Patron.MOVILIDAD, Patron.CARDIO);
 	private static final int SEGUNDOS_POR_MINUTO = 60;
 	private static final int DOBLE = 2;
 	private static final int CIEN = 100;
@@ -136,16 +141,22 @@ final class ModeloRutina {
 			this.duracion[d] = duracion;
 			LinearExprBuilder cuantos = LinearExpr.newBuilder();
 			Map<Patron, LinearExprBuilder> porPatron = new TreeMap<>();
+			Map<Patron, LinearExprBuilder> seriesPorPatron = new TreeMap<>();
 			for (int e = 0; e < ejercicios.size(); e++) {
+				Patron patron = ejercicios.get(e).patron();
 				duracion.addTerm(series[e][d], t.segundosPorSerieConDescanso())
 						.addTerm(esta[e][d], t.segundosDeTransicion());
 				cuantos.add(esta[e][d]);
-				porPatron.computeIfAbsent(ejercicios.get(e).patron(), p -> LinearExpr.newBuilder()).add(esta[e][d]);
+				porPatron.computeIfAbsent(patron, p -> LinearExpr.newBuilder()).add(esta[e][d]);
+				if (!SIN_TOPE_DE_SERIES_POR_DIA.contains(patron)) {
+					seriesPorPatron.computeIfAbsent(patron, p -> LinearExpr.newBuilder()).add(series[e][d]);
+				}
 			}
 			cp.addLessOrEqual(duracion, (long) entrada.minutos() * SEGUNDOS_POR_MINUTO);
 			cp.addGreaterOrEqual(cuantos, ejerciciosMinimos);
 			cp.addLessOrEqual(cuantos, config.sesion().ejerciciosMaximos());
 			porPatron.values().forEach(p -> cp.addLessOrEqual(p, config.sesion().maximoPorPatron()));
+			seriesPorPatron.values().forEach(p -> cp.addLessOrEqual(p, config.sesion().seriesMaximasPorPatronYDia()));
 		}
 	}
 

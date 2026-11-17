@@ -102,6 +102,23 @@ class GeneradorPropiedadesTest {
 
 	@ParameterizedTest(name = "semilla {0}")
 	@MethodSource("semillas")
+	void nuncaMasDeNSeriesPorPatronYDiaSalvoAislamiento(long semilla) {
+		Map<String, EjercicioRutina> porId = CasosAleatorios.caso(semilla).porId();
+
+		for (DiaPlan dia : plan(semilla).dias()) {
+			Map<Patron, Integer> series = new HashMap<>();
+			dia.ejercicios().forEach(e -> series.merge(porId.get(e.idExterno()).patron(), e.series(), Integer::sum));
+			series.forEach((p, n) -> {
+				if (!ModeloRutina.SIN_TOPE_DE_SERIES_POR_DIA.contains(p)) {
+					assertThat(n).as("día %d, %s", dia.dia(), p)
+							.isLessThanOrEqualTo(CONFIG.sesion().seriesMaximasPorPatronYDia());
+				}
+			});
+		}
+	}
+
+	@ParameterizedTest(name = "semilla {0}")
+	@MethodSource("semillas")
 	void ningunBasicoPesadoEnDiasSeguidos(long semilla) {
 		Map<String, EjercicioRutina> porId = CasosAleatorios.caso(semilla).porId();
 		List<DiaPlan> dias = plan(semilla).dias();

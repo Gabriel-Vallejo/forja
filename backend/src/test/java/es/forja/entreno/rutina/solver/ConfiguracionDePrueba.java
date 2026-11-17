@@ -26,7 +26,7 @@ public final class ConfiguracionDePrueba {
 						Map.of()),
 				new ConfiguracionRutina.Basicos(PATRONES_PRINCIPALES),
 				new ConfiguracionRutina.Tiempos(40, 90, 120),
-				new ConfiguracionRutina.Sesion(2, 5, 3, 8, 2, 50),
+				new ConfiguracionRutina.Sesion(2, 5, 3, 8, 2, 50, 6),
 				new ConfiguracionRutina.Solver(1.0, 0.2, 1, 42));
 	}
 

@@ -50,6 +50,7 @@ forja:
       ejercicios-maximos: 8
       maximo-por-patron: 2
       porcentaje-minimo-del-tiempo: 50   # ninguna sesión por debajo, salvo que falten candidatos
+      series-maximas-por-patron-y-dia: 6 # pasadas ~6 series de un patrón en una sesión suman fatiga y poco estímulo (heurística de entrenadores): el volumen semanal se reparte entre días
     solver:
       tiempo-determinista: 1.0              # segundos «deterministas» de CP-SAT, no de reloj (ADR 0002, enmienda)
       tiempo-determinista-alternativas: 0.2 # cada re-resolución del «por qué este y no aquel»
