@@ -244,4 +244,20 @@ describe('outbox del registro', () => {
     await outbox.guardarPlan(planDePrueba());
     expect(await outbox.planGuardado()).toBeNull();
   });
+
+  test('borrar los datos de una cuenta no toca lo de otra, aunque ya no haya sesión iniciada', async () => {
+    const mia = await outbox.empezarSesion();
+    await outbox.registrarSerie(mia.uuid, serie());
+    await outbox.guardarPlan(planDePrueba());
+    usuario = B;
+    const ajena = await outbox.empezarSesion();
+    usuario = null;
+
+    await outbox.borrarDatosDe(A);
+
+    expect(await almacen.leerSesion(mia.uuid)).toBeNull();
+    expect(await almacen.listarSeries(mia.uuid)).toEqual([]);
+    expect(await almacen.leerPlan(A)).toBeNull();
+    expect(await almacen.leerSesion(ajena.uuid)).not.toBeNull();
+  });
 });

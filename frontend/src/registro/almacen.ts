@@ -93,3 +93,9 @@ export interface AlmacenRegistro {
   leerPlan(usuario: string): Promise<PlanGuardado | null>;
   borrarPlan(usuario: string): Promise<void>;
 }
+
+/** Borra todo lo local de un usuario: sus sesiones (con series y cargas) y su plan guardado. Lo de otros no se toca. */
+export async function borrarDatosDeUsuario(almacen: AlmacenRegistro, usuario: string): Promise<void> {
+  for (const s of await almacen.listarSesiones({ usuario })) await almacen.borrarSesion(s.uuid);
+  await almacen.borrarPlan(usuario);
+}

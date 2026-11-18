@@ -1,6 +1,8 @@
 // Dobles de prueba compartidos. Datos sintéticos: nada real (ADR 0004).
 import type {
+  Consentimiento,
   CuestionarioCribado,
+  DispositivoCuenta,
   EfectoEjercicio,
   Material,
   ObjetivoEjercicio,
@@ -73,6 +75,11 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
     perfilEntreno: jest.fn().mockResolvedValue(perfilDePrueba()),
     guardarPerfilEntreno: jest.fn().mockImplementation(async (a) => ({ ...a, porDefecto: false })),
     materiales: jest.fn().mockResolvedValue(materialesDePrueba()),
+    consentimientos: jest.fn().mockResolvedValue([]),
+    retirarConsentimiento: jest.fn().mockResolvedValue(undefined),
+    dispositivos: jest.fn().mockResolvedValue([dispositivoCuenta()]),
+    cerrarDispositivo: jest.fn().mockResolvedValue(undefined),
+    borrarCuenta: jest.fn().mockResolvedValue(undefined),
     tieneConsentimientoLimitaciones: jest.fn().mockResolvedValue(false),
     darConsentimientoLimitaciones: jest.fn().mockResolvedValue(undefined),
     retirarConsentimientoLimitaciones: jest.fn().mockResolvedValue(undefined),
@@ -90,6 +97,16 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
     alCaducar: jest.fn().mockReturnValue(() => undefined),
     ...cambios,
   } as jest.Mocked<ApiForja>;
+}
+
+/** Un consentimiento vivo, dado a mediodía UTC para que la fecha no cambie con la zona horaria. */
+export function consentimiento(tipo: string, cambios: Partial<Consentimiento> = {}): Consentimiento {
+  return { tipo, versionTexto: 'v1', dadoEn: '2026-11-17T12:00:00Z', ...cambios };
+}
+
+/** Un dispositivo de la cuenta: por defecto, el actual. */
+export function dispositivoCuenta(cambios: Partial<DispositivoCuenta> = {}): DispositivoCuenta {
+  return { id: DISPOSITIVO_ID, nombre: 'Pixel 8', plataforma: 'movil', ultimaActividad: '2026-11-18T12:00:00Z', actual: true, ...cambios };
 }
 
 /** Un ejercicio del plan con valores por defecto; `cambios` pisa lo que haga falta. */

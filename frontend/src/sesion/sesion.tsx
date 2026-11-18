@@ -10,6 +10,11 @@ interface ValorSesion {
   api: ApiForja;
   entrar(credenciales: Credenciales): Promise<void>;
   salir(): Promise<void>;
+  /**
+   * Borra la cuenta (pide la contraseña al backend) y sale. `limpiarLocal` corre tras borrar y recibe el usuario, que
+   * hay que leer antes porque al borrar la sesión local ya no hay token de donde sacarlo. Si falla, se sale igual.
+   */
+  borrarCuenta(contrasena: string, limpiarLocal?: (usuario: string | null) => Promise<void>): Promise<void>;
 }
 
 const ContextoSesion = createContext<ValorSesion | null>(null);
@@ -59,7 +64,21 @@ export function ProveedorSesion({ api, children }: PropsProveedorSesion) {
     }
   }, [api, consultas]);
 
-  const valor = useMemo(() => ({ estado, api, entrar, salir }), [estado, api, entrar, salir]);
+  const borrarCuenta = useCallback(
+    async (contrasena: string, limpiarLocal?: (usuario: string | null) => Promise<void>) => {
+      const usuario = await api.usuarioActual();
+      await api.borrarCuenta(contrasena);
+      try {
+        await limpiarLocal?.(usuario);
+      } finally {
+        consultas.clear();
+        setEstado('fuera');
+      }
+    },
+    [api, consultas],
+  );
+
+  const valor = useMemo(() => ({ estado, api, entrar, salir, borrarCuenta }), [estado, api, entrar, salir, borrarCuenta]);
   return <ContextoSesion.Provider value={valor}>{children}</ContextoSesion.Provider>;
 }
 

@@ -87,9 +87,27 @@ const opcional = <T extends z.ZodType>(esquema: T) =>
     .transform((v) => v ?? undefined)
     .optional();
 
-export const esquemaConsentimientos = z.array(z.object({ tipo: z.string() })) satisfies z.ZodType<
-  Esquemas['RespuestaConsentimiento'][]
->;
+/** Los cinco tipos de consentimiento del backend (`TipoConsentimiento`); el código es el de la tabla. */
+export const TIPOS_CONSENTIMIENTO = ['fotos_cuerpo', 'medidas_salud', 'lesiones', 'limitaciones', 'suplementos'] as const;
+export type TipoConsentimiento = (typeof TIPOS_CONSENTIMIENTO)[number];
+
+// `tipo` queda como texto: un tipo nuevo del backend no debe romper la lista (la pantalla solo enseña los conocidos).
+export const esquemaConsentimientos = z.array(
+  z.object({ tipo: z.string(), versionTexto: z.string(), dadoEn: z.iso.datetime() }),
+) satisfies z.ZodType<Esquemas['RespuestaConsentimiento'][]>;
+export type Consentimiento = z.infer<typeof esquemaConsentimientos>[number];
+
+export const esquemaDispositivos = z.array(
+  z.object({
+    id: z.uuid(),
+    nombre: z.string(),
+    plataforma: z.enum(['movil', 'pc']),
+    ultimaActividad: opcional(z.iso.datetime()),
+    actual: z.boolean(),
+  }),
+) satisfies z.ZodType<Esquemas['DatosDispositivo'][]>;
+/** Un dispositivo de la cuenta tal como lo lista el backend (distinto de `Dispositivo`, que es el de este móvil al entrar). */
+export type DispositivoCuenta = z.infer<typeof esquemaDispositivos>[number];
 
 export const esquemaRestriccion = z.object({
   uuid: z.uuid(),

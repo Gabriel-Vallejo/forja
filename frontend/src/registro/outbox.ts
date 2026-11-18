@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { esquemaPlanActual, type ObjetivoEjercicio, type PlanActual } from '../api/esquemas';
-import type { AlmacenRegistro, SerieLocal, SesionLocal } from './almacen';
+import { type AlmacenRegistro, borrarDatosDeUsuario, type SerieLocal, type SesionLocal } from './almacen';
 import { cargaSiguiente } from './reglaSiguiente';
 import { uuidv7 } from './uuidv7';
 import { ultimaVersion, ultimaVersionValida } from './versiones';
@@ -65,6 +65,8 @@ export interface Outbox {
   contadores(): Promise<Contadores>;
   /** Carga siguiente calculada sin red por ejercicio (`idExterno` → kg). */
   cargasSiguientes(): Promise<Map<string, number>>;
+  /** Borra lo local de una cuenta ya eliminada (sesiones pendientes o rechazadas, series, cargas y plan). Recibe el usuario porque al borrar la cuenta ya no hay sesión de la que leerlo. */
+  borrarDatosDe(usuario: string): Promise<void>;
   /** Con un plan recién leído del servidor, manda el servidor: borra las cargas locales que ya no valen. */
   conciliarConPlan(plan: PlanActual): Promise<void>;
   /** Guarda el plan recién leído del servidor para entrenar sin red; null (no hay plan) borra el guardado. */
@@ -281,6 +283,8 @@ export function crearOutbox({ almacen, usuarioActual, reloj = Date.now, nuevoId 
       const plan = esquemaPlanActual.safeParse(datos);
       return plan.success ? { plan: plan.data, guardadoEn: guardado.guardadoEn } : null;
     },
+
+    borrarDatosDe: (usuario) => borrarDatosDeUsuario(almacen, usuario),
 
     async conciliarConPlan(plan) {
       const usuario = await usuarioActual();

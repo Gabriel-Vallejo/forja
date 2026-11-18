@@ -136,7 +136,6 @@ export const PERFIL = {
     { etiqueta: 'Avisos', valor: 'Días de entreno' },
   ],
   privacidad: [
-    { etiqueta: 'Consentimientos y dispositivos', valor: '2 de 5 · 2' },
     { etiqueta: 'Descargar mis datos', valor: '' },
   ],
 } as const;

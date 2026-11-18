@@ -1,7 +1,8 @@
 // Consultas de TanStack Query de las limitaciones. Son datos de salud (RGPD art. 9): viven solo en la memoria
 // de la caché, que `ProveedorSesion` vacía al cerrar sesión; nada va a almacenamiento local.
-import { useQuery } from '@tanstack/react-query';
+import { type QueryClient, useQuery } from '@tanstack/react-query';
 
+import { CLAVE_CONSENTIMIENTOS } from '../privacidad/claves';
 import { useSesion } from '../sesion/sesion';
 
 export const CLAVE_LIMITACIONES = ['limitaciones'] as const;
@@ -10,6 +11,18 @@ export const CLAVE_RESTRICCIONES = [...CLAVE_LIMITACIONES, 'restricciones'] as c
 export const CLAVE_BLOQUEO = [...CLAVE_LIMITACIONES, 'bloqueo'] as const;
 export const CLAVE_EFECTO = [...CLAVE_LIMITACIONES, 'efecto'] as const;
 const CLAVE_PREGUNTAS = [...CLAVE_LIMITACIONES, 'preguntas'] as const;
+
+/**
+ * Tras retirar el consentimiento de limitaciones el backend borra restricciones, bloqueo y dolor guardado (RF-46):
+ * lo mismo en la caché, para no enseñar datos que ya no existen.
+ */
+export function olvidarLimitaciones(consultas: QueryClient): Promise<void> {
+  consultas.setQueryData(CLAVE_CONSENTIMIENTO, false);
+  consultas.removeQueries({ queryKey: CLAVE_RESTRICCIONES });
+  consultas.removeQueries({ queryKey: CLAVE_EFECTO });
+  consultas.setQueryData(CLAVE_BLOQUEO, { bloquea: false, nivel: null });
+  return consultas.invalidateQueries({ queryKey: CLAVE_CONSENTIMIENTOS });
+}
 
 export function useConsentimientoLimitaciones() {
   const { api } = useSesion();

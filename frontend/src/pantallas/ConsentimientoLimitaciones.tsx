@@ -7,6 +7,7 @@ import { Aviso } from '../componentes/Aviso';
 import { Boton } from '../componentes/Boton';
 import { Texto } from '../componentes/Texto';
 import { CLAVE_CONSENTIMIENTO, CLAVE_RESTRICCIONES } from '../limitaciones/consultas';
+import { CLAVE_CONSENTIMIENTOS } from '../privacidad/claves';
 import { FINALIDAD } from '../limitaciones/textos';
 import { useSesion } from '../sesion/sesion';
 import { type Theme, useTheme } from '../theme';
@@ -46,6 +47,7 @@ export function ConsentimientoLimitaciones() {
     mutationFn: () => api.darConsentimientoLimitaciones(VERSION_TEXTO),
     onSuccess: () => {
       consultas.setQueryData(CLAVE_CONSENTIMIENTO, true);
+      void consultas.invalidateQueries({ queryKey: CLAVE_CONSENTIMIENTOS });
       return consultas.invalidateQueries({ queryKey: CLAVE_RESTRICCIONES });
     },
   });

@@ -13,14 +13,7 @@ import { FilaEnlace } from '../componentes/FilaEnlace';
 import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
 import { ESTADOS, LADOS, ORIGENES, PATRONES, REGIONES, TIPOS } from '../limitaciones/catalogo';
-import {
-  CLAVE_BLOQUEO,
-  CLAVE_CONSENTIMIENTO,
-  CLAVE_EFECTO,
-  CLAVE_RESTRICCIONES,
-  useBloqueoSalud,
-  useRestricciones,
-} from '../limitaciones/consultas';
+import { CLAVE_EFECTO, CLAVE_RESTRICCIONES, olvidarLimitaciones, useBloqueoSalud, useRestricciones } from '../limitaciones/consultas';
 import { MAXIMO_POR_USUARIO } from '../limitaciones/restriccion';
 import { FINALIDAD, NOTA_PLAN } from '../limitaciones/textos';
 import { useSesion } from '../sesion/sesion';
@@ -123,14 +116,8 @@ function RetirarConsentimiento({ cuantas }: { cuantas: number }) {
   const [confirmando, setConfirmando] = useState(false);
   const retirar = useMutation({
     mutationFn: () => api.retirarConsentimientoLimitaciones(),
-    onSuccess: () => {
-      // El backend borra las limitaciones al retirarlo: fuera de la memoria también.
-      consultas.setQueryData(CLAVE_CONSENTIMIENTO, false);
-      consultas.removeQueries({ queryKey: CLAVE_RESTRICCIONES });
-      consultas.removeQueries({ queryKey: CLAVE_EFECTO });
-      // Retirar el consentimiento borra también el bloqueo (RF-46).
-      consultas.setQueryData(CLAVE_BLOQUEO, { bloquea: false, nivel: null });
-    },
+    // El backend borra las limitaciones y el bloqueo al retirarlo (RF-46): fuera de la memoria también.
+    onSuccess: () => olvidarLimitaciones(consultas),
   });
 
   if (!confirmando) {

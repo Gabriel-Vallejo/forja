@@ -2,11 +2,14 @@ import type { AlmacenTokens } from '../sesion/almacenTokens';
 import type { ClienteApi } from './cliente';
 import { ErrorApi, RESPUESTA_INESPERADA } from './errores';
 import {
+  type Consentimiento,
   type DatosRestriccion,
+  type DispositivoCuenta,
   type EfectoEjercicio,
   type EstadoBloqueo,
   esquemaConsentimientos,
   esquemaDatosSesion,
+  esquemaDispositivos,
   esquemaEfecto,
   esquemaEstadoBloqueo,
   esquemaMensaje,
@@ -33,6 +36,7 @@ import {
   esquemaPerfilEntreno,
   esquemaSesionGuardada,
   type SesionEntrada,
+  type TipoConsentimiento,
 } from './esquemas';
 
 const NO_ENCONTRADO = 404;
@@ -61,6 +65,10 @@ export interface ApiForja {
   guardarPerfilEntreno(ajustes: AjustesEntreno): Promise<PerfilEntreno>;
   materiales(): Promise<Material[]>;
   // Limitaciones (ADR 0007). Datos de salud: ninguna de estas respuestas se guarda fuera de la memoria.
+  /** Los consentimientos vivos (los retirados no salen). */
+  consentimientos(): Promise<Consentimiento[]>;
+  /** Borra también lo que dependía de él (RF-46); hoy, solo `limitaciones` guarda algo. */
+  retirarConsentimiento(tipo: TipoConsentimiento): Promise<void>;
   tieneConsentimientoLimitaciones(): Promise<boolean>;
   darConsentimientoLimitaciones(versionTexto: string): Promise<void>;
   /** Borra también todas las limitaciones guardadas (lo hace el backend). */
@@ -75,6 +83,12 @@ export interface ApiForja {
   actualizarRestriccion(uuid: string, datos: DatosRestriccion): Promise<Restriccion>;
   borrarRestriccion(uuid: string): Promise<void>;
   efectoRestricciones(): Promise<EfectoEjercicio[]>;
+  /** Dispositivos con sesión viva; `actual` marca el que hace la petición. */
+  dispositivos(): Promise<DispositivoCuenta[]>;
+  /** Cierra la sesión de otro dispositivo de la cuenta (RF-43). */
+  cerrarDispositivo(id: string): Promise<void>;
+  /** Pide la contraseña, borra la cuenta en el backend (en cascada) y la sesión local (RF-47). */
+  borrarCuenta(contrasena: string): Promise<void>;
   /** Upsert idempotente de una sesión del outbox (ADR 0008 §2): reenviar lo mismo no duplica nada. */
   guardarSesion(uuid: string, sesion: SesionEntrada): Promise<void>;
   /** `sub` del token guardado: de quién son las sesiones que se envían. Null sin sesión iniciada. */
@@ -84,6 +98,9 @@ export interface ApiForja {
 
 export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispositivo: Dispositivo): ApiForja {
   const leerPerfilEntreno = () => cliente.pedir({ ruta: '/api/v1/perfil/entreno', esquema: esquemaPerfilEntreno });
+  const retirarConsentimiento = async (tipo: TipoConsentimiento) => {
+    await cliente.pedir({ metodo: 'DELETE', ruta: `/api/v1/consentimientos/${tipo}` });
+  };
   return {
     async haySesionGuardada() {
       return (await almacen.leerRefresco()) !== null;
@@ -147,6 +164,8 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
     guardarPerfilEntreno: (ajustes) =>
       cliente.pedir({ metodo: 'PUT', ruta: '/api/v1/perfil/entreno', cuerpo: ajustes, esquema: esquemaPerfilEntreno }),
     materiales: () => cliente.pedir({ ruta: '/api/v1/catalogo/materiales', esquema: esquemaMateriales }),
+    consentimientos: () => cliente.pedir({ ruta: '/api/v1/consentimientos', esquema: esquemaConsentimientos }),
+    retirarConsentimiento,
     async tieneConsentimientoLimitaciones() {
       const consentimientos = await cliente.pedir({ ruta: '/api/v1/consentimientos', esquema: esquemaConsentimientos });
       return consentimientos.some((c) => c.tipo === TIPO_LIMITACIONES);
@@ -158,9 +177,7 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
         cuerpo: { tipo: TIPO_LIMITACIONES, versionTexto },
       });
     },
-    async retirarConsentimientoLimitaciones() {
-      await cliente.pedir({ metodo: 'DELETE', ruta: `/api/v1/consentimientos/${TIPO_LIMITACIONES}` });
-    },
+    retirarConsentimientoLimitaciones: () => retirarConsentimiento(TIPO_LIMITACIONES),
     preguntasCribado: () => cliente.pedir({ ruta: '/api/v1/cribado/preguntas', esquema: esquemaCuestionarioCribado }),
     cribar: (solicitud) =>
       cliente.pedir({ metodo: 'POST', ruta: '/api/v1/cribado', cuerpo: solicitud, esquema: esquemaResultadoCribado }),
@@ -186,6 +203,15 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
       if (guardada.uuid !== uuid) {
         throw new ErrorApi(200, RESPUESTA_INESPERADA);
       }
+    },
+    dispositivos: () => cliente.pedir({ ruta: '/api/v1/dispositivos', esquema: esquemaDispositivos }),
+    async cerrarDispositivo(id) {
+      await cliente.pedir({ metodo: 'DELETE', ruta: `/api/v1/dispositivos/${encodeURIComponent(id)}` });
+    },
+    async borrarCuenta(contrasena) {
+      await cliente.pedir({ metodo: 'DELETE', ruta: '/api/v1/cuenta', cuerpo: { contrasena } });
+      // La cuenta ya no existe: no hay a quién cerrarle la sesión, solo olvidarla aquí.
+      await almacen.borrar();
     },
     usuarioActual: () => almacen.leerUsuario(),
     alCaducar: (oyente) => cliente.alCaducar(oyente),

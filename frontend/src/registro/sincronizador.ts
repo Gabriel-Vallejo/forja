@@ -1,7 +1,7 @@
 import { ErrorApi } from '../api/errores';
 import type { SesionEntrada } from '../api/esquemas';
 import type { ApiForja } from '../api/forja';
-import type { AlmacenRegistro, SerieLocal, SesionLocal } from './almacen';
+import { type AlmacenRegistro, borrarDatosDeUsuario, type SerieLocal, type SesionLocal } from './almacen';
 
 // Envío del outbox (ADR 0008 §4). Reenviar es seguro (PUT idempotente), así que ante la duda se reenvía.
 // Nunca se registra nada de lo que se envía: las series llevan el dolor, un dato de salud.
@@ -110,8 +110,7 @@ export function crearSincronizador({ almacen, api, reloj = Date.now, azar = Math
       return 'parar';
     }
     if (estado === CUENTA_INEXISTENTE) {
-      for (const s of await almacen.listarSesiones({ usuario: sesion.usuario })) await almacen.borrarSesion(s.uuid);
-      await almacen.borrarPlan(sesion.usuario);
+      await borrarDatosDeUsuario(almacen, sesion.usuario);
       return 'cuenta_eliminada';
     }
     const mensaje = e instanceof Error ? e.message : 'No se ha podido enviar.';

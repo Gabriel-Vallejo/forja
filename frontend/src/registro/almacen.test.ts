@@ -1,5 +1,5 @@
 import { baseSqliteEnMemoria } from '../pruebas/sqliteNode';
-import type { AlmacenRegistro, SerieLocal, SesionLocal } from './almacen';
+import { type AlmacenRegistro, borrarDatosDeUsuario, type SerieLocal, type SesionLocal } from './almacen';
 import { crearAlmacenMemoria } from './almacenMemoria';
 import { crearAlmacenSqlite } from './almacenSqlite';
 import { migrar, MIGRACIONES } from './migraciones';
@@ -145,6 +145,27 @@ describe.each(implementaciones)('almacén del registro %s', (_nombre, crear) => 
     expect(await almacen.leerPlan(A)).toEqual({ usuario: A, planUuid: 'p2', json: '{"v":2}', guardadoEn: 2 });
     await almacen.borrarPlan(A);
     expect(await almacen.leerPlan(A)).toBeNull();
+    expect(await almacen.leerPlan(B)).not.toBeNull();
+  });
+
+  test('borrar los datos de un usuario se lleva sus sesiones, series, cargas y plan, y deja los de otro', async () => {
+    await almacen.insertarSesion(sesion('a1', { estado: 'pendiente' }));
+    await almacen.insertarSesion(sesion('a2', { estado: 'rechazada' }));
+    await almacen.insertarSesion(sesion('b1', { usuario: B }));
+    await almacen.insertarSerie(serie('xa', 'a1'));
+    await almacen.insertarSerie(serie('xb', 'b1'));
+    await almacen.guardarCarga({ usuario: A, ejercicio: 'remo', cargaKg: 60, planVersion: 'p', sesion: 'a1' });
+    await almacen.guardarPlan({ usuario: A, planUuid: 'pa', json: '{}', guardadoEn: 1 });
+    await almacen.guardarPlan({ usuario: B, planUuid: 'pb', json: '{}', guardadoEn: 1 });
+
+    await borrarDatosDeUsuario(almacen, A);
+
+    expect(await almacen.listarSesiones({ usuario: A })).toEqual([]);
+    expect(await almacen.listarSeries('a1')).toEqual([]);
+    expect(await almacen.listarCargas(A)).toEqual([]);
+    expect(await almacen.leerPlan(A)).toBeNull();
+    expect((await almacen.listarSesiones({ usuario: B })).map((s) => s.uuid)).toEqual(['b1']);
+    expect(await almacen.listarSeries('b1')).toHaveLength(1);
     expect(await almacen.leerPlan(B)).not.toBeNull();
   });
 
