@@ -52,6 +52,19 @@ describe('API de Forja', () => {
     await expect(api.planActual()).resolves.toBeNull();
   });
 
+  test('el porqué de un ejercicio va a su día y su id, y valida el nivel', async () => {
+    const razon = { codigo: 'material', texto: 'Encaja con tu material: barra.', fuente: 'Filtro previo de Forja (ADR 0002)', nivel: 'P' };
+    const fetchFalso = jest
+      .fn()
+      .mockResolvedValueOnce(respuesta(200, { idExterno: 'Press/1', dia: 2, porQue: [razon] }))
+      .mockResolvedValueOnce(respuesta(200, { idExterno: 'Press/1', dia: 2, porQue: [{ ...razon, nivel: 'Z' }] }));
+    const { api } = montar(fetchFalso, almacenEnMemoria(datosSesion(1)));
+
+    await expect(api.porQue(2, 'Press/1')).resolves.toEqual([razon]);
+    expect(llamada(fetchFalso)[0]).toBe(`${URL_BASE}/api/v1/planes/actual/ejercicios/2/Press%2F1/por-que`);
+    await expect(api.porQue(2, 'Press/1')).rejects.toMatchObject({ estado: 200 });
+  });
+
   test('otros errores del plan se propagan', async () => {
     const fetchFalso = jest.fn(async () => respuesta(500));
     const { api } = montar(fetchFalso, almacenEnMemoria(datosSesion(1)));

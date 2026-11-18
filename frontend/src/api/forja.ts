@@ -14,6 +14,7 @@ import {
   esquemaEstadoBloqueo,
   esquemaMensaje,
   esquemaPlanActual,
+  esquemaPorQue,
   esquemaPlanGenerado,
   esquemaCuestionarioCribado,
   esquemaResultadoBanderas,
@@ -21,6 +22,7 @@ import {
   esquemaRestriccion,
   esquemaRestricciones,
   type PlanActual,
+  type Razon,
   type Plataforma,
   type CuestionarioCribado,
   type ResultadoBanderas,
@@ -62,6 +64,8 @@ export interface ApiForja {
   entrar(credenciales: Credenciales): Promise<void>;
   cerrarSesion(): Promise<void>;
   planActual(): Promise<PlanActual | null>;
+  /** «Por qué este ejercicio» en ese día del plan actual; no se guarda en el móvil (puede citar limitaciones). */
+  porQue(dia: number, idExterno: string): Promise<Razon[]>;
   /** Sin ajustes, usa los guardados del perfil (o los de por defecto del backend). */
   generarPlan(ajustes?: AjustesEntreno): Promise<void>;
   /** Días, minutos y material del plan; sin guardar, los de por defecto con `porDefecto: true`. */
@@ -168,6 +172,10 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
         }
         throw e;
       }
+    },
+    async porQue(dia, idExterno) {
+      const ruta = `/api/v1/planes/actual/ejercicios/${dia}/${encodeURIComponent(idExterno)}/por-que`;
+      return (await cliente.pedir({ ruta, esquema: esquemaPorQue })).porQue;
     },
     async generarPlan(ajustes) {
       const { diasPorSemana, minutosPorSesion, material } = ajustes ?? (await leerPerfilEntreno());

@@ -1,16 +1,19 @@
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import type { PlanActual } from '../api/esquemas';
+import type { PlanActual, Razon } from '../api/esquemas';
 import { Aviso } from '../componentes/Aviso';
 import { Boton } from '../componentes/Boton';
 import { BotonIcono } from '../componentes/BotonIcono';
 import { Chips } from '../componentes/Chips';
+import { ConConsulta } from '../componentes/ConConsulta';
 import { CuerpoDoble } from '../componentes/CuerpoDoble';
+import { InsigniaNivel } from '../componentes/InsigniaNivel';
 import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
 import { etiquetaMusculo } from '../plan/musculos';
 import { NOMBRE_ESTADO, numeroDeOrden, prescripcion } from '../plan/plan';
+import { usePorQue } from '../plan/porQue';
 import { useCargasSiguientes } from '../registro/sincronizacion';
 import { type Theme, useTheme } from '../theme';
 import { ConPlan } from './ConPlan';
@@ -53,8 +56,42 @@ function Detalle({ plan, dia, idExterno }: PropsEjercicio & { plan: PlanActual }
         </View>
         <Texto estilo="texto">{e.motivo}</Texto>
       </View>
+      <PorQue plan={plan.uuid} dia={dia} idExterno={idExterno} />
       <Boton etiqueta="Empezar" onPress={() => router.push('/sesion')} />
     </>
+  );
+}
+
+/** «Por qué este ejercicio»: cada razón con su fuente y su nivel (PRD v0.1). */
+function PorQue({ plan, dia, idExterno }: PropsEjercicio & { plan: string }) {
+  const estilos = crearEstilos(useTheme());
+  const consulta = usePorQue(plan, dia, idExterno);
+  return (
+    <View style={estilos.tarjeta} accessibilityLabel="Por qué este ejercicio">
+      <Texto estilo="etiquetaEstrecha" tono="secundario">Por qué este ejercicio</Texto>
+      <ConConsulta consulta={consulta} cargando="Buscando por qué…">
+        {(razones) =>
+          razones.length === 0 ? (
+            <Texto tono="secundario">No hay razones guardadas para este ejercicio.</Texto>
+          ) : (
+            razones.map((r) => <FilaRazon key={`${r.codigo}-${r.texto}`} razon={r} />)
+          )
+        }
+      </ConConsulta>
+    </View>
+  );
+}
+
+function FilaRazon({ razon }: { razon: Razon }) {
+  const estilos = crearEstilos(useTheme());
+  return (
+    <View style={estilos.razon}>
+      <Texto estilo="texto">{razon.texto}</Texto>
+      <View style={estilos.pie}>
+        <Texto estilo="mini" tono="secundario" estiloExtra={estilos.fuente}>{razon.fuente}</Texto>
+        <InsigniaNivel nivel={razon.nivel} />
+      </View>
+    </View>
   );
 }
 
@@ -87,6 +124,9 @@ function crearEstilos(tema: Theme) {
       backgroundColor: tema.color.surface,
     },
     cabecera: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    razon: { gap: tema.space.s1 },
+    pie: { flexDirection: 'row', alignItems: 'center', gap: tema.space.s2 },
+    fuente: { flexShrink: 1 },
     estado: {
       paddingHorizontal: tema.space.s15,
       paddingVertical: tema.space.s05,

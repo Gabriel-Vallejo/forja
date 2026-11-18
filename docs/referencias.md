@@ -49,6 +49,30 @@ Verificadas el 2026-11-15 contra el resumen en PubMed (API E-utilities) y, cuand
 
 **Consecuencia para Forja:** la restricción «frecuencia ≥ 2 por músculo» no es un requisito de la evidencia para hipertrofia. Se sostiene como **heurística práctica**: repartir el volumen hace las sesiones más cortas y la calidad por serie más alta, y la frecuencia sí ayuda a la fuerza según Pelland 2026. La app debe presentarla así.
 
+## Posición estirada
+
+Son las fuentes que cita `database/catalogo/curado.yaml` para marcar `posicion_estirada`. Comprobadas el 2026-11-18 contra el registro de PubMed (autor, año, revista y título); las cifras de cada estudio no se han vuelto a leer en el resumen. El nivel lo pone Forja: **B** para un ensayo que compara las dos variantes y **C** para una revisión que lo apoya de forma indirecta.
+
+**Maeo S, et al. (2021).** Greater hamstrings muscle hypertrophy but similar damage protection after training at long versus short muscle lengths. *Med Sci Sports Exerc* 53(4):825-837. [doi:10.1249/MSS.0000000000002523](https://doi.org/10.1249/MSS.0000000000002523) · PMID 33009197.
+
+- **Uso en Forja:** curl femoral sentado frente a tumbado. Nivel B.
+
+**Maeo S, et al. (2023).** Triceps brachii hypertrophy is substantially greater after elbow extension training performed in the overhead versus neutral arm position. *Eur J Sport Sci* 23(7):1240-1250. [doi:10.1080/17461391.2022.2100279](https://doi.org/10.1080/17461391.2022.2100279) · PMID 35819335.
+
+- **Uso en Forja:** extensión de tríceps por encima de la cabeza. Nivel B.
+
+**Kinoshita M, et al. (2023).** Triceps surae muscle hypertrophy is greater after standing versus seated calf-raise training. *Front Physiol* 14:1272106. [doi:10.3389/fphys.2023.1272106](https://doi.org/10.3389/fphys.2023.1272106) · PMID 38156065.
+
+- **Uso en Forja:** elevación de talones de pie frente a sentado. Nivel B. `curado.yaml` lo cita como «Maeo 2023b», pero el primer autor es Kinoshita.
+
+**Kobayashi Y, et al. (2026).** Exercise-specific preferential hypertrophy of individual elbow flexor muscles after incline versus preacher dumbbell curl training. *J Sports Sci* 44(23):3288-3301. [doi:10.1080/02640414.2026.2741751](https://doi.org/10.1080/02640414.2026.2741751) · PMID 42829982.
+
+- **Uso en Forja:** curl inclinado frente a predicador. Nivel B; la diferencia es pequeña.
+
+**Pedrosa GF, et al. (2026).** The interplay between muscle length, range of motion, and exercise selection: a review. *Sports Med Int Open* 10:a27337605. [doi:10.1055/a-2733-7605](https://doi.org/10.1055/a-2733-7605) · PMID 41777276.
+
+- **Uso en Forja:** peso muerto rumano, peso muerto con piernas rígidas y aperturas con mancuernas. Es una revisión sin ensayo del ejercicio concreto: nivel C, evidencia indirecta.
+
 ## Guías de práctica (no revisadas por pares)
 
 **Renaissance Periodization (Mike Israetel y otros).** Puntos de volumen MEV/MAV/MRV, del libro *Scientific Principles of Hypertrophy Training*. Es un libro de entrenadores, no un estudio, y sus cifras por músculo no salen de un metaanálisis. No he podido comprobar la edición ni la lista completa de autores. **No se cita como ciencia:** si Forja usa sus rangos, van marcados como heurística de entrenadores, igual que las reglas por palancas.

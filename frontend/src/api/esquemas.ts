@@ -77,6 +77,17 @@ export const esquemaPlanActual = z.object({
 }) satisfies z.ZodType<Esquemas['PlanActual']>;
 export type PlanActual = z.infer<typeof esquemaPlanActual>;
 
+/** Niveles de una regla (ADR 0007): A-D, evidencia de la fuente; H, heurística de entrenadores; P, propuesta propia. */
+export const NIVELES = ['A', 'B', 'C', 'D', 'H', 'P'] as const;
+export type Nivel = (typeof NIVELES)[number];
+
+export const esquemaPorQue = z.object({
+  idExterno: z.string(),
+  dia: z.number().int().positive(),
+  porQue: z.array(z.object({ codigo: z.string(), texto: z.string(), fuente: z.string(), nivel: z.enum(NIVELES) })),
+}) satisfies z.ZodType<Esquemas['PorQueEjercicio']>;
+export type Razon = z.infer<typeof esquemaPorQue>['porQue'][number];
+
 // De la respuesta de generar solo hace falta saber que se guardó: el plan se vuelve a leer de /planes/actual.
 export const esquemaPlanGenerado = z.object({ uuid: z.uuid() }) satisfies z.ZodType<Esquemas['PlanGenerado']>;
 

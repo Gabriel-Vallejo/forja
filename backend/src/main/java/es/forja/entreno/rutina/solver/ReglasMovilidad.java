@@ -60,17 +60,26 @@ final class ReglasMovilidad {
 		return puntos;
 	}
 
-	/** Por qué el tramo favorece este ejercicio, para la traza; vacío si no lo favorece. */
-	static List<String> motivos(String idExterno, Map<TestMovilidad, Tramo> tramos) {
-		List<String> motivos = new ArrayList<>();
+	/** Un test cuyo tramo favorece el ejercicio, con el porqué. */
+	record Favorece(TestMovilidad test, Tramo tramo, String porQue) {
+	}
+
+	/** Los tests cuyo tramo favorece este ejercicio; vacío si ninguno. */
+	static List<Favorece> favorecen(String idExterno, Map<TestMovilidad, Tramo> tramos) {
+		List<Favorece> favorecen = new ArrayList<>();
 		for (Regla r : REGLAS) {
 			Tramo tramo = tramos.get(r.test());
 			if (peso(tramo) > 0 && r.favorecidos().contains(idExterno)) {
-				motivos.add("Elegido por tu tramo de movilidad de %s (%s): %s%s".formatted(r.test().codigo(),
-						tramo.codigo(), r.porQue(), FUENTE));
+				favorecen.add(new Favorece(r.test(), tramo, r.porQue()));
 			}
 		}
-		return motivos;
+		return favorecen;
+	}
+
+	/** Por qué el tramo favorece este ejercicio, para la traza; vacío si no lo favorece. */
+	static List<String> motivos(String idExterno, Map<TestMovilidad, Tramo> tramos) {
+		return favorecen(idExterno, tramos).stream().map(f -> "Elegido por tu tramo de movilidad de %s (%s): %s%s"
+				.formatted(f.test().codigo(), f.tramo().codigo(), f.porQue(), FUENTE)).toList();
 	}
 
 	static Set<String> idsCitados() {

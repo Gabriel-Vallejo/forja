@@ -324,6 +324,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/planes/actual/ejercicios/{dia}/{idExterno}/por-que": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["porQue"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/progresion/{idExterno}": {
         parameters: {
             query?: never;
@@ -612,6 +628,12 @@ export interface components {
             uuid?: string;
             volumen?: components["schemas"]["VolumenMusculo"][];
         };
+        PorQueEjercicio: {
+            /** Format: int32 */
+            dia?: number;
+            idExterno?: string;
+            porQue?: components["schemas"]["Razon"][];
+        };
         ProgresionEjercicio: {
             cargaSiguienteKg?: number;
             /** @enum {string} */
@@ -632,6 +654,12 @@ export interface components {
             realizadaEn?: string;
             /** Format: uuid */
             sesion?: string;
+        };
+        Razon: {
+            codigo?: string;
+            fuente?: string;
+            nivel?: string;
+            texto?: string;
         };
         Recuperar: {
             correo: string;
@@ -1345,6 +1373,29 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PlanActual"];
+                };
+            };
+        };
+    };
+    porQue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dia: number;
+                idExterno: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PorQueEjercicio"];
                 };
             };
         };

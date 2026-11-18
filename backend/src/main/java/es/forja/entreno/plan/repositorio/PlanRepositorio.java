@@ -90,6 +90,12 @@ public class PlanRepositorio {
 				.optional();
 	}
 
+	/** La traza guardada de una versión, en JSON (sin datos de salud: ver {@code TrazaGuardada}). */
+	public String traza(long planId) {
+		return jdbc.sql("SELECT traza FROM plan_version WHERE id = :plan").param("plan", planId).query(String.class)
+				.single();
+	}
+
 	/** El id interno de una versión, solo si es del usuario: una ajena no existe a efectos de quien pregunta. */
 	public Optional<Long> idDeVersion(long usuarioId, UUID uuid) {
 		return jdbc.sql("SELECT id FROM plan_version WHERE usuario_id = :usuario AND uuid = :uuid")

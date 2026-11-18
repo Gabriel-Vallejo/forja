@@ -157,6 +157,57 @@ describe('Detalle de ejercicio', () => {
   });
 });
 
+describe('Por qué este ejercicio', () => {
+  const conPorQue = (porQue: jest.Mock) =>
+    apiFalsa({ planActual: jest.fn().mockResolvedValue(planDePrueba(false, 1)), porQue });
+  const razones = [
+    { codigo: 'posicion_estirada', texto: 'Carga el músculo estirado.', fuente: 'Maeo 2021', nivel: 'B' },
+    { codigo: 'movilidad', texto: 'Encaja con tu tramo de tobillo (limitado).', fuente: 'Heurística de entrenadores, no ciencia (ADR 0007)', nivel: 'H' },
+    { codigo: 'material', texto: 'Encaja con tu material: máquina.', fuente: 'Filtro previo de Forja (ADR 0002)', nivel: 'P' },
+  ];
+
+  test('pide las razones de ese día y ejercicio y enseña texto, fuente y nivel con su leyenda', async () => {
+    const porQue = jest.fn().mockResolvedValue(razones);
+    await renderizar(<Ejercicio dia={1} idExterno="remo" />, conPorQue(porQue));
+
+    expect(await screen.findByText('Carga el músculo estirado.')).toBeOnTheScreen();
+    expect(porQue).toHaveBeenCalledWith(1, 'remo');
+    expect(screen.getByText('Maeo 2021')).toBeOnTheScreen();
+    expect(screen.getByText('Evidencia B')).toBeOnTheScreen();
+    expect(screen.getByText('Heurística')).toBeOnTheScreen();
+    expect(screen.getByText('Propuesta propia')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Nivel H: heurística de entrenadores, no ciencia')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Nivel B: evidencia B de la fuente')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Nivel P: propuesta propia de Forja')).toBeOnTheScreen();
+  });
+
+  test('sin razones lo dice', async () => {
+    const porQue = jest.fn().mockResolvedValue([]);
+    await renderizar(<Ejercicio dia={1} idExterno="remo" />, conPorQue(porQue));
+
+    expect(await screen.findByText('No hay razones guardadas para este ejercicio.')).toBeOnTheScreen();
+  });
+
+  test('si falla, avisa y deja reintentar', async () => {
+    const porQue = jest
+      .fn()
+      .mockRejectedValueOnce(new ErrorApi(500, 'Algo ha fallado.'))
+      .mockResolvedValue(razones);
+    await renderizar(<Ejercicio dia={1} idExterno="remo" />, conPorQue(porQue));
+
+    await fireEvent.press(await screen.findByRole('button', { name: 'Reintentar' }));
+
+    expect(await screen.findByText('Carga el músculo estirado.')).toBeOnTheScreen();
+  });
+
+  test('mientras carga lo dice', async () => {
+    const porQue = jest.fn().mockReturnValue(new Promise(() => undefined));
+    await renderizar(<Ejercicio dia={1} idExterno="remo" />, conPorQue(porQue));
+
+    expect(await screen.findByText('Buscando por qué…')).toBeOnTheScreen();
+  });
+});
+
 describe('Perfil', () => {
   test('cerrar sesión llama a la API', async () => {
     const api = apiFalsa();

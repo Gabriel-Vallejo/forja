@@ -491,6 +491,24 @@
         },
         "type" : "object"
       },
+      "PorQueEjercicio" : {
+        "properties" : {
+          "dia" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "idExterno" : {
+            "type" : "string"
+          },
+          "porQue" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Razon"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
       "ProgresionEjercicio" : {
         "properties" : {
           "cargaSiguienteKg" : {
@@ -538,6 +556,23 @@
           },
           "sesion" : {
             "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Razon" : {
+        "properties" : {
+          "codigo" : {
+            "type" : "string"
+          },
+          "fuente" : {
+            "type" : "string"
+          },
+          "nivel" : {
+            "type" : "string"
+          },
+          "texto" : {
             "type" : "string"
           }
         },
@@ -1663,6 +1698,40 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/PlanActual"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "planes-controlador" ]
+      }
+    },
+    "/api/v1/planes/actual/ejercicios/{dia}/{idExterno}/por-que" : {
+      "get" : {
+        "operationId" : "porQue",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "dia",
+          "required" : true,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "path",
+          "name" : "idExterno",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PorQueEjercicio"
                 }
               }
             },
