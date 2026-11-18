@@ -11,8 +11,16 @@ import type {
 } from '../api/esquemas';
 import type { ApiForja } from '../api/forja';
 import type { AlmacenTokens, SesionGuardada } from '../sesion/almacenTokens';
+import { usuarioDeToken } from '../sesion/usuarioToken';
 
 export const DISPOSITIVO_ID = '0193a3c4-7b2e-7c1d-9f00-5a1b2c3d4e5f';
+export const USUARIO_ID = '0193a3c4-7b2e-7c1d-9f00-00000000abcd';
+
+/** Token de acceso con forma de JWT (sin firma válida: el móvil solo lee `sub`). */
+export function tokenDe(usuario: string): string {
+  const b64url = (texto: string) => btoa(texto).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return `${b64url('{"alg":"EdDSA"}')}.${b64url(JSON.stringify({ sub: usuario }))}.firma`;
+}
 
 export function datosSesion(n: number) {
   return {
@@ -31,6 +39,7 @@ export function almacenEnMemoria(inicial: Partial<SesionGuardada> = {}): Almacen
     leerAcceso: () => estado.tokenAcceso ?? null,
     leerRefresco: async () => estado.tokenRefresco ?? null,
     leerDispositivo: async () => estado.dispositivoId ?? null,
+    leerUsuario: async () => (estado.tokenAcceso ? usuarioDeToken(estado.tokenAcceso) : null),
     async guardar(sesion) {
       Object.assign(estado, sesion);
     },
@@ -76,6 +85,8 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
     actualizarRestriccion: jest.fn().mockResolvedValue(restriccion()),
     borrarRestriccion: jest.fn().mockResolvedValue(undefined),
     efectoRestricciones: jest.fn().mockResolvedValue([]),
+    guardarSesion: jest.fn().mockResolvedValue(undefined),
+    usuarioActual: jest.fn().mockResolvedValue(USUARIO_ID),
     alCaducar: jest.fn().mockReturnValue(() => undefined),
     ...cambios,
   } as jest.Mocked<ApiForja>;

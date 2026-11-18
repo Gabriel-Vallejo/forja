@@ -9,6 +9,9 @@ import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { apiForja } from '../src/api/instancia';
+import { abrirAlmacenLocal } from '../src/registro/almacenLocal';
+import { escucharRed } from '../src/registro/red';
+import { ProveedorSincronizacion } from '../src/registro/sincronizacion';
 import { ProveedorSesion } from '../src/sesion/sesion';
 import { useTheme } from '../src/theme';
 
@@ -40,7 +43,9 @@ export default function Raiz() {
     <GestureHandlerRootView style={estilos.raiz}>
       <QueryClientProvider client={consultas}>
         <ProveedorSesion api={apiForja}>
-          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: tema.color.background } }} />
+          <ProveedorSincronizacion abrirAlmacen={abrirAlmacenLocal} escucharRed={escucharRed}>
+            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: tema.color.background } }} />
+          </ProveedorSincronizacion>
         </ProveedorSesion>
       </QueryClientProvider>
     </GestureHandlerRootView>

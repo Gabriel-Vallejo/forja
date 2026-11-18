@@ -1,6 +1,5 @@
-import { Proximamente } from '../../src/pantallas/Proximamente';
+import { SesionEntreno } from '../../src/pantallas/SesionEntreno';
 
-// La sesión en curso, con el outbox, llega en el bloque 3.
 export default function RutaSesion() {
-  return <Proximamente titulo="Sesión en curso" />;
+  return <SesionEntreno />;
 }

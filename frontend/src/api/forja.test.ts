@@ -1,4 +1,4 @@
-import { almacenEnMemoria, DISPOSITIVO_ID, datosSesion, materialesDePrueba, perfilDePrueba, respuesta } from '../pruebas/dobles';
+import { almacenEnMemoria, DISPOSITIVO_ID, datosSesion, materialesDePrueba, perfilDePrueba, respuesta, tokenDe } from '../pruebas/dobles';
 import { crearCliente } from './cliente';
 import { crearApiForja } from './forja';
 
@@ -154,5 +154,39 @@ describe('API de Forja', () => {
     await expect(
       api.registrar({ correo: 'ana@forja.test', contrasena: 'doce-caracteres', fechaNacimiento: '2000-01-31' }),
     ).resolves.toBe('Revisa tu correo.');
+  });
+
+  test('guardarSesion hace PUT de la sesión entera a /sesiones/{uuid} y valida la respuesta', async () => {
+    const uuid = '0193a3c4-7b2e-7c1d-9f00-000000000051';
+    const sesion = {
+      realizadaEn: '2026-11-18T10:00:00.000Z',
+      diaPlan: 1,
+      series: [{ uuid, ejercicio: 'press_banca', orden: 1, pesoKg: 80, repeticiones: 10, realizadaEn: '2026-11-18T10:05:00.000Z' }],
+    };
+    const fetchFalso = jest.fn(async () => respuesta(200, { uuid, ...sesion }));
+    const { api } = montar(fetchFalso, almacenEnMemoria(datosSesion(1)));
+
+    await api.guardarSesion(uuid, sesion);
+
+    expect(llamada(fetchFalso)[0]).toBe(`${URL_BASE}/api/v1/sesiones/${uuid}`);
+    expect(llamada(fetchFalso)[1].method).toBe('PUT');
+    expect(cuerpoEnviado(fetchFalso)).toEqual(sesion);
+  });
+
+  test('guardarSesion rechaza una respuesta de otra sesión', async () => {
+    const fetchFalso = jest.fn(async () => respuesta(200, { uuid: '0193a3c4-7b2e-7c1d-9f00-000000000099' }));
+    const { api } = montar(fetchFalso, almacenEnMemoria(datosSesion(1)));
+
+    await expect(
+      api.guardarSesion('0193a3c4-7b2e-7c1d-9f00-000000000051', { realizadaEn: '2026-11-18T10:00:00.000Z', series: [] }),
+    ).rejects.toMatchObject({ estado: 200 });
+  });
+
+  test('usuarioActual es el sub del token guardado, o null sin sesión', async () => {
+    const usuario = '0193a3c4-7b2e-7c1d-9f00-00000000abcd';
+    const { api } = montar(jest.fn(), almacenEnMemoria({ ...datosSesion(1), tokenAcceso: tokenDe(usuario) }));
+
+    await expect(api.usuarioActual()).resolves.toBe(usuario);
+    await expect(montar(jest.fn()).api.usuarioActual()).resolves.toBeNull();
   });
 });

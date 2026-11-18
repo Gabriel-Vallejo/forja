@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 
 // Jest con jest-expo resuelve como iOS: este import carga almacenTokens.native.ts.
 import { almacenTokens } from './almacenTokens';
+import { tokenDe } from '../pruebas/dobles';
 
 jest.mock('expo-secure-store', () => {
   const datos = new Map<string, string>();
@@ -36,5 +37,18 @@ describe('almacén de tokens nativo', () => {
     expect(almacenTokens.leerAcceso()).toBeNull();
     await expect(almacenTokens.leerRefresco()).resolves.toBeNull();
     await expect(almacenTokens.leerDispositivo()).resolves.toBe('disp-1');
+  });
+
+  test('recuerda el usuario del token (sub) y lo olvida al cerrar sesión', async () => {
+    const usuario = '0193a3c4-7b2e-7c1d-9f00-00000000abcd';
+    await almacenTokens.guardar({ ...SESION, tokenAcceso: tokenDe(usuario) });
+
+    expect(SecureStore.setItemAsync).toHaveBeenCalledWith('forja.usuario', usuario);
+    await expect(almacenTokens.leerUsuario()).resolves.toBe(usuario);
+
+    await almacenTokens.borrar();
+
+    expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('forja.usuario');
+    await expect(almacenTokens.leerUsuario()).resolves.toBeNull();
   });
 });

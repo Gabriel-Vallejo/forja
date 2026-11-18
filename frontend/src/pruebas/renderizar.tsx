@@ -5,6 +5,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { ApiForja } from '../api/forja';
+import type { AlmacenRegistro } from '../registro/almacen';
+import { ProveedorSincronizacion } from '../registro/sincronizacion';
 import { ProveedorSesion } from '../sesion/sesion';
 import { apiFalsa } from './dobles';
 
@@ -19,13 +21,23 @@ export function Marco({ children }: { children: ReactNode }) {
   );
 }
 
-/** Renderiza con un QueryClient nuevo (sin reintentos ni temporizador de limpieza, que deja Jest colgado) y la sesión sobre la API falsa. */
-export function renderizar(ui: ReactElement, api: ApiForja = apiFalsa()) {
+const sinRed = () => () => undefined;
+
+/**
+ * Renderiza con un QueryClient nuevo (sin reintentos ni temporizador de limpieza, que deja Jest colgado), la sesión
+ * sobre la API falsa y el registro local sobre `almacen` (sin él, como en web: sin outbox).
+ */
+export function renderizar(ui: ReactElement, api: ApiForja = apiFalsa(), almacen: AlmacenRegistro | null = null) {
+  const abrirAlmacen = async () => almacen;
   const consultas = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity }, mutations: { retry: false, gcTime: Infinity } } });
   return render(
     <Marco>
       <QueryClientProvider client={consultas}>
-        <ProveedorSesion api={api}>{ui}</ProveedorSesion>
+        <ProveedorSesion api={api}>
+          <ProveedorSincronizacion abrirAlmacen={abrirAlmacen} escucharRed={sinRed}>
+            {ui}
+          </ProveedorSincronizacion>
+        </ProveedorSesion>
       </QueryClientProvider>
     </Marco>,
   );

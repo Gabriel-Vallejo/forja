@@ -13,10 +13,12 @@ import {
   calidadPlan,
   numeroDeOrden,
   esPrimeraSemana,
+  fechaCorta,
   prescripcion,
   seriesDe,
 } from '../plan/plan';
 import { RegenerarPlan } from '../plan/RegenerarPlan';
+import { useCargasSiguientes } from '../registro/sincronizacion';
 import { type Theme, useTheme } from '../theme';
 import { ConPlan } from './ConPlan';
 
@@ -26,17 +28,12 @@ const ALTO_DIA = 84;
 const DIAS_SIN_DESPLAZAR = 3;
 /** Algo menos que un tercio de la pantalla: la pestaña siguiente asoma por el borde y avisa de que la fila se desplaza. */
 const ANCHO_DIA_DESPLAZABLE = 112;
-const MESES = ['ene.', 'feb.', 'mar.', 'abr.', 'may.', 'jun.', 'jul.', 'ago.', 'sep.', 'oct.', 'nov.', 'dic.'];
-
-const fechaCorta = (iso: string) => {
-  const f = new Date(iso);
-  return `${f.getDate()} ${MESES[f.getMonth()] ?? ''}`;
-};
 
 function Plan({ plan }: { plan: PlanActual }) {
   const router = useRouter();
   const tema = useTheme();
   const estilos = crearEstilos(tema);
+  const cargas = useCargasSiguientes(plan);
   const [elegido, setElegido] = useState(plan.diaDeHoy);
   const dia = plan.dias.find((d) => d.dia === elegido) ?? plan.dias[0];
   const primeraSemana = esPrimeraSemana(plan);
@@ -98,7 +95,7 @@ function Plan({ plan }: { plan: PlanActual }) {
                 primera={i === 0}
                 numero={numeroDeOrden(i)}
                 nombre={e.nombre}
-                prescripcion={prescripcion(e)}
+                prescripcion={prescripcion(e, cargas.get(e.idExterno))}
                 nota={e.primeraSesion ? undefined : e.motivo}
                 alPulsar={() => router.push({ pathname: '/ejercicio', params: { dia: String(dia.dia), id: e.idExterno } })}
               />

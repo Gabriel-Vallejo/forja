@@ -11,6 +11,7 @@ export const almacenTokens: AlmacenTokens = {
   leerAcceso: noDisponible,
   leerRefresco: async () => noDisponible(),
   leerDispositivo: async () => noDisponible(),
+  leerUsuario: async () => noDisponible(),
   guardar: async () => noDisponible(),
   borrar: async () => noDisponible(),
 };

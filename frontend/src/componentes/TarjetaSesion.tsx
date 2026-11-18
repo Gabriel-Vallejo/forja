@@ -24,10 +24,12 @@ interface PropsTarjetaSesion {
   cuerpo?: readonly Musculo[];
   /** Sin él, la tarjeta es la de un día siguiente: apagada y sin botón. */
   alEmpezar?: () => void;
+  /** «Continuar sesión» si ya hay una en curso. */
+  etiquetaEmpezar?: string;
 }
 
 /** Tarjeta de la semana en Hoy (boceto Hoy.dc.html). */
-export function TarjetaSesion({ cuando, etiqueta, titulo, datos, musculos = [], cuerpo = [], alEmpezar }: PropsTarjetaSesion) {
+export function TarjetaSesion({ cuando, etiqueta, titulo, datos, musculos = [], cuerpo = [], alEmpezar, etiquetaEmpezar = 'Empezar sesión' }: PropsTarjetaSesion) {
   const tema = useTheme();
   const estilos = crearEstilos(tema);
   const hoy = alEmpezar !== undefined;
@@ -49,7 +51,7 @@ export function TarjetaSesion({ cuando, etiqueta, titulo, datos, musculos = [], 
         <Texto estilo="hero" tono={hoy ? 'principal' : 'secundario'}>{titulo}</Texto>
         {datos ? <Texto estilo="data" tono="secundario">{datos}</Texto> : null}
         <Chips textos={musculos} />
-        {alEmpezar ? <Boton etiqueta="Empezar sesión" icono="play" grande onPress={alEmpezar} /> : null}
+        {alEmpezar ? <Boton etiqueta={etiquetaEmpezar} icono="play" grande onPress={alEmpezar} /> : null}
       </View>
     </View>
   );

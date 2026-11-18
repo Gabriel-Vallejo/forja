@@ -13,12 +13,17 @@ export function usePlanActual() {
 
 export type Dia = PlanActual['dias'][number];
 
-const pesoCorporal = (e: ObjetivoEjercicio) => e.incrementoKg === 0;
+export const pesoCorporal = (e: ObjetivoEjercicio) => e.incrementoKg === 0;
 
-export function prescripcion(e: ObjetivoEjercicio): string {
+/** Kilos con coma decimal: «82,5». */
+export const kilos = (kg: number) => String(kg).replace('.', ',');
+
+/** «4 × 6-10 · RIR 2 · 80 kg»; `cargaSiguiente` (la calculada sin red tras la última sesión) manda sobre la del plan. */
+export function prescripcion(e: ObjetivoEjercicio, cargaSiguiente?: number): string {
   const base = `${e.series} × ${e.repeticionesMin}-${e.repeticionesMax} · RIR ${e.rirObjetivo}`;
   if (pesoCorporal(e)) return `${base} · tu peso`;
-  return e.cargaKg === undefined ? base : `${base} · ${e.cargaKg} kg`;
+  const carga = cargaSiguiente ?? e.cargaKg;
+  return carga === undefined ? base : `${base} · ${kilos(carga)} kg`;
 }
 
 export const seriesDe = (dia: Dia) => dia.ejercicios.reduce((total, e) => total + e.series, 0);
@@ -50,3 +55,10 @@ export const diaDeLaSemana = (fecha: Date) => DIAS[fecha.getDay()] ?? '';
 
 const dosCifras = (n: number) => String(n).padStart(2, '0');
 export const numeroDeOrden = (indice: number) => dosCifras(indice + 1);
+
+const MESES = ['ene.', 'feb.', 'mar.', 'abr.', 'may.', 'jun.', 'jul.', 'ago.', 'sep.', 'oct.', 'nov.', 'dic.'];
+/** «18 nov.» a partir de una fecha ISO o de milisegundos. */
+export const fechaCorta = (fecha: string | number) => {
+  const f = new Date(fecha);
+  return `${f.getDate()} ${MESES[f.getMonth()] ?? ''}`;
+};

@@ -9,6 +9,8 @@ export type VarianteBoton = 'principal' | 'secundario' | 'texto';
 
 interface PropsBoton {
   etiqueta: string;
+  /** Para el lector de pantalla cuando el texto visible es corto y hace falta contexto («Corregir» → «Corregir serie 2 de Remo»). */
+  etiquetaAccesible?: string;
   onPress: () => void;
   variante?: VarianteBoton;
   deshabilitado?: boolean;
@@ -26,6 +28,7 @@ const ICONO = 18;
 /** Botón de Crimson Ink (docs/design-system.md §5.1). Solo un principal por zona. */
 export function Boton({
   etiqueta,
+  etiquetaAccesible,
   onPress,
   variante = 'principal',
   deshabilitado = false,
@@ -42,7 +45,7 @@ export function Boton({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={visible}
+      accessibilityLabel={cargando ? visible : (etiquetaAccesible ?? visible)}
       accessibilityState={{ disabled: inactivo, busy: cargando }}
       disabled={inactivo}
       onPress={onPress}

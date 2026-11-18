@@ -9,7 +9,7 @@ import { MiPlan } from './MiPlan';
 import { Perfil } from './Perfil';
 
 const mockRouter = { replace: jest.fn(), push: jest.fn(), back: jest.fn(), navigate: jest.fn() };
-jest.mock('expo-router', () => ({ useRouter: () => mockRouter }));
+jest.mock('expo-router', () => ({ useRouter: () => mockRouter, useFocusEffect: (efecto: () => void) => jest.requireActual('react').useEffect(efecto, [efecto]) }));
 
 beforeEach(() => jest.clearAllMocks());
 

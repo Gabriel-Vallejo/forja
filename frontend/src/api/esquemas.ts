@@ -204,3 +204,10 @@ export type Material = z.infer<typeof esquemaMateriales>[number];
 export type SolicitudRegistro = Required<Esquemas['Registro']>;
 export type SolicitudRutina = Esquemas['SolicitudRutina'];
 export type Plataforma = NonNullable<Esquemas['Login']['plataforma']>;
+
+/** Cuerpo de `PUT /sesiones/{uuid}`: la sesión entera, con todas sus series (correcciones y anulaciones incluidas). */
+export type SesionEntrada = Esquemas['SesionEntrada'];
+export type SerieEntrada = Esquemas['SerieEntrada'];
+
+/** De la respuesta solo hace falta saber que el servidor guardó esa sesión: lo demás ya está en el móvil. */
+export const esquemaSesionGuardada = z.object({ uuid: z.uuid() }) satisfies z.ZodType<Esquemas['SesionVista']>;

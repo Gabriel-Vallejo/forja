@@ -11,6 +11,7 @@ import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
 import { etiquetaMusculo } from '../plan/musculos';
 import { NOMBRE_ESTADO, numeroDeOrden, prescripcion } from '../plan/plan';
+import { useCargasSiguientes } from '../registro/sincronizacion';
 import { type Theme, useTheme } from '../theme';
 import { ConPlan } from './ConPlan';
 
@@ -26,6 +27,7 @@ function Detalle({ plan, dia, idExterno }: PropsEjercicio & { plan: PlanActual }
   const router = useRouter();
   const tema = useTheme();
   const estilos = crearEstilos(tema);
+  const cargas = useCargasSiguientes(plan);
   const ejercicios = plan.dias.find((d) => d.dia === dia)?.ejercicios ?? [];
   const indice = ejercicios.findIndex((e) => e.idExterno === idExterno);
   const e = ejercicios[indice];
@@ -37,7 +39,7 @@ function Detalle({ plan, dia, idExterno }: PropsEjercicio & { plan: PlanActual }
       <View style={estilos.ficha}>
         <View style={estilos.fichaTextos}>
           <Texto estilo="ejercicio" encabezado>{e.nombre.toUpperCase()}</Texto>
-          <Texto estilo="data" tono="secundario">{prescripcion(e)}</Texto>
+          <Texto estilo="data" tono="secundario">{prescripcion(e, cargas.get(e.idExterno))}</Texto>
           <Chips textos={e.musculos.map(etiquetaMusculo)} />
         </View>
         <CuerpoDoble musculos={e.musculos} ancho={ANCHO_CUERPO} />

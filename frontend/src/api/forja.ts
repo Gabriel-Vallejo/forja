@@ -1,6 +1,6 @@
 import type { AlmacenTokens } from '../sesion/almacenTokens';
 import type { ClienteApi } from './cliente';
-import { ErrorApi } from './errores';
+import { ErrorApi, RESPUESTA_INESPERADA } from './errores';
 import {
   type DatosRestriccion,
   type EfectoEjercicio,
@@ -31,6 +31,8 @@ import {
   type PerfilEntreno,
   esquemaMateriales,
   esquemaPerfilEntreno,
+  esquemaSesionGuardada,
+  type SesionEntrada,
 } from './esquemas';
 
 const NO_ENCONTRADO = 404;
@@ -73,6 +75,10 @@ export interface ApiForja {
   actualizarRestriccion(uuid: string, datos: DatosRestriccion): Promise<Restriccion>;
   borrarRestriccion(uuid: string): Promise<void>;
   efectoRestricciones(): Promise<EfectoEjercicio[]>;
+  /** Upsert idempotente de una sesión del outbox (ADR 0008 §2): reenviar lo mismo no duplica nada. */
+  guardarSesion(uuid: string, sesion: SesionEntrada): Promise<void>;
+  /** `sub` del token guardado: de quién son las sesiones que se envían. Null sin sesión iniciada. */
+  usuarioActual(): Promise<string | null>;
   alCaducar(oyente: () => void): () => void;
 }
 
@@ -170,6 +176,18 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
       await cliente.pedir({ metodo: 'DELETE', ruta: `/api/v1/restricciones/${uuid}` });
     },
     efectoRestricciones: () => cliente.pedir({ ruta: '/api/v1/restricciones/efecto', esquema: esquemaEfecto }),
+    async guardarSesion(uuid, sesion) {
+      const guardada = await cliente.pedir({
+        metodo: 'PUT',
+        ruta: `/api/v1/sesiones/${encodeURIComponent(uuid)}`,
+        cuerpo: sesion,
+        esquema: esquemaSesionGuardada,
+      });
+      if (guardada.uuid !== uuid) {
+        throw new ErrorApi(200, RESPUESTA_INESPERADA);
+      }
+    },
+    usuarioActual: () => almacen.leerUsuario(),
     alCaducar: (oyente) => cliente.alCaducar(oyente),
   };
 }

@@ -12,6 +12,7 @@ const ICONOS = {
   cerrar: [{ d: 'M6 6l12 12M18 6L6 18' }],
   girar: [{ d: 'M20 12a8 8 0 1 1-3-6.2' }, { d: 'M20 4v5h-5' }],
   mas: [{ d: 'M12 5v14M5 12h14' }],
+  menos: [{ d: 'M5 12h14' }],
   check: [{ d: 'M5 12l5 5 9-10' }],
   enviar: [{ d: 'M4 12l16-8-6 16-2-7z' }],
   info: [{ circulo: [12, 12, 9] }, { d: 'M12 11v5M12 8h.01' }],
