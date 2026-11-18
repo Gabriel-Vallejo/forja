@@ -23,12 +23,13 @@ export function useDispositivos() {
 /** Retira un consentimiento; con `limitaciones` deja la caché sin lo que el backend borra (RF-46). */
 export function useRetirarConsentimiento() {
   const { api } = useSesion();
+  const { outbox } = useSincronizacion();
   const consultas = useQueryClient();
   return useMutation({
     mutationFn: (tipo: TipoConsentimiento) => api.retirarConsentimiento(tipo),
     onSuccess: (_, tipo) =>
       tipo === 'limitaciones'
-        ? olvidarLimitaciones(consultas)
+        ? olvidarLimitaciones(consultas, outbox)
         : tipo === 'medidas_salud'
           ? olvidarMovilidad(consultas)
           : consultas.invalidateQueries({ queryKey: CLAVE_CONSENTIMIENTOS }),

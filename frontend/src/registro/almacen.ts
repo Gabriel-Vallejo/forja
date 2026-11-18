@@ -92,6 +92,8 @@ export interface AlmacenRegistro {
   guardarPlan(plan: PlanGuardado): Promise<void>;
   leerPlan(usuario: string): Promise<PlanGuardado | null>;
   borrarPlan(usuario: string): Promise<void>;
+  /** Retirar el consentimiento de limitaciones: el dolor (dato de salud) de sus series deja de existir en el móvil. Es la única escritura sobre una serie ya guardada. */
+  olvidarDolor(usuario: string): Promise<void>;
 }
 
 /** Borra todo lo local de un usuario: sus sesiones (con series y cargas) y su plan guardado. Lo de otros no se toca. */

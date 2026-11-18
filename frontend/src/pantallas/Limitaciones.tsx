@@ -16,6 +16,7 @@ import { ESTADOS, LADOS, ORIGENES, PATRONES, REGIONES, TIPOS } from '../limitaci
 import { CLAVE_EFECTO, CLAVE_RESTRICCIONES, olvidarLimitaciones, useBloqueoSalud, useRestricciones } from '../limitaciones/consultas';
 import { MAXIMO_POR_USUARIO } from '../limitaciones/restriccion';
 import { FINALIDAD, NOTA_PLAN } from '../limitaciones/textos';
+import { useSincronizacion } from '../registro/sincronizacion';
 import { useSesion } from '../sesion/sesion';
 import { type Theme, useTheme } from '../theme';
 import { ConConsentimiento } from './ConConsentimiento';
@@ -112,12 +113,13 @@ function ListaLimitaciones({ restricciones }: { restricciones: Restriccion[] }) 
 
 function RetirarConsentimiento({ cuantas }: { cuantas: number }) {
   const { api } = useSesion();
+  const { outbox } = useSincronizacion();
   const consultas = useQueryClient();
   const [confirmando, setConfirmando] = useState(false);
   const retirar = useMutation({
     mutationFn: () => api.retirarConsentimientoLimitaciones(),
     // El backend borra las limitaciones y el bloqueo al retirarlo (RF-46): fuera de la memoria también.
-    onSuccess: () => olvidarLimitaciones(consultas),
+    onSuccess: () => olvidarLimitaciones(consultas, outbox),
   });
 
   if (!confirmando) {

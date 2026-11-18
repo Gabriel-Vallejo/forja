@@ -188,5 +188,8 @@ export async function crearAlmacenSqlite(base: BaseSqlite): Promise<AlmacenRegis
     async borrarPlan(usuario) {
       await base.runAsync('DELETE FROM plan_guardado WHERE usuario = ?', [usuario]);
     },
+    async olvidarDolor(usuario) {
+      await base.runAsync('UPDATE serie SET dolor = NULL WHERE sesion IN (SELECT uuid FROM sesion WHERE usuario = ?)', [usuario]);
+    },
   };
 }

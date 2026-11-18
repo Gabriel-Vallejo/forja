@@ -13,7 +13,7 @@
 # Referencias de posicion_estirada (ADR 0007, regla 3):
 #   [Maeo 2021]  Maeo S et al., Med Sci Sports Exerc 2021, PMID 33009197: curl femoral sentado frente a tumbado.
 #   [Maeo 2023a] Maeo S et al., Eur J Sport Sci 2023, PMID 35819335: tríceps con el brazo por encima de la cabeza.
-#   [Maeo 2023b] Maeo S et al., Front Physiol 2023, PMID 38156065: gemelo de pie frente a sentado.
+#   [Kinoshita 2023] Kinoshita M et al., Front Physiol 2023, PMID 38156065: gemelo de pie frente a sentado.
 #   [Kassiano 2026] Kassiano W et al., J Strength Cond Res 2026, PMID 41379528: extensión de rodilla y recto femoral.
 #   [Curl 2026]  J Sports Sci 2026, PMID 42829982: curl inclinado frente a predicador (bíceps +22,1 % vs +18,9 %).
 #   [Pedrosa 2026] Pedrosa y cols., Sports Med Int Open 2026, PMID 41777276: la ventaja de las longitudes largas
@@ -108,9 +108,9 @@ ejercicios:
   - {id: Glute_Ham_Raise, nombre_es: Elevación glúteo-isquio (GHR), patron: aislamiento_pierna, mecanica: compuesto, familia_sustitucion: curl_femoral, implemento: maquina, agarre: ninguno, musculos_primarios: [isquiotibiales], musculos_secundarios: [gluteos, gemelos, lumbares], regiones: [cadera, rodilla]}
 
   # --- gemelo ---
-  - {id: Standing_Calf_Raises, nombre_es: Elevación de talones de pie en máquina, patron: aislamiento_pierna, mecanica: aislamiento, familia_sustitucion: gemelo, implemento: maquina, carga_axial: true, posicion_estirada: true, musculos_primarios: [gemelos], musculos_secundarios: []}  # fuente: [Maeo 2023b], de pie (rodilla extendida) > sentado
+  - {id: Standing_Calf_Raises, nombre_es: Elevación de talones de pie en máquina, patron: aislamiento_pierna, mecanica: aislamiento, familia_sustitucion: gemelo, implemento: maquina, carga_axial: true, posicion_estirada: true, musculos_primarios: [gemelos], musculos_secundarios: []}  # fuente: [Kinoshita 2023], de pie (rodilla extendida) > sentado
   - {id: Seated_Calf_Raise, nombre_es: Elevación de talones sentado, patron: aislamiento_pierna, mecanica: aislamiento, familia_sustitucion: gemelo, implemento: maquina, musculos_primarios: [gemelos], musculos_secundarios: []}
-  - {id: Standing_Dumbbell_Calf_Raise, nombre_es: Elevación de talones de pie con mancuernas, patron: aislamiento_pierna, mecanica: aislamiento, familia_sustitucion: gemelo, implemento: mancuerna, carga_axial: true, agarre: ligero, posicion_estirada: true, musculos_primarios: [gemelos], musculos_secundarios: []}  # fuente: [Maeo 2023b], misma postura de rodilla extendida
+  - {id: Standing_Dumbbell_Calf_Raise, nombre_es: Elevación de talones de pie con mancuernas, patron: aislamiento_pierna, mecanica: aislamiento, familia_sustitucion: gemelo, implemento: mancuerna, carga_axial: true, agarre: ligero, posicion_estirada: true, musculos_primarios: [gemelos], musculos_secundarios: []}  # fuente: [Kinoshita 2023], misma postura de rodilla extendida
 
   # --- bíceps ---
   - {id: Barbell_Curl, nombre_es: Curl con barra, patron: aislamiento_brazo, mecanica: aislamiento, familia_sustitucion: curl_biceps, implemento: barra, agarre: ligero, musculos_primarios: [biceps], musculos_secundarios: [antebrazos]}

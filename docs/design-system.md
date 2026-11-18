@@ -1,6 +1,6 @@
 # Sistema de diseño de Forja
 
-Forja usa **Crimson Ink**, el sistema de diseño de Gabriel (negro tinta y carmesí, de Trucha OS). Este documento lo aterriza en la app: tokens, contraste, componentes con sus estados y voz. Los tokens viven en un único `frontend/theme.ts` (§4). Oscuro por defecto.
+Forja usa **Crimson Ink**, el sistema de diseño de Gabriel (negro tinta y carmesí, de Trucha OS). Este documento lo aterriza en la app: tokens, contraste, componentes con sus estados y voz. Los tokens viven en un único `frontend/src/theme.ts` (§4). Oscuro por defecto.
 
 **Fuente:** [Crimson Ink](https://claude.ai/artifact/8aiPpZtQid9ygULcBXvm91) (`project/tokens.json` y `project/README.md`, leídos el 2026-11-16). Todo valor sin etiqueta sale de ahí. Lo que Crimson Ink no define y propone Forja va marcado **[propuesta]**. Crimson Ink no define movimiento, iconografía de la app, estados de componentes ni colores de estado del tema claro: todo eso es propuesta de este documento.
 
@@ -193,12 +193,12 @@ Reglas: solo se anima `opacity` y `transform`. Con «reducir movimiento» del si
 
 Crimson Ink no define un set de iconos de interfaz; solo dos assets de marca (`trucha-os.svg`, `truchi.svg`; no se recolorean) y el kanji de acento (鱒 la firma; por sección en apps, p. ej. 服 armario, 寸 medidas). Para Forja **[propuesta]**: un único set de iconos de trazo (24 px, trazo 2 px, esquinas redondeadas) en `on-background` o `on-surface-variant`; los de estado en el color del estado. Los kanji de sección de Forja se proponen en su día; no hay ninguno decidido todavía. Truchi (la mascota) solo en estados vacíos, cargas y ayudas, **nunca en avisos de bandera roja**.
 
-## 4. Volcado a `frontend/theme.ts`
+## 4. Volcado a `frontend/src/theme.ts`
 
 Ejemplo del objeto (el archivo no existe todavía; lo crea la fase de frontend). Nombres de tokens en `camelCase`; valores de Crimson Ink salvo lo marcado.
 
 ```ts
-// frontend/theme.ts: único sitio con valores de diseño (Crimson Ink)
+// frontend/src/theme.ts: único sitio con valores de diseño (Crimson Ink)
 const base = {
   space: { s1: 4, s2: 8, s4: 16, s6: 24, s12: 48 },
   radius: { sm: 6, md: 12, xl: 112 },

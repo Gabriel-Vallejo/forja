@@ -63,7 +63,7 @@ Son las fuentes que cita `database/catalogo/curado.yaml` para marcar `posicion_e
 
 **Kinoshita M, et al. (2023).** Triceps surae muscle hypertrophy is greater after standing versus seated calf-raise training. *Front Physiol* 14:1272106. [doi:10.3389/fphys.2023.1272106](https://doi.org/10.3389/fphys.2023.1272106) · PMID 38156065.
 
-- **Uso en Forja:** elevación de talones de pie frente a sentado. Nivel B. `curado.yaml` lo cita como «Maeo 2023b», pero el primer autor es Kinoshita.
+- **Uso en Forja:** elevación de talones de pie frente a sentado. Nivel B.
 
 **Kobayashi Y, et al. (2026).** Exercise-specific preferential hypertrophy of individual elbow flexor muscles after incline versus preacher dumbbell curl training. *J Sports Sci* 44(23):3288-3301. [doi:10.1080/02640414.2026.2741751](https://doi.org/10.1080/02640414.2026.2741751) · PMID 42829982.
 

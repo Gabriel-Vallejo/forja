@@ -245,6 +245,15 @@ describe('outbox del registro', () => {
     expect(await outbox.planGuardado()).toBeNull();
   });
 
+  test('olvidar el dolor deja sin dolor las series del usuario actual y no toca lo demás', async () => {
+    const mia = await outbox.empezarSesion();
+    await outbox.registrarSerie(mia.uuid, serie({ dolor: 7 }));
+
+    await outbox.olvidarDolor();
+
+    expect((await almacen.listarSeries(mia.uuid))[0]).toMatchObject({ dolor: null, repeticiones: 10 });
+  });
+
   test('borrar los datos de una cuenta no toca lo de otra, aunque ya no haya sesión iniciada', async () => {
     const mia = await outbox.empezarSesion();
     await outbox.registrarSerie(mia.uuid, serie());

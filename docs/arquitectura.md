@@ -548,7 +548,7 @@ Prefijo `/api/v1`. Es la tabla de CONTEXT §1.7 con los cambios de los ADR 0003,
 | `DELETE /cuenta` | con la contraseña otra vez; borra en cascada | 0009 |
 | `POST /worker/trabajos/reclamar` | trabajo + `lease_token`; solo con token de worker | 0003 |
 | `POST /worker/trabajos/{id}/renovar` · `POST /worker/trabajos/{id}/resultado` · `POST /worker/latido` | **[propuesta]**: el ADR describe la renovación, la entrega y el latido sin darles ruta | 0003 |
-| Entrada de limitaciones, confirmación de restricciones, tests de movilidad y consentimiento | sin ruta en ningún ADR **[propuesta: `/perfil/limitaciones`, `/perfil/restricciones`, `/perfil/movilidad`, `/consentimientos`]** | 0004, 0007 |
+| Entrada de limitaciones, confirmación de restricciones, tests de movilidad y consentimiento | `/cribado`, `/cribado/preguntas`, `/banderas`, `/banderas/estado`, `/restricciones`, `/restricciones/efecto`, `/movilidad`, `/consentimientos` (ver `docs/api/openapi.json`) | 0004, 0007 |
 
 ## 6. Transversal
 

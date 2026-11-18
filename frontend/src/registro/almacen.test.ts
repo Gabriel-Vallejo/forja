@@ -169,6 +169,18 @@ describe.each(implementaciones)('almacén del registro %s', (_nombre, crear) => 
     expect(await almacen.leerPlan(B)).not.toBeNull();
   });
 
+  test('olvidar el dolor de un usuario lo deja vacío en sus series y no toca lo demás ni a otros', async () => {
+    await almacen.insertarSesion(sesion('a1', { estado: 'pendiente' }));
+    await almacen.insertarSesion(sesion('b1', { usuario: B }));
+    await almacen.insertarSerie(serie('xa', 'a1', { dolor: 6 }));
+    await almacen.insertarSerie(serie('xb', 'b1', { dolor: 4 }));
+
+    await almacen.olvidarDolor(A);
+
+    expect((await almacen.listarSeries('a1'))[0]).toMatchObject({ dolor: null, pesoKg: 80.5, repeticiones: 8 });
+    expect((await almacen.listarSeries('b1'))[0]!.dolor).toBe(4);
+  });
+
   test('lo que devuelve es una copia: tocarla no cambia lo guardado', async () => {
     await almacen.insertarSesion(sesion('s1'));
     const leida = (await almacen.leerSesion('s1'))!;

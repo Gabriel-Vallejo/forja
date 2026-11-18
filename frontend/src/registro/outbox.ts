@@ -67,6 +67,8 @@ export interface Outbox {
   cargasSiguientes(): Promise<Map<string, number>>;
   /** Borra lo local de una cuenta ya eliminada (sesiones pendientes o rechazadas, series, cargas y plan). Recibe el usuario porque al borrar la cuenta ya no hay sesión de la que leerlo. */
   borrarDatosDe(usuario: string): Promise<void>;
+  /** Al retirar el consentimiento de limitaciones: el dolor de las series del usuario actual se borra del móvil. */
+  olvidarDolor(): Promise<void>;
   /** Con un plan recién leído del servidor, manda el servidor: borra las cargas locales que ya no valen. */
   conciliarConPlan(plan: PlanActual): Promise<void>;
   /** Guarda el plan recién leído del servidor para entrenar sin red; null (no hay plan) borra el guardado. */
@@ -285,6 +287,11 @@ export function crearOutbox({ almacen, usuarioActual, reloj = Date.now, nuevoId 
     },
 
     borrarDatosDe: (usuario) => borrarDatosDeUsuario(almacen, usuario),
+
+    async olvidarDolor() {
+      const usuario = await usuarioActual();
+      if (usuario) await almacen.olvidarDolor(usuario);
+    },
 
     async conciliarConPlan(plan) {
       const usuario = await usuarioActual();

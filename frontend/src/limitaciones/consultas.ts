@@ -16,7 +16,9 @@ const CLAVE_PREGUNTAS = [...CLAVE_LIMITACIONES, 'preguntas'] as const;
  * Tras retirar el consentimiento de limitaciones el backend borra restricciones, bloqueo y dolor guardado (RF-46):
  * lo mismo en la caché, para no enseñar datos que ya no existen.
  */
-export function olvidarLimitaciones(consultas: QueryClient): Promise<void> {
+/** Con `outbox` (solo en el móvil) borra también el dolor de las series guardadas en el móvil. */
+export async function olvidarLimitaciones(consultas: QueryClient, outbox?: { olvidarDolor(): Promise<void> } | null): Promise<void> {
+  await outbox?.olvidarDolor();
   consultas.setQueryData(CLAVE_CONSENTIMIENTO, false);
   consultas.removeQueries({ queryKey: CLAVE_RESTRICCIONES });
   consultas.removeQueries({ queryKey: CLAVE_EFECTO });

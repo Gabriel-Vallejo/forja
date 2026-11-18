@@ -63,5 +63,9 @@ export function crearAlmacenMemoria(): AlmacenRegistro {
     async borrarPlan(usuario) {
       planes.delete(usuario);
     },
+    async olvidarDolor(usuario) {
+      const suyas = new Set([...sesiones.values()].filter((s) => s.usuario === usuario).map((s) => s.uuid));
+      for (const [clave, s] of series) if (suyas.has(s.sesion)) series.set(clave, { ...s, dolor: null });
+    },
   };
 }
