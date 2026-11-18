@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { TipoConsentimiento } from '../api/esquemas';
 import { olvidarLimitaciones } from '../limitaciones/consultas';
+import { olvidarMovilidad } from '../movilidad/consultas';
 import { useSincronizacion } from '../registro/sincronizacion';
 import { useSesion } from '../sesion/sesion';
 import { esTipoConocido } from './catalogo';
@@ -26,7 +27,11 @@ export function useRetirarConsentimiento() {
   return useMutation({
     mutationFn: (tipo: TipoConsentimiento) => api.retirarConsentimiento(tipo),
     onSuccess: (_, tipo) =>
-      tipo === 'limitaciones' ? olvidarLimitaciones(consultas) : consultas.invalidateQueries({ queryKey: CLAVE_CONSENTIMIENTOS }),
+      tipo === 'limitaciones'
+        ? olvidarLimitaciones(consultas)
+        : tipo === 'medidas_salud'
+          ? olvidarMovilidad(consultas)
+          : consultas.invalidateQueries({ queryKey: CLAVE_CONSENTIMIENTOS }),
   });
 }
 

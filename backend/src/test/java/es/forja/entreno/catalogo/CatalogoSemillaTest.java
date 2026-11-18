@@ -57,7 +57,7 @@ class CatalogoSemillaTest {
 		assertThat(Arrays.stream(aplicadas).map(m -> m.getScript()))
 				.containsExactlyInAnyOrder("V1__catalogo_ejercicios.sql", "V2__cuenta.sql",
 						"V3__consentimiento_y_restricciones.sql", "V4__plan_y_sesiones.sql", "V5__bloqueo_por_bandera.sql",
-						"V6__perfil_entreno.sql",
+						"V6__perfil_entreno.sql", "V7__test_movilidad.sql",
 						"R__catalogo_semilla.sql");
 		assertThat(flyway.info().pending()).isEmpty();
 	}

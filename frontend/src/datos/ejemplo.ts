@@ -128,7 +128,6 @@ export const PERFIL = {
   resumen: 'Fuerza e hipertrofia · desde nov. 2026',
   entreno: [
     { etiqueta: 'Objetivo', valor: 'Fuerza e hipertrofia' },
-    { etiqueta: 'Tests de movilidad', valor: 'Pendientes', pendiente: true },
   ],
   personaliza: [
     { etiqueta: 'Tema', valor: 'Oscuro' },

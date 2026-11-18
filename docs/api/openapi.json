@@ -268,6 +268,20 @@
         },
         "type" : "object"
       },
+      "Movilidad" : {
+        "properties" : {
+          "cadera" : {
+            "$ref" : "#/components/schemas/ResultadoMovilidad"
+          },
+          "hombro" : {
+            "$ref" : "#/components/schemas/ResultadoMovilidad"
+          },
+          "tobillo" : {
+            "$ref" : "#/components/schemas/ResultadoMovilidad"
+          }
+        },
+        "type" : "object"
+      },
       "MusculoEjercicio" : {
         "properties" : {
           "grupo" : {
@@ -762,6 +776,18 @@
         },
         "type" : "object"
       },
+      "ResultadoMovilidad" : {
+        "properties" : {
+          "hechoEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "tramo" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "SerieEntrada" : {
         "properties" : {
           "anulada" : {
@@ -1082,6 +1108,20 @@
           }
         },
         "required" : [ "token" ],
+        "type" : "object"
+      },
+      "TramosMovilidad" : {
+        "properties" : {
+          "cadera" : {
+            "type" : "string"
+          },
+          "hombro" : {
+            "type" : "string"
+          },
+          "tobillo" : {
+            "type" : "string"
+          }
+        },
         "type" : "object"
       },
       "VolumenMusculo" : {
@@ -1524,6 +1564,50 @@
           }
         },
         "tags" : [ "cuenta-controlador" ]
+      }
+    },
+    "/api/v1/movilidad" : {
+      "get" : {
+        "operationId" : "obtener_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Movilidad"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "movilidad-controlador" ]
+      },
+      "put" : {
+        "operationId" : "guardar_2",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TramosMovilidad"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Movilidad"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "movilidad-controlador" ]
       }
     },
     "/api/v1/perfil/entreno" : {

@@ -13,6 +13,7 @@ import { Texto } from '../componentes/Texto';
 import { PERFIL, RACHA, RANGO_GLOBAL } from '../datos/ejemplo';
 import { mensajeDeError } from '../api/errores';
 import { useResumenLimitaciones } from '../limitaciones/consultas';
+import { useResumenMovilidad } from '../movilidad/consultas';
 import { useResumenPrivacidad } from '../privacidad/consultas';
 import { resumenDiasYMinutos, resumenMaterial, usePerfilEntreno } from '../plan/ajustes';
 import { nombreRangoMayusculas } from '../rango/rango';
@@ -85,6 +86,7 @@ export function Perfil() {
   const cierre = useMutation({ mutationFn: salir });
   const g = RANGO_GLOBAL;
   const limitaciones = useResumenLimitaciones();
+  const movilidad = useResumenMovilidad();
   const ajustes = usePerfilEntreno();
   const privacidad = useResumenPrivacidad();
   const [objetivo, ...otras] = PERFIL.entreno;
@@ -103,6 +105,7 @@ export function Perfil() {
       ruta: RUTA_AJUSTES,
     },
     { etiqueta: 'Limitaciones', ...limitaciones, ruta: '/limitaciones' },
+    { etiqueta: 'Tests de movilidad', ...movilidad, ruta: '/movilidad' },
     ...otras,
   ];
   const estadisticas = [

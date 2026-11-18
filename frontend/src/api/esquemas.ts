@@ -229,3 +229,24 @@ export type SerieEntrada = Esquemas['SerieEntrada'];
 
 /** De la respuesta solo hace falta saber que el servidor guardó esa sesión: lo demás ya está en el móvil. */
 export const esquemaSesionGuardada = z.object({ uuid: z.uuid() }) satisfies z.ZodType<Esquemas['SesionVista']>;
+
+/** Los tres tests de movilidad (RF-08) y sus tramos, con los mismos códigos que el backend. */
+export const TESTS_MOVILIDAD = ['tobillo', 'cadera', 'hombro'] as const;
+export type TestMovilidad = (typeof TESTS_MOVILIDAD)[number];
+export const TRAMOS = ['limitado', 'medio', 'bueno'] as const;
+export type Tramo = (typeof TRAMOS)[number];
+
+const esquemaResultadoMovilidad = z.object({ tramo: z.enum(TRAMOS), hechoEn: z.iso.datetime() }) satisfies z.ZodType<
+  Esquemas['ResultadoMovilidad']
+>;
+
+/** `GET` y `PUT /movilidad`: un resultado por test; sin hacer, `undefined`. */
+export const esquemaMovilidad = z.object({
+  tobillo: opcional(esquemaResultadoMovilidad),
+  cadera: opcional(esquemaResultadoMovilidad),
+  hombro: opcional(esquemaResultadoMovilidad),
+}) satisfies z.ZodType<Esquemas['Movilidad']>;
+export type Movilidad = z.infer<typeof esquemaMovilidad>;
+
+/** Cuerpo de `PUT /movilidad`: reemplaza los tres; `null` deja ese test sin hacer. */
+export type TramosMovilidad = Record<TestMovilidad, Tramo | null>;

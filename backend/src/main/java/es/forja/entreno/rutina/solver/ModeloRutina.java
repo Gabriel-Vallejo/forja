@@ -55,6 +55,8 @@ final class ModeloRutina {
 	final IntVar[][] series;
 	final BoolVar[][] esta;
 	final IntVar[] exceso;
+	/** Puntos por serie que da el tramo de movilidad, por {@code idExterno} (ver {@link ReglasMovilidad}). */
+	final Map<String, Integer> movilidad;
 	final Map<String, IntVar> holguraVolumen = new TreeMap<>();
 	final Map<String, IntVar> holguraFrecuencia = new TreeMap<>();
 	final Map<String, BoolVar> faltaBasico = new TreeMap<>();
@@ -79,6 +81,7 @@ final class ModeloRutina {
 		this.esta = new BoolVar[ejercicios.size()][dias];
 		this.exceso = new IntVar[ejercicios.size()];
 		this.duracion = new LinearExprBuilder[dias];
+		this.movilidad = ReglasMovilidad.puntos(entrada.movilidad());
 		crearVariables();
 		restriccionesPorDia(exigirMinimosPorSesion);
 		equilibrio(exigirMinimosPorSesion);
@@ -86,7 +89,7 @@ final class ModeloRutina {
 		volumen();
 		frecuencia();
 		basicos();
-		cp.maximize(objetivo(Map.of(), Map.of()));
+		cp.maximize(objetivo(movilidad, Map.of()));
 	}
 
 	/** Todos los músculos que tocan los candidatos más los que tienen meta, ordenados. */
@@ -264,8 +267,8 @@ final class ModeloRutina {
 	}
 
 	/**
-	 * Objetivo a maximizar. {@code movilidad} y {@code palancas} son la puntuación por {@code idExterno}: aún no
-	 * hay datos, así que llegan vacías y con peso 0, sin inventar nada.
+	 * Objetivo a maximizar. {@code movilidad} y {@code palancas} son la puntuación por {@code idExterno}; de las
+	 * palancas aún no hay datos, así que llegan vacías y con peso 0, sin inventar nada.
 	 */
 	private LinearExprBuilder objetivo(Map<String, Integer> movilidad, Map<String, Integer> palancas) {
 		ConfiguracionRutina.Pesos p = config.pesos();

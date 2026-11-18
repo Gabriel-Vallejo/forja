@@ -11,7 +11,7 @@ public record ConfiguracionRutina(Pesos pesos, Volumen volumen, Basicos basicos,
 		Solver solver) {
 
 	/**
-	 * Pesos de cada término del objetivo; movilidad y palancas, a 0 hasta que existan sus datos.
+	 * Pesos de cada término del objetivo; palancas, a 0 hasta que existan sus datos (fase 2).
 	 *
 	 * @param serieHastaObjetivo premio por serie doble de un músculo hasta su volumen objetivo
 	 * @param serieSobreObjetivo penalización suave por serie doble por encima del objetivo (o de un músculo sin meta)

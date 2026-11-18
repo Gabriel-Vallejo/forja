@@ -1,8 +1,11 @@
 package es.forja.entreno.rutina.modelo;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import es.forja.entreno.movilidad.modelo.TestMovilidad;
+import es.forja.entreno.movilidad.modelo.Tramo;
 import es.forja.restricciones.modelo.Restriccion;
 
 /**
@@ -12,9 +15,11 @@ import es.forja.restricciones.modelo.Restriccion;
  * @param exclusiones {@code idExterno} de los ejercicios que no quiere
  * @param prioritarios códigos de músculo, como mucho {@value #MAXIMO_PRIORITARIOS}
  * @param restricciones las del usuario si tiene el consentimiento de limitaciones; si no, ninguna
+ * @param movilidad tramo de cada test hecho, si tiene el consentimiento de medidas de salud; si no, vacío
  */
 public record EntradaRutina(int dias, int minutos, Set<String> material, Set<String> exclusiones,
-		List<String> prioritarios, int frecuenciaMinima, List<Restriccion> restricciones) {
+		List<String> prioritarios, int frecuenciaMinima, List<Restriccion> restricciones,
+		Map<TestMovilidad, Tramo> movilidad) {
 
 	public static final int DIAS_MINIMOS = 2;
 	public static final int DIAS_MAXIMOS = 6;
@@ -34,6 +39,13 @@ public record EntradaRutina(int dias, int minutos, Set<String> material, Set<Str
 		exclusiones = Set.copyOf(exclusiones);
 		prioritarios = List.copyOf(prioritarios);
 		restricciones = List.copyOf(restricciones);
+		movilidad = Map.copyOf(movilidad);
+	}
+
+	/** Sin tests de movilidad. */
+	public EntradaRutina(int dias, int minutos, Set<String> material, Set<String> exclusiones,
+			List<String> prioritarios, int frecuenciaMinima, List<Restriccion> restricciones) {
+		this(dias, minutos, material, exclusiones, prioritarios, frecuenciaMinima, restricciones, Map.of());
 	}
 
 	private static void comprobar(boolean condicion, String mensaje) {

@@ -27,7 +27,7 @@ forja:
       holgura-frecuencia: 300     # por día que falta para la frecuencia mínima
       holgura-basicos: 500        # por patrón principal que falta en la semana
       desequilibrio-sesiones: 5   # por minuto entre la sesión más larga y la más corta
-      movilidad: 0                # sin datos todavía (tests de movilidad)
+      movilidad: 5                # por serie y punto de ReglasMovilidad (limitado ±2, medio ±1); heurística, nivel H
       palancas: 0                 # sin datos todavía (fase 2)
     volumen:
       # Heurística de entrenadores (RP), nivel H: ver docs/referencias.md.

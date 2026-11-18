@@ -21,7 +21,7 @@ public abstract class SoporteSesiones extends SoporteLimitaciones {
 	protected static final String RUTA_GENERAR = "/api/v1/rutinas/generar";
 	protected static final String RUTA_PLAN_ACTUAL = "/api/v1/planes/actual";
 	protected static final String RUTA_SESIONES = "/api/v1/sesiones";
-	private static final List<String> MATERIAL_COMPLETO = List.of("barra", "mancuerna", "maquina", "polea",
+	protected static final List<String> MATERIAL_COMPLETO = List.of("barra", "mancuerna", "maquina", "polea",
 			"peso_corporal", "kettlebell", "banda", "barra_ez", "balon_medicinal", "fitball", "rodillo", "otro");
 
 	/** Lo que el plan dice de un ejercicio para entrenar: el objetivo y la regla de la siguiente. */

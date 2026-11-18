@@ -37,10 +37,14 @@ import {
   esquemaSesionGuardada,
   type SesionEntrada,
   type TipoConsentimiento,
+  esquemaMovilidad,
+  type Movilidad,
+  type TramosMovilidad,
 } from './esquemas';
 
 const NO_ENCONTRADO = 404;
 const TIPO_LIMITACIONES = 'limitaciones';
+const TIPO_MEDIDAS = 'medidas_salud';
 
 export interface Dispositivo {
   nombre: string;
@@ -89,6 +93,13 @@ export interface ApiForja {
   cerrarDispositivo(id: string): Promise<void>;
   /** Pide la contraseña, borra la cuenta en el backend (en cascada) y la sesión local (RF-47). */
   borrarCuenta(contrasena: string): Promise<void>;
+  // Tests de movilidad (RF-08), con el consentimiento de medidas de salud (ADR 0004). Igual: solo en memoria.
+  tieneConsentimientoMedidas(): Promise<boolean>;
+  darConsentimientoMedidas(versionTexto: string): Promise<void>;
+  /** Borra también los tests de movilidad guardados (lo hace el backend). */
+  retirarConsentimientoMedidas(): Promise<void>;
+  movilidad(): Promise<Movilidad>;
+  guardarMovilidad(tramos: TramosMovilidad): Promise<Movilidad>;
   /** Upsert idempotente de una sesión del outbox (ADR 0008 §2): reenviar lo mismo no duplica nada. */
   guardarSesion(uuid: string, sesion: SesionEntrada): Promise<void>;
   /** `sub` del token guardado: de quién son las sesiones que se envían. Null sin sesión iniciada. */
@@ -98,6 +109,13 @@ export interface ApiForja {
 
 export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispositivo: Dispositivo): ApiForja {
   const leerPerfilEntreno = () => cliente.pedir({ ruta: '/api/v1/perfil/entreno', esquema: esquemaPerfilEntreno });
+  const tieneConsentimiento = async (tipo: string) => {
+    const consentimientos = await cliente.pedir({ ruta: '/api/v1/consentimientos', esquema: esquemaConsentimientos });
+    return consentimientos.some((c) => c.tipo === tipo);
+  };
+  const darConsentimiento = async (tipo: string, versionTexto: string) => {
+    await cliente.pedir({ metodo: 'POST', ruta: '/api/v1/consentimientos', cuerpo: { tipo, versionTexto } });
+  };
   const retirarConsentimiento = async (tipo: TipoConsentimiento) => {
     await cliente.pedir({ metodo: 'DELETE', ruta: `/api/v1/consentimientos/${tipo}` });
   };
@@ -166,18 +184,15 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
     materiales: () => cliente.pedir({ ruta: '/api/v1/catalogo/materiales', esquema: esquemaMateriales }),
     consentimientos: () => cliente.pedir({ ruta: '/api/v1/consentimientos', esquema: esquemaConsentimientos }),
     retirarConsentimiento,
-    async tieneConsentimientoLimitaciones() {
-      const consentimientos = await cliente.pedir({ ruta: '/api/v1/consentimientos', esquema: esquemaConsentimientos });
-      return consentimientos.some((c) => c.tipo === TIPO_LIMITACIONES);
-    },
-    async darConsentimientoLimitaciones(versionTexto) {
-      await cliente.pedir({
-        metodo: 'POST',
-        ruta: '/api/v1/consentimientos',
-        cuerpo: { tipo: TIPO_LIMITACIONES, versionTexto },
-      });
-    },
+    tieneConsentimientoLimitaciones: () => tieneConsentimiento(TIPO_LIMITACIONES),
+    darConsentimientoLimitaciones: (versionTexto) => darConsentimiento(TIPO_LIMITACIONES, versionTexto),
     retirarConsentimientoLimitaciones: () => retirarConsentimiento(TIPO_LIMITACIONES),
+    tieneConsentimientoMedidas: () => tieneConsentimiento(TIPO_MEDIDAS),
+    darConsentimientoMedidas: (versionTexto) => darConsentimiento(TIPO_MEDIDAS, versionTexto),
+    retirarConsentimientoMedidas: () => retirarConsentimiento(TIPO_MEDIDAS),
+    movilidad: () => cliente.pedir({ ruta: '/api/v1/movilidad', esquema: esquemaMovilidad }),
+    guardarMovilidad: (tramos) =>
+      cliente.pedir({ metodo: 'PUT', ruta: '/api/v1/movilidad', cuerpo: tramos, esquema: esquemaMovilidad }),
     preguntasCribado: () => cliente.pedir({ ruta: '/api/v1/cribado/preguntas', esquema: esquemaCuestionarioCribado }),
     cribar: (solicitud) =>
       cliente.pedir({ metodo: 'POST', ruta: '/api/v1/cribado', cuerpo: solicitud, esquema: esquemaResultadoCribado }),

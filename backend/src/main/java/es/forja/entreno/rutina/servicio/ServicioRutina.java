@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import es.forja.comun.api.ErrorNegocio;
 import es.forja.cuenta.servicio.LimitadorIntentos;
+import es.forja.entreno.movilidad.servicio.ServicioMovilidad;
 import es.forja.entreno.rutina.modelo.CatalogoRutina;
 import es.forja.entreno.rutina.modelo.EjercicioRutina;
 import es.forja.entreno.rutina.modelo.PlanRutina;
@@ -23,7 +24,8 @@ import es.forja.restricciones.servicio.ServicioRestricciones;
 
 /**
  * Genera la rutina del usuario autenticado. No guarda nada: de guardarla como versión se encarga {@code ServicioPlan} (ADR 0008). Las restricciones
- * solo entran si el usuario tiene el consentimiento de limitaciones (ADR 0004).
+ * solo entran si el usuario tiene el consentimiento de limitaciones, y los tests de movilidad si tiene el de medidas de
+ * salud (ADR 0004).
  */
 @Service
 public class ServicioRutina {
@@ -36,6 +38,7 @@ public class ServicioRutina {
 	private final LimitadorIntentos limitador;
 	private final GeneradorRutina generador;
 	private final ServicioBloqueo bloqueo;
+	private final ServicioMovilidad movilidad;
 
 	// shortcut: como el catálogo de ServicioEfecto, solo cambia al arrancar (Flyway); si se edita en caliente, invalidar aquí.
 	private volatile CatalogoRutina catalogo;
@@ -43,13 +46,14 @@ public class ServicioRutina {
 
 	public ServicioRutina(ServicioEfecto efecto, ServicioRestricciones restricciones,
 			CatalogoRutinaRepositorio repositorio, LimitadorIntentos limitador, GeneradorRutina generador,
-			ServicioBloqueo bloqueo) {
+			ServicioBloqueo bloqueo, ServicioMovilidad movilidad) {
 		this.efecto = efecto;
 		this.restricciones = restricciones;
 		this.repositorio = repositorio;
 		this.limitador = limitador;
 		this.generador = generador;
 		this.bloqueo = bloqueo;
+		this.movilidad = movilidad;
 	}
 
 	/** Con bandera roja o cribado urgente activos no se genera (409, sin gastar intento); si no, resolver cuesta CPU y gasta uno. */
@@ -59,7 +63,7 @@ public class ServicioRutina {
 		CatalogoRutina cargado = catalogo();
 		validarCodigos(solicitud, cargado);
 		List<Restriccion> suyas = restricciones.paraLaRutina(usuario);
-		return generador.generar(cargado, solicitud.aEntrada(suyas));
+		return generador.generar(cargado, solicitud.aEntrada(suyas, movilidad.paraLaRutina(usuario)));
 	}
 
 	/** Los curados del catálogo, con lo que mira el filtro y lo que necesita el modelo. */

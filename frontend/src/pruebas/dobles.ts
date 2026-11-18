@@ -92,6 +92,17 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
     actualizarRestriccion: jest.fn().mockResolvedValue(restriccion()),
     borrarRestriccion: jest.fn().mockResolvedValue(undefined),
     efectoRestricciones: jest.fn().mockResolvedValue([]),
+    tieneConsentimientoMedidas: jest.fn().mockResolvedValue(false),
+    darConsentimientoMedidas: jest.fn().mockResolvedValue(undefined),
+    retirarConsentimientoMedidas: jest.fn().mockResolvedValue(undefined),
+    movilidad: jest.fn().mockResolvedValue({}),
+    guardarMovilidad: jest.fn().mockImplementation(async (tramos: Record<string, string | null>) =>
+      Object.fromEntries(
+        Object.entries(tramos)
+          .filter(([, tramo]) => tramo !== null)
+          .map(([test, tramo]) => [test, { tramo, hechoEn: '2026-11-18T10:00:00Z' }]),
+      ),
+    ),
     guardarSesion: jest.fn().mockResolvedValue(undefined),
     usuarioActual: jest.fn().mockResolvedValue(USUARIO_ID),
     alCaducar: jest.fn().mockReturnValue(() => undefined),

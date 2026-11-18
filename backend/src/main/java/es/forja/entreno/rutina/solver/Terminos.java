@@ -57,10 +57,10 @@ final class Terminos {
 	 * del volumen objetivo de cada músculo, repartida según las series dobles que aporta.
 	 */
 	static Map<String, Long> contribucion(ConfiguracionRutina c, EjercicioRutina e, List<String> prioritarios,
-			int series, int diasDeMas, long volumen) {
+			Map<String, Integer> movilidad, int series, int diasDeMas, long volumen) {
 		Pesos p = c.pesos();
 		Map<String, Long> contribucion = new LinkedHashMap<>();
-		porTermino(c, e, prioritarios, Map.of(), Map.of()).forEach((t, v) -> contribucion.put(t, v * series));
+		porTermino(c, e, prioritarios, movilidad, Map.of()).forEach((t, v) -> contribucion.put(t, v * series));
 		contribucion.put(VARIEDAD, -(long) p.variedad() * diasDeMas);
 		contribucion.put(VOLUMEN, volumen);
 		return contribucion;

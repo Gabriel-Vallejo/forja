@@ -1,5 +1,5 @@
 // Qué cubre cada consentimiento y qué se borra al retirarlo (RF-45, RF-46). Lo de «se borra» sale del backend de
-// hoy: solo `limitaciones` guarda algo que dependa de él (restricciones, bloqueo por bandera y dolor de las series).
+// hoy: `limitaciones` (restricciones, bloqueo por bandera y dolor de las series) y `medidas_salud` (tests de movilidad).
 // Si otro tipo empieza a guardar datos, su texto de aquí y su listener del backend cambian a la vez.
 import { TIPOS_CONSENTIMIENTO, type TipoConsentimiento } from '../api/esquemas';
 
@@ -26,9 +26,10 @@ const INFO: Record<TipoConsentimiento, Omit<InfoConsentimiento, 'tipo'>> = {
   },
   medidas_salud: {
     nombre: 'Medidas y peso',
-    cubre: 'Guardar tu peso y tus medidas (cintura, % de grasa) para ajustar el plan.',
-    alRetirar: SIN_DATOS,
-    etiquetaRetirar: 'Sí, retirar',
+    cubre: 'Guardar tus tests de movilidad (y, más adelante, tu peso y tus medidas) para ajustar el plan.',
+    rutaParaDar: '/movilidad',
+    alRetirar: 'Se borrarán tus tests de movilidad. Forja sigue funcionando sin ellos: tu plan se arma sin tener en cuenta tu movilidad.',
+    etiquetaRetirar: 'Sí, retirar y borrar',
   },
   lesiones: {
     nombre: 'Lesiones',

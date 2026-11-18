@@ -13,6 +13,7 @@ public final class ConfiguracionDePrueba {
 			"cuadriceps", "isquiotibiales", "gluteos");
 	public static final List<String> PATRONES_PRINCIPALES = List.of("sentadilla", "bisagra", "empuje_horizontal",
 			"empuje_vertical", "traccion_horizontal", "traccion_vertical");
+	private static final int MOVILIDAD = 5;
 
 	private ConfiguracionDePrueba() {
 	}
@@ -37,6 +38,6 @@ public final class ConfiguracionDePrueba {
 	}
 
 	private static Pesos pesos(int posicionEstirada) {
-		return new Pesos(5, posicionEstirada, 10, 2, 10, 3, 4, 100, 300, 500, 5, 0, 0);
+		return new Pesos(5, posicionEstirada, 10, 2, 10, 3, 4, 100, 300, 500, 5, MOVILIDAD, 0);
 	}
 }

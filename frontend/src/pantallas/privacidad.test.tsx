@@ -54,7 +54,7 @@ describe('Privacidad: consentimientos', () => {
     await renderizar(<Privacidad />);
     await screen.findByLabelText('Consentimiento: Suplementos');
 
-    for (const nombre of ['Fotos de cuerpo', 'Medidas y peso', 'Lesiones', 'Suplementos']) {
+    for (const nombre of ['Fotos de cuerpo', 'Lesiones', 'Suplementos']) {
       expect(tarjeta(nombre).getByText('Sin usar todavía')).toBeOnTheScreen();
       expect(tarjeta(nombre).queryByRole('button')).toBeNull();
     }
@@ -67,6 +67,14 @@ describe('Privacidad: consentimientos', () => {
 
     expect(tarjeta('Limitaciones').getByText('No lo has dado')).toBeOnTheScreen();
     expect(mockRouter.push).toHaveBeenCalledWith('/limitaciones');
+  });
+
+  test('medidas y peso se da desde los tests de movilidad', async () => {
+    await renderizar(<Privacidad />);
+
+    await fireEvent.press(await screen.findByRole('button', { name: 'Dar consentimiento de medidas y peso' }));
+
+    expect(mockRouter.push).toHaveBeenCalledWith('/movilidad');
   });
 
   test('retirar pide confirmación y dice qué se borra y que la app sigue funcionando', async () => {

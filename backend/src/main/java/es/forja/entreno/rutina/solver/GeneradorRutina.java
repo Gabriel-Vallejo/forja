@@ -3,7 +3,9 @@ package es.forja.entreno.rutina.solver;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.stream.IntStream;
 
 import es.forja.entreno.rutina.modelo.CatalogoRutina;
@@ -55,9 +57,25 @@ public class GeneradorRutina {
 				traza.elegidos().stream().map(filtro.candidatos()::get).toList()));
 		String resumen = PlanRutina.OPTIMO.equals(solucion.estado()) ? Textos.RESUMEN_OPTIMO
 				: Textos.RESUMEN_FACTIBLE;
-		return new PlanRutina(solucion.estado(), resumen, solucion.objetivo(), traza.dias(filtro.anotaciones()),
+		return new PlanRutina(solucion.estado(), resumen, solucion.objetivo(),
+				traza.dias(conMotivosDeMovilidad(filtro.anotaciones(), filtro.candidatos(), entrada)),
 				traza.volumen(), holguras, traza.contribuciones(),
 				alternativas(entrada, filtro.candidatos(), minimos, traza, solucion), filtro.descartes(), notas);
+	}
+
+	/** Las anotaciones del filtro más, en los ejercicios que favorece el tramo de movilidad, el porqué. */
+	private static Map<String, List<String>> conMotivosDeMovilidad(Map<String, List<String>> anotaciones,
+			List<EjercicioRutina> candidatos, EntradaRutina entrada) {
+		Map<String, List<String>> todas = new TreeMap<>(anotaciones);
+		for (EjercicioRutina e : candidatos) {
+			List<String> motivos = ReglasMovilidad.motivos(e.idExterno(), entrada.movilidad());
+			if (!motivos.isEmpty()) {
+				List<String> lista = new ArrayList<>(todas.getOrDefault(e.idExterno(), List.of()));
+				lista.addAll(motivos);
+				todas.put(e.idExterno(), lista);
+			}
+		}
+		return todas;
 	}
 
 	/**

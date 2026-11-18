@@ -276,6 +276,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/movilidad": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtener_1"];
+        put: operations["guardar_2"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/perfil/entreno": {
         parameters: {
             query?: never;
@@ -518,6 +534,11 @@ export interface components {
         Mensaje: {
             mensaje?: string;
         };
+        Movilidad: {
+            cadera?: components["schemas"]["ResultadoMovilidad"];
+            hombro?: components["schemas"]["ResultadoMovilidad"];
+            tobillo?: components["schemas"]["ResultadoMovilidad"];
+        };
         MusculoEjercicio: {
             /** @enum {string} */
             grupo?: "pecho" | "hombros" | "brazos" | "triceps" | "antebrazos" | "abdomen" | "cuadriceps" | "aductores" | "gemelos" | "trapecio" | "dorsal" | "lumbar" | "gluteos" | "isquios";
@@ -688,6 +709,11 @@ export interface components {
             textoOriginal?: string;
             tipo?: string;
         };
+        ResultadoMovilidad: {
+            /** Format: date-time */
+            hechoEn?: string;
+            tramo?: string;
+        };
         SerieEntrada: {
             anulada?: boolean;
             calentamiento?: boolean;
@@ -795,6 +821,11 @@ export interface components {
         };
         Token: {
             token: string;
+        };
+        TramosMovilidad: {
+            cadera?: string;
+            hombro?: string;
+            tobillo?: string;
         };
         VolumenMusculo: {
             fuente?: string;
@@ -1207,6 +1238,50 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    obtener_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Movilidad"];
+                };
+            };
+        };
+    };
+    guardar_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TramosMovilidad"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Movilidad"];
+                };
             };
         };
     };
