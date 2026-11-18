@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import type { PlanActual } from '../api/esquemas';
 import { Aviso } from '../componentes/Aviso';
@@ -22,6 +22,10 @@ import { ConPlan } from './ConPlan';
 
 const ICONO_CALIDAD = 13;
 const ALTO_DIA = 84;
+/** Hasta tres días caben repartiéndose el ancho; con más, cada pestaña mide esto y la fila se desplaza. */
+const DIAS_SIN_DESPLAZAR = 3;
+/** Algo menos que un tercio de la pantalla: la pestaña siguiente asoma por el borde y avisa de que la fila se desplaza. */
+const ANCHO_DIA_DESPLAZABLE = 112;
 const MESES = ['ene.', 'feb.', 'mar.', 'abr.', 'may.', 'jun.', 'jul.', 'ago.', 'sep.', 'oct.', 'nov.', 'dic.'];
 
 const fechaCorta = (iso: string) => {
@@ -38,6 +42,30 @@ function Plan({ plan }: { plan: PlanActual }) {
   const primeraSemana = esPrimeraSemana(plan);
   const optimo = plan.estado === 'optimo';
 
+  const desplaza = plan.dias.length > DIAS_SIN_DESPLAZAR;
+  const tablist = { accessibilityRole: 'tablist', accessibilityLabel: 'Días' } as const;
+  const pestanas = plan.dias.map((d) => {
+    const sel = d.dia === dia?.dia;
+    const hoy = d.dia === plan.diaDeHoy;
+    return (
+      <Pressable
+        key={d.dia}
+        accessibilityRole="tab"
+        accessibilityLabel={`Día ${d.dia}, ${d.nombre}${hoy ? ', hoy' : ''}`}
+        accessibilityState={{ selected: sel }}
+        onPress={() => setElegido(d.dia)}
+        style={[estilos.dia, desplaza && estilos.diaDesplazable, sel && estilos.diaElegido]}
+      >
+        <Texto estilo="etiquetaDia" color={sel ? tema.color.primary : tema.color.onSurfaceVariant}>
+          {hoy ? `Día ${d.dia} · hoy` : `Día ${d.dia}`}
+        </Texto>
+        <Texto estilo="nota" peso="800" tono={sel ? 'principal' : 'secundario'} lineas={1}>
+          {d.nombre}
+        </Texto>
+      </Pressable>
+    );
+  });
+
   return (
     <>
       <View style={estilos.resumen}>
@@ -47,29 +75,15 @@ function Plan({ plan }: { plan: PlanActual }) {
         </View>
         <Texto estilo="data" tono="secundario">{`${plan.dias.length} días por semana`}</Texto>
       </View>
-      <View accessibilityRole="tablist" accessibilityLabel="Días" style={estilos.dias}>
-        {plan.dias.map((d) => {
-          const sel = d.dia === dia?.dia;
-          const hoy = d.dia === plan.diaDeHoy;
-          return (
-            <Pressable
-              key={d.dia}
-              accessibilityRole="tab"
-              accessibilityLabel={`Día ${d.dia}, ${d.nombre}${hoy ? ', hoy' : ''}`}
-              accessibilityState={{ selected: sel }}
-              onPress={() => setElegido(d.dia)}
-              style={[estilos.dia, sel && estilos.diaElegido]}
-            >
-              <Texto estilo="etiquetaDia" color={sel ? tema.color.primary : tema.color.onSurfaceVariant}>
-                {hoy ? `Día ${d.dia} · hoy` : `Día ${d.dia}`}
-              </Texto>
-              <Texto estilo="nota" peso="800" tono={sel ? 'principal' : 'secundario'} lineas={1}>
-                {d.nombre}
-              </Texto>
-            </Pressable>
-          );
-        })}
-      </View>
+      {desplaza ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} {...tablist} style={estilos.deBordeABorde} contentContainerStyle={estilos.diasDesplazables}>
+{pestanas}
+        </ScrollView>
+      ) : (
+        <View {...tablist} style={estilos.dias}>
+{pestanas}
+        </View>
+      )}
       {primeraSemana ? <Aviso tipo="info" mensaje={AVISO_PRIMERA_SEMANA} /> : null}
       {dia ? (
         <>
@@ -139,6 +153,9 @@ function crearEstilos(tema: Theme) {
       borderColor: 'transparent',
       justifyContent: 'space-between',
     },
+    deBordeABorde: { marginHorizontal: -tema.space.s4 },
+    diasDesplazables: { flexDirection: 'row', gap: tema.space.s2, paddingHorizontal: tema.space.s4 },
+    diaDesplazable: { flex: 0, width: ANCHO_DIA_DESPLAZABLE },
     diaElegido: { backgroundColor: tema.color.surfaceHigh, borderColor: tema.color.primary },
     cabeceraLista: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
     lista: { borderRadius: tema.radius.md, backgroundColor: tema.color.surface, overflow: 'hidden' },

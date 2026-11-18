@@ -74,6 +74,26 @@ describe('Hoy', () => {
 });
 
 describe('Plan', () => {
+  test('con cinco días salen todas las pestañas, en una fila que se desplaza, y se puede elegir la última', async () => {
+    const base = planDePrueba();
+    const molde = base.dias[0]!;
+    const dias = [1, 2, 3, 4, 5].map((n) => ({ ...molde, dia: n, nombre: `DÍA-${n}` }));
+    await renderizar(<MiPlan />, apiFalsa({ planActual: jest.fn().mockResolvedValue({ ...base, dias }) }));
+
+    expect(await screen.findAllByRole('tab')).toHaveLength(5);
+    expect(screen.getByLabelText('Días').props.horizontal).toBe(true);
+    await fireEvent.press(screen.getByRole('tab', { name: 'Día 5, DÍA-5' }));
+
+    expect(screen.getByRole('tab', { name: 'Día 5, DÍA-5' })).toBeSelected();
+  });
+
+  test('con tres días o menos las pestañas se reparten el ancho sin desplazarse', async () => {
+    await renderizar(<MiPlan />, conPlan());
+    await screen.findAllByRole('tab');
+
+    expect(screen.getByLabelText('Días').props.horizontal).toBeFalsy();
+  });
+
   test('filas numeradas con su prescripción y el estado del plan', async () => {
     await renderizar(<MiPlan />, conPlan());
 
