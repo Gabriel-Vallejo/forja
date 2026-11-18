@@ -261,3 +261,47 @@ export type Movilidad = z.infer<typeof esquemaMovilidad>;
 
 /** Cuerpo de `PUT /movilidad`: reemplaza los tres; `null` deja ese test sin hacer. */
 export type TramosMovilidad = Record<TestMovilidad, Tramo | null>;
+
+/** Perfil manual: sexo, experiencia y objetivo (preferencias) con los mismos códigos que el backend. */
+export const SEXOS = ['hombre', 'mujer', 'no_indica'] as const;
+export type Sexo = (typeof SEXOS)[number];
+export const EXPERIENCIAS = ['principiante', 'intermedio', 'avanzado'] as const;
+export type Experiencia = (typeof EXPERIENCIAS)[number];
+export const OBJETIVOS = ['fuerza', 'hipertrofia', 'fuerza_hipertrofia'] as const;
+export type ObjetivoPerfil = (typeof OBJETIVOS)[number];
+
+/** `GET` y `PUT /perfil/datos`: sin definir, experiencia y objetivo son `undefined`. */
+export const esquemaDatosPerfil = z.object({
+  sexo: z.enum(SEXOS),
+  experiencia: opcional(z.enum(EXPERIENCIAS)),
+  objetivo: opcional(z.enum(OBJETIVOS)),
+}) satisfies z.ZodType<Esquemas['DatosPerfil']>;
+export type DatosPerfil = z.infer<typeof esquemaDatosPerfil>;
+
+/** Cuerpo de `PUT /perfil/datos`: `null` deja experiencia u objetivo sin definir. */
+export interface CuerpoDatosPerfil {
+  sexo: Sexo;
+  experiencia: Experiencia | null;
+  objetivo: ObjetivoPerfil | null;
+}
+
+/** % de grasa estimado con la fórmula de la US Navy, con su margen de error en puntos porcentuales. */
+const esquemaGrasaEstimada = z.object({ porcentaje: z.number(), margen: z.number() }) satisfies z.ZodType<
+  Esquemas['GrasaEstimada']
+>;
+
+/** `GET` y `PUT /perfil/medidas` (cm y kg): lo que falta es `undefined`. La estimación la calcula el backend. */
+export const esquemaMedidas = z.object({
+  alturaCm: opcional(z.number()),
+  pesoKg: opcional(z.number()),
+  cuelloCm: opcional(z.number()),
+  cinturaCm: opcional(z.number()),
+  caderaCm: opcional(z.number()),
+  grasaEstimada: opcional(esquemaGrasaEstimada),
+}) satisfies z.ZodType<Esquemas['MedidasPerfil']>;
+export type Medidas = z.infer<typeof esquemaMedidas>;
+
+export const CAMPOS_MEDIDAS = ['alturaCm', 'pesoKg', 'cuelloCm', 'cinturaCm', 'caderaCm'] as const;
+export type CampoMedida = (typeof CAMPOS_MEDIDAS)[number];
+/** Cuerpo de `PUT /perfil/medidas`: reemplaza las cinco; `null` borra esa medida. */
+export type CuerpoMedidas = Record<CampoMedida, number | null>;

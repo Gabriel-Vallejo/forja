@@ -9,6 +9,8 @@ import { useSesion } from '../sesion/sesion';
 export const CLAVE_MOVILIDAD = ['movilidad'] as const;
 export const CLAVE_CONSENTIMIENTO_MEDIDAS = [...CLAVE_MOVILIDAD, 'consentimiento'] as const;
 const CLAVE_TESTS = [...CLAVE_MOVILIDAD, 'tests'] as const;
+/** Altura, peso y circunferencias (perfil): el mismo consentimiento, así que se olvidan a la vez. */
+export const CLAVE_MEDIDAS = [...CLAVE_MOVILIDAD, 'medidas'] as const;
 
 export function useConsentimientoMedidas() {
   const { api } = useSesion();
@@ -40,10 +42,11 @@ export function useDarConsentimientoMedidas(version: string) {
   });
 }
 
-/** El backend borra los tests al retirarlo: fuera de la memoria también (y la lista de privacidad se relee). */
+/** El backend borra los tests y las medidas al retirarlo: fuera de la memoria también (y la lista de privacidad se relee). */
 export function olvidarMovilidad(consultas: QueryClient): Promise<void> {
   consultas.setQueryData(CLAVE_CONSENTIMIENTO_MEDIDAS, false);
   consultas.removeQueries({ queryKey: CLAVE_TESTS });
+  consultas.removeQueries({ queryKey: CLAVE_MEDIDAS });
   return consultas.invalidateQueries({ queryKey: CLAVE_CONSENTIMIENTOS });
 }
 

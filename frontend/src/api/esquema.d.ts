@@ -292,6 +292,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/perfil/datos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenerDatos"];
+        put: operations["guardarDatos"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/perfil/entreno": {
         parameters: {
             query?: never;
@@ -301,6 +317,22 @@ export interface paths {
         };
         get: operations["obtener"];
         put: operations["guardar_1"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/perfil/medidas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenerMedidas"];
+        put: operations["guardarMedidas"];
         post?: never;
         delete?: never;
         options?: never;
@@ -491,6 +523,11 @@ export interface components {
             /** Format: date-time */
             ultimaActividad?: string;
         };
+        DatosPerfil: {
+            experiencia?: string;
+            objetivo?: string;
+            sexo: string;
+        };
         DatosSesion: {
             /** Format: uuid */
             dispositivoId?: string;
@@ -531,6 +568,12 @@ export interface components {
             bloquea?: boolean;
             nivel?: string;
         };
+        GrasaEstimada: {
+            /** Format: double */
+            margen?: number;
+            /** Format: double */
+            porcentaje?: number;
+        };
         Holgura: {
             codigo?: string;
             /** Format: double */
@@ -546,6 +589,31 @@ export interface components {
             nombreDispositivo: string;
             /** @enum {string} */
             plataforma: "movil" | "pc";
+        };
+        MedidasCuerpo: {
+            /** Format: double */
+            alturaCm?: number;
+            /** Format: double */
+            caderaCm?: number;
+            /** Format: double */
+            cinturaCm?: number;
+            /** Format: double */
+            cuelloCm?: number;
+            /** Format: double */
+            pesoKg?: number;
+        };
+        MedidasPerfil: {
+            /** Format: double */
+            alturaCm?: number;
+            /** Format: double */
+            caderaCm?: number;
+            /** Format: double */
+            cinturaCm?: number;
+            /** Format: double */
+            cuelloCm?: number;
+            grasaEstimada?: components["schemas"]["GrasaEstimada"];
+            /** Format: double */
+            pesoKg?: number;
         };
         Mensaje: {
             mensaje?: string;
@@ -1313,6 +1381,50 @@ export interface operations {
             };
         };
     };
+    obtenerDatos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DatosPerfil"];
+                };
+            };
+        };
+    };
+    guardarDatos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DatosPerfil"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DatosPerfil"];
+                };
+            };
+        };
+    };
     obtener: {
         parameters: {
             query?: never;
@@ -1353,6 +1465,50 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PerfilEntreno"];
+                };
+            };
+        };
+    };
+    obtenerMedidas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MedidasPerfil"];
+                };
+            };
+        };
+    };
+    guardarMedidas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MedidasCuerpo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MedidasPerfil"];
                 };
             };
         };

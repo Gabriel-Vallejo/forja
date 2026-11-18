@@ -125,10 +125,6 @@ export const RACHA = {
 export const PERFIL = {
   sesiones: 54,
   toneladas: 312,
-  resumen: 'Fuerza e hipertrofia · desde nov. 2026',
-  entreno: [
-    { etiqueta: 'Objetivo', valor: 'Fuerza e hipertrofia' },
-  ],
   personaliza: [
     { etiqueta: 'Tema', valor: 'Oscuro' },
     { etiqueta: 'Unidades · descanso', valor: 'kg · 2:00', dato: true },

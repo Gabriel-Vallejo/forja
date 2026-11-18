@@ -104,6 +104,16 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
           .map(([test, tramo]) => [test, { tramo, hechoEn: '2026-11-18T10:00:00Z' }]),
       ),
     ),
+    perfilDatos: jest.fn().mockResolvedValue({ sexo: 'no_indica' }),
+    guardarPerfilDatos: jest.fn().mockImplementation(async (d) => ({
+      sexo: d.sexo,
+      ...(d.experiencia ? { experiencia: d.experiencia } : {}),
+      ...(d.objetivo ? { objetivo: d.objetivo } : {}),
+    })),
+    medidas: jest.fn().mockResolvedValue({}),
+    guardarMedidas: jest.fn().mockImplementation(async (m: Record<string, number | null>) =>
+      Object.fromEntries(Object.entries(m).filter(([, v]) => v !== null)),
+    ),
     guardarSesion: jest.fn().mockResolvedValue(undefined),
     usuarioActual: jest.fn().mockResolvedValue(USUARIO_ID),
     alCaducar: jest.fn().mockReturnValue(() => undefined),

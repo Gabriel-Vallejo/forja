@@ -102,6 +102,24 @@
         },
         "type" : "object"
       },
+      "DatosPerfil" : {
+        "properties" : {
+          "experiencia" : {
+            "pattern" : "principiante|intermedio|avanzado",
+            "type" : "string"
+          },
+          "objetivo" : {
+            "pattern" : "fuerza|hipertrofia|fuerza_hipertrofia",
+            "type" : "string"
+          },
+          "sexo" : {
+            "pattern" : "hombre|mujer|no_indica",
+            "type" : "string"
+          }
+        },
+        "required" : [ "sexo" ],
+        "type" : "object"
+      },
       "DatosSesion" : {
         "properties" : {
           "dispositivoId" : {
@@ -213,6 +231,19 @@
         },
         "type" : "object"
       },
+      "GrasaEstimada" : {
+        "properties" : {
+          "margen" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "porcentaje" : {
+            "format" : "double",
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
       "Holgura" : {
         "properties" : {
           "codigo" : {
@@ -258,6 +289,69 @@
           }
         },
         "required" : [ "contrasena", "correo", "nombreDispositivo", "plataforma" ],
+        "type" : "object"
+      },
+      "MedidasCuerpo" : {
+        "properties" : {
+          "alturaCm" : {
+            "format" : "double",
+            "maximum" : 250,
+            "minimum" : 100,
+            "type" : "number"
+          },
+          "caderaCm" : {
+            "format" : "double",
+            "maximum" : 200,
+            "minimum" : 50,
+            "type" : "number"
+          },
+          "cinturaCm" : {
+            "format" : "double",
+            "maximum" : 200,
+            "minimum" : 40,
+            "type" : "number"
+          },
+          "cuelloCm" : {
+            "format" : "double",
+            "maximum" : 70,
+            "minimum" : 20,
+            "type" : "number"
+          },
+          "pesoKg" : {
+            "format" : "double",
+            "maximum" : 300,
+            "minimum" : 30,
+            "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "MedidasPerfil" : {
+        "properties" : {
+          "alturaCm" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "caderaCm" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "cinturaCm" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "cuelloCm" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "grasaEstimada" : {
+            "$ref" : "#/components/schemas/GrasaEstimada"
+          },
+          "pesoKg" : {
+            "format" : "double",
+            "type" : "number"
+          }
+        },
         "type" : "object"
       },
       "Mensaje" : {
@@ -1645,6 +1739,50 @@
         "tags" : [ "movilidad-controlador" ]
       }
     },
+    "/api/v1/perfil/datos" : {
+      "get" : {
+        "operationId" : "obtenerDatos",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DatosPerfil"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "perfil-controlador" ]
+      },
+      "put" : {
+        "operationId" : "guardarDatos",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DatosPerfil"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DatosPerfil"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "perfil-controlador" ]
+      }
+    },
     "/api/v1/perfil/entreno" : {
       "get" : {
         "operationId" : "obtener",
@@ -1687,6 +1825,50 @@
           }
         },
         "tags" : [ "perfil-entreno-controlador" ]
+      }
+    },
+    "/api/v1/perfil/medidas" : {
+      "get" : {
+        "operationId" : "obtenerMedidas",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MedidasPerfil"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "perfil-controlador" ]
+      },
+      "put" : {
+        "operationId" : "guardarMedidas",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MedidasCuerpo"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MedidasPerfil"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "perfil-controlador" ]
       }
     },
     "/api/v1/planes/actual" : {

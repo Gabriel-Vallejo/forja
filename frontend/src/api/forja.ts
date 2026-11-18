@@ -41,6 +41,12 @@ import {
   type TipoConsentimiento,
   esquemaMovilidad,
   type Movilidad,
+  esquemaDatosPerfil,
+  type DatosPerfil,
+  type CuerpoDatosPerfil,
+  esquemaMedidas,
+  type Medidas,
+  type CuerpoMedidas,
   type TramosMovilidad,
 } from './esquemas';
 
@@ -104,6 +110,12 @@ export interface ApiForja {
   retirarConsentimientoMedidas(): Promise<void>;
   movilidad(): Promise<Movilidad>;
   guardarMovilidad(tramos: TramosMovilidad): Promise<Movilidad>;
+  /** Sexo, experiencia y objetivo: preferencias, sin consentimiento. */
+  perfilDatos(): Promise<DatosPerfil>;
+  guardarPerfilDatos(datos: CuerpoDatosPerfil): Promise<DatosPerfil>;
+  /** Altura, peso y circunferencias con el % de grasa estimado: piden el consentimiento de medidas (403 sin él). */
+  medidas(): Promise<Medidas>;
+  guardarMedidas(medidas: CuerpoMedidas): Promise<Medidas>;
   /** Upsert idempotente de una sesión del outbox (ADR 0008 §2): reenviar lo mismo no duplica nada. */
   guardarSesion(uuid: string, sesion: SesionEntrada): Promise<void>;
   /** `sub` del token guardado: de quién son las sesiones que se envían. Null sin sesión iniciada. */
@@ -201,6 +213,12 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
     movilidad: () => cliente.pedir({ ruta: '/api/v1/movilidad', esquema: esquemaMovilidad }),
     guardarMovilidad: (tramos) =>
       cliente.pedir({ metodo: 'PUT', ruta: '/api/v1/movilidad', cuerpo: tramos, esquema: esquemaMovilidad }),
+    perfilDatos: () => cliente.pedir({ ruta: '/api/v1/perfil/datos', esquema: esquemaDatosPerfil }),
+    guardarPerfilDatos: (datos) =>
+      cliente.pedir({ metodo: 'PUT', ruta: '/api/v1/perfil/datos', cuerpo: datos, esquema: esquemaDatosPerfil }),
+    medidas: () => cliente.pedir({ ruta: '/api/v1/perfil/medidas', esquema: esquemaMedidas }),
+    guardarMedidas: (medidas) =>
+      cliente.pedir({ metodo: 'PUT', ruta: '/api/v1/perfil/medidas', cuerpo: medidas, esquema: esquemaMedidas }),
     preguntasCribado: () => cliente.pedir({ ruta: '/api/v1/cribado/preguntas', esquema: esquemaCuestionarioCribado }),
     cribar: (solicitud) =>
       cliente.pedir({ metodo: 'POST', ruta: '/api/v1/cribado', cuerpo: solicitud, esquema: esquemaResultadoCribado }),

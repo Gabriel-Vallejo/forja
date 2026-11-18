@@ -14,6 +14,8 @@ import { PERFIL, RACHA, RANGO_GLOBAL } from '../datos/ejemplo';
 import { mensajeDeError } from '../api/errores';
 import { useResumenLimitaciones } from '../limitaciones/consultas';
 import { useResumenMovilidad } from '../movilidad/consultas';
+import { usePerfilDatos, useResumenMedidas } from '../perfil/consultas';
+import { resumenPerfil, valorExperiencia, valorObjetivo } from '../perfil/textos';
 import { useResumenPrivacidad } from '../privacidad/consultas';
 import { resumenDiasYMinutos, resumenMaterial, usePerfilEntreno } from '../plan/ajustes';
 import { nombreRangoMayusculas } from '../rango/rango';
@@ -24,6 +26,7 @@ const EMBLEMA = 64;
 const ICONO_BORRAR = 18;
 
 const RUTA_AJUSTES = '/ajustes-plan';
+const RUTA_DATOS = '/perfil-datos';
 
 const textoSinAjustes = (fallo: boolean) => (fallo ? 'No disponible' : '…');
 
@@ -89,10 +92,23 @@ export function Perfil() {
   const movilidad = useResumenMovilidad();
   const ajustes = usePerfilEntreno();
   const privacidad = useResumenPrivacidad();
-  const [objetivo, ...otras] = PERFIL.entreno;
-  // «Días y minutos», «Material y gimnasio» y «Limitaciones» son datos reales; el resto sigue siendo de ejemplo.
+  const datos = usePerfilDatos();
+  const medidas = useResumenMedidas();
+  // Las filas de Entreno son datos reales; de ejemplo quedan las estadísticas, «Personaliza» y la descarga de datos.
   const entreno: readonly Opcion[] = [
-    objetivo,
+    {
+      etiqueta: 'Objetivo',
+      valor: datos.data ? valorObjetivo(datos.data) : textoSinAjustes(datos.isError),
+      pendiente: datos.data?.objetivo === undefined && datos.isSuccess,
+      ruta: RUTA_DATOS,
+    },
+    {
+      etiqueta: 'Experiencia',
+      valor: datos.data ? valorExperiencia(datos.data) : textoSinAjustes(datos.isError),
+      pendiente: datos.data?.experiencia === undefined && datos.isSuccess,
+      ruta: RUTA_DATOS,
+    },
+    { etiqueta: 'Medidas', ...medidas, ruta: RUTA_DATOS },
     {
       etiqueta: 'Días y minutos',
       valor: ajustes.data ? resumenDiasYMinutos(ajustes.data) : textoSinAjustes(ajustes.isError),
@@ -106,7 +122,6 @@ export function Perfil() {
     },
     { etiqueta: 'Limitaciones', ...limitaciones, ruta: '/limitaciones' },
     { etiqueta: 'Tests de movilidad', ...movilidad, ruta: '/movilidad' },
-    ...otras,
   ];
   const estadisticas = [
     { valor: PERFIL.sesiones, texto: 'sesiones' },
@@ -128,7 +143,7 @@ export function Perfil() {
           <View style={estilos.textos}>
             <Texto estilo="pantalla" encabezado>Tu perfil</Texto>
             <Texto estilo="texto" peso="700" color={tema.rango.acero.texto}>{`${nombreRangoMayusculas(g.tipo, g.grado)} · top ${g.top} %`}</Texto>
-            <Texto estilo="mini" tono="secundario">{PERFIL.resumen}</Texto>
+            <Texto estilo="mini" tono="secundario">{datos.data ? resumenPerfil(datos.data) : textoSinAjustes(datos.isError)}</Texto>
           </View>
         </View>
         <View style={estilos.estadisticas}>
