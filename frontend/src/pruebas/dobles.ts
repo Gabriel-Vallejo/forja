@@ -9,6 +9,9 @@ import type {
   PerfilEntreno,
   PlanActual,
   PreguntaCribado,
+  PreferenciasGuardadas,
+  PreferenciasPlan,
+  VistaPrevia,
   Restriccion,
 } from '../api/esquemas';
 import type { ApiForja } from '../api/forja';
@@ -76,6 +79,10 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
     perfilEntreno: jest.fn().mockResolvedValue(perfilDePrueba()),
     guardarPerfilEntreno: jest.fn().mockImplementation(async (a) => ({ ...a, porDefecto: false })),
     materiales: jest.fn().mockResolvedValue(materialesDePrueba()),
+    vistaPrevia: jest.fn().mockResolvedValue(vistaPreviaDePrueba()),
+    aplicarAjuste: jest.fn().mockResolvedValue(undefined),
+    preferencias: jest.fn().mockResolvedValue(preferenciasDePrueba()),
+    guardarPreferencias: jest.fn().mockImplementation(async (p: PreferenciasPlan) => guardadasDe(p)),
     consentimientos: jest.fn().mockResolvedValue([]),
     retirarConsentimiento: jest.fn().mockResolvedValue(undefined),
     dispositivos: jest.fn().mockResolvedValue([dispositivoCuenta()]),
@@ -258,4 +265,50 @@ export function materialesDePrueba(): Material[] {
     ['fitball', 'Fitball'],
     ['rodillo', 'Rodillo'],
   ].map(([codigo, nombre]) => ({ codigo: codigo as string, nombre: nombre as string }));
+}
+
+/** Vista previa de quitar el press de banca: entra el press inclinado y el pecho baja algo. */
+export function vistaPreviaDePrueba(cambios: Partial<VistaPrevia> = {}): VistaPrevia {
+  return {
+    version: '0193a3c4-7b2e-7c1d-9f00-00000000f1a1',
+    plan: {
+      resumen: 'Es el mejor plan que cabe en lo que nos has dado.',
+      notas: [],
+      dias: [{ dia: 1, ejercicios: [{ idExterno: 'press_inclinado', nombre: 'Press inclinado', series: 4 }] }],
+    },
+    ejercicios: [
+      { idExterno: 'press_banca', nombre: 'Press de banca', antes: 4, despues: 0 },
+      { idExterno: 'press_inclinado', nombre: 'Press inclinado', antes: 0, despues: 4 },
+      { idExterno: 'remo', nombre: 'Remo con barra', antes: 3, despues: 4 },
+    ],
+    musculos: [{ musculo: 'pecho', nombre: 'Pecho', antes: 12, despues: 10.5 }],
+    preferencias: { exclusiones: ['press_banca'], prioritarios: [], series: {}, variedad: false },
+    ...cambios,
+  };
+}
+
+/** Lo que devolvería el backend al guardar `p`, con los nombres de `preferenciasDePrueba` (o el código si no está). */
+function guardadasDe(p: PreferenciasPlan): PreferenciasGuardadas {
+  const base = preferenciasDePrueba();
+  const nombre = (codigo: string) =>
+    [...base.exclusiones, ...base.prioritarios].find((e) => e.codigo === codigo)?.nombre ??
+    base.series.find((s) => s.idExterno === codigo)?.nombre ??
+    codigo;
+  return {
+    exclusiones: p.exclusiones.map((codigo) => ({ codigo, nombre: nombre(codigo) })),
+    prioritarios: p.prioritarios.map((codigo) => ({ codigo, nombre: nombre(codigo) })),
+    series: Object.entries(p.series).map(([idExterno, series]) => ({ idExterno, nombre: nombre(idExterno), series })),
+    variedad: p.variedad,
+  };
+}
+
+/** Preferencias guardadas: un ejercicio quitado, un músculo enfocado, unas series fijadas y más variedad. */
+export function preferenciasDePrueba(cambios: Partial<PreferenciasGuardadas> = {}): PreferenciasGuardadas {
+  return {
+    exclusiones: [{ codigo: 'press_banca', nombre: 'Press de banca' }],
+    prioritarios: [{ codigo: 'biceps', nombre: 'Bíceps' }],
+    series: [{ idExterno: 'remo', nombre: 'Remo con barra', series: 5 }],
+    variedad: true,
+    ...cambios,
+  };
 }

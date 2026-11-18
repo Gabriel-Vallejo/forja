@@ -17,6 +17,7 @@ import {
   prescripcion,
   seriesDe,
 } from '../plan/plan';
+import { AjustarPlan } from '../plan/AjustarPlan';
 import { RegenerarPlan } from '../plan/RegenerarPlan';
 import { useCargasSiguientes } from '../registro/sincronizacion';
 import { type Theme, useTheme } from '../theme';
@@ -119,6 +120,7 @@ export function MiPlan() {
           <>
             <Texto estilo="mini" tono="secundario">{`Generado el ${fechaCorta(plan.creadoEn)}`}</Texto>
             <Plan plan={plan} />
+            <AjustarPlan />
             <RegenerarPlan etiqueta="Regenerar mi plan" />
           </>
         )}

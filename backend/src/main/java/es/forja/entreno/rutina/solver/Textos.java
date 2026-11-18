@@ -33,6 +33,9 @@ final class Textos {
 						musculo.toLowerCase(ES), minima, entrenado);
 	}
 
+	static final String SERIES_NO_CABEN = "Las series que fijaste en algún ejercicio no caben con el resto del plan: "
+			+ "este plan va sin ellas. Puedes quitarlas en Ajustes del plan.";
+
 	static String minimoRebajado(int ejercicios, int porcentaje) {
 		return ("Con tu material y tus limitaciones no hay ejercicios compatibles para llenar todas las sesiones "
 				+ "(%d ejercicios y el %d %% del tiempo): alguna lleva menos.").formatted(ejercicios, porcentaje);

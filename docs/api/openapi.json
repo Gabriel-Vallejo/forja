@@ -1,6 +1,35 @@
 {
   "components" : {
     "schemas" : {
+      "Ajuste" : {
+        "properties" : {
+          "idExterno" : {
+            "maxLength" : 120,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "musculos" : {
+            "items" : {
+              "maxLength" : 30,
+              "minLength" : 0,
+              "type" : "string"
+            },
+            "maxItems" : 2,
+            "minItems" : 0,
+            "type" : "array"
+          },
+          "tipo" : {
+            "pattern" : "mas|menos|no_recomendar|reemplazar|variedad|enfocar",
+            "type" : "string"
+          },
+          "version" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "required" : [ "tipo" ],
+        "type" : "object"
+      },
       "AjustesEntreno" : {
         "properties" : {
           "diasPorSemana" : {
@@ -59,6 +88,44 @@
           }
         },
         "required" : [ "contrasena" ],
+        "type" : "object"
+      },
+      "CambioEjercicio" : {
+        "properties" : {
+          "antes" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "despues" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "idExterno" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "CambioMusculo" : {
+        "properties" : {
+          "antes" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "despues" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "musculo" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "string"
+          }
+        },
         "type" : "object"
       },
       "ContribucionEjercicio" : {
@@ -216,6 +283,17 @@
           "series" : {
             "format" : "int32",
             "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "Elemento" : {
+        "properties" : {
+          "codigo" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "string"
           }
         },
         "type" : "object"
@@ -585,6 +663,63 @@
         },
         "type" : "object"
       },
+      "PlanRutina" : {
+        "properties" : {
+          "alternativas" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Alternativa"
+            },
+            "type" : "array"
+          },
+          "contribuciones" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ContribucionEjercicio"
+            },
+            "type" : "array"
+          },
+          "descartes" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Descarte"
+            },
+            "type" : "array"
+          },
+          "dias" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DiaPlan"
+            },
+            "type" : "array"
+          },
+          "estado" : {
+            "type" : "string"
+          },
+          "holguras" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Holgura"
+            },
+            "type" : "array"
+          },
+          "notas" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "objetivo" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "resumen" : {
+            "type" : "string"
+          },
+          "volumen" : {
+            "items" : {
+              "$ref" : "#/components/schemas/VolumenMusculo"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
       "PorQueEjercicio" : {
         "properties" : {
           "dia" : {
@@ -601,6 +736,68 @@
             "type" : "array"
           }
         },
+        "type" : "object"
+      },
+      "PreferenciasGuardadas" : {
+        "properties" : {
+          "exclusiones" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Elemento"
+            },
+            "type" : "array"
+          },
+          "prioritarios" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Elemento"
+            },
+            "type" : "array"
+          },
+          "series" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SeriesFijadas"
+            },
+            "type" : "array"
+          },
+          "variedad" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "PreferenciasPlan" : {
+        "properties" : {
+          "exclusiones" : {
+            "items" : {
+              "maxLength" : 120,
+              "minLength" : 0,
+              "type" : "string"
+            },
+            "maxItems" : 4,
+            "minItems" : 0,
+            "type" : "array"
+          },
+          "prioritarios" : {
+            "items" : {
+              "maxLength" : 30,
+              "minLength" : 0,
+              "type" : "string"
+            },
+            "maxItems" : 2,
+            "minItems" : 0,
+            "type" : "array"
+          },
+          "series" : {
+            "additionalProperties" : {
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "type" : "object"
+          },
+          "variedad" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "exclusiones", "prioritarios", "series" ],
         "type" : "object"
       },
       "ProgresionEjercicio" : {
@@ -1028,6 +1225,21 @@
         },
         "type" : "object"
       },
+      "SeriesFijadas" : {
+        "properties" : {
+          "idExterno" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "series" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
       "SesionEntrada" : {
         "properties" : {
           "diaPlan" : {
@@ -1248,6 +1460,33 @@
             "type" : "string"
           },
           "tobillo" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "VistaPrevia" : {
+        "properties" : {
+          "ejercicios" : {
+            "items" : {
+              "$ref" : "#/components/schemas/CambioEjercicio"
+            },
+            "type" : "array"
+          },
+          "musculos" : {
+            "items" : {
+              "$ref" : "#/components/schemas/CambioMusculo"
+            },
+            "type" : "array"
+          },
+          "plan" : {
+            "$ref" : "#/components/schemas/PlanRutina"
+          },
+          "preferencias" : {
+            "$ref" : "#/components/schemas/PreferenciasPlan"
+          },
+          "version" : {
+            "format" : "uuid",
             "type" : "string"
           }
         },
@@ -1713,7 +1952,7 @@
         "tags" : [ "movilidad-controlador" ]
       },
       "put" : {
-        "operationId" : "guardar_2",
+        "operationId" : "guardar_3",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1801,7 +2040,7 @@
         "tags" : [ "perfil-entreno-controlador" ]
       },
       "put" : {
-        "operationId" : "guardar_1",
+        "operationId" : "guardar_2",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1889,6 +2128,62 @@
         "tags" : [ "planes-controlador" ]
       }
     },
+    "/api/v1/planes/actual/ajustes" : {
+      "post" : {
+        "operationId" : "aplicar",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Ajuste"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanGenerado"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "ajustes-controlador" ]
+      }
+    },
+    "/api/v1/planes/actual/ajustes/vista-previa" : {
+      "post" : {
+        "operationId" : "vistaPrevia",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Ajuste"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VistaPrevia"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "ajustes-controlador" ]
+      }
+    },
     "/api/v1/planes/actual/ejercicios/{dia}/{idExterno}/por-que" : {
       "get" : {
         "operationId" : "porQue",
@@ -1921,6 +2216,50 @@
           }
         },
         "tags" : [ "planes-controlador" ]
+      }
+    },
+    "/api/v1/planes/preferencias" : {
+      "get" : {
+        "operationId" : "preferencias",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PreferenciasGuardadas"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "ajustes-controlador" ]
+      },
+      "put" : {
+        "operationId" : "guardar_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PreferenciasPlan"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PreferenciasGuardadas"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "ajustes-controlador" ]
       }
     },
     "/api/v1/progresion/{idExterno}" : {

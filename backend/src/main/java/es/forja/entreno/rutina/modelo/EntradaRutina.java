@@ -16,10 +16,12 @@ import es.forja.restricciones.modelo.Restriccion;
  * @param prioritarios códigos de músculo, como mucho {@value #MAXIMO_PRIORITARIOS}
  * @param restricciones las del usuario si tiene el consentimiento de limitaciones; si no, ninguna
  * @param movilidad tramo de cada test hecho, si tiene el consentimiento de medidas de salud; si no, vacío
+ * @param seriesSemana series de la semana fijadas por el usuario para un {@code idExterno} («una serie más o menos»)
+ * @param evitar {@code idExterno} que pierden puntos por serie: los del plan anterior si pidió más variedad
  */
 public record EntradaRutina(int dias, int minutos, Set<String> material, Set<String> exclusiones,
 		List<String> prioritarios, int frecuenciaMinima, List<Restriccion> restricciones,
-		Map<TestMovilidad, Tramo> movilidad) {
+		Map<TestMovilidad, Tramo> movilidad, Map<String, Integer> seriesSemana, Set<String> evitar) {
 
 	public static final int DIAS_MINIMOS = 2;
 	public static final int DIAS_MAXIMOS = 6;
@@ -40,6 +42,22 @@ public record EntradaRutina(int dias, int minutos, Set<String> material, Set<Str
 		prioritarios = List.copyOf(prioritarios);
 		restricciones = List.copyOf(restricciones);
 		movilidad = Map.copyOf(movilidad);
+		seriesSemana = Map.copyOf(seriesSemana);
+		evitar = Set.copyOf(evitar);
+	}
+
+	/** Sin preferencias de los ajustes del plan. */
+	public EntradaRutina(int dias, int minutos, Set<String> material, Set<String> exclusiones,
+			List<String> prioritarios, int frecuenciaMinima, List<Restriccion> restricciones,
+			Map<TestMovilidad, Tramo> movilidad) {
+		this(dias, minutos, material, exclusiones, prioritarios, frecuenciaMinima, restricciones, movilidad, Map.of(),
+				Set.of());
+	}
+
+	/** La misma entrada sin las series fijadas: cuando no caben, el plan se genera sin ellas. */
+	public EntradaRutina sinSeriesFijadas() {
+		return new EntradaRutina(dias, minutos, material, exclusiones, prioritarios, frecuenciaMinima, restricciones,
+				movilidad, Map.of(), evitar);
 	}
 
 	/** Sin tests de movilidad. */

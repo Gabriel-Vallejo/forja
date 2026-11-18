@@ -58,7 +58,35 @@ function Detalle({ plan, dia, idExterno }: PropsEjercicio & { plan: PlanActual }
       </View>
       <PorQue plan={plan.uuid} dia={dia} idExterno={idExterno} />
       <Boton etiqueta="Empezar" onPress={() => router.push('/sesion')} />
+      <Ajustar idExterno={idExterno} />
     </>
+  );
+}
+
+const AJUSTES_EJERCICIO = [
+  { tipo: 'mas', etiqueta: 'Una serie más' },
+  { tipo: 'menos', etiqueta: 'Una serie menos' },
+  { tipo: 'reemplazar', etiqueta: 'Reemplazar' },
+  { tipo: 'no_recomendar', etiqueta: 'No recomendar' },
+] as const;
+
+/** Ajustes del ejercicio (PRD v0.1): cada uno abre la vista previa del plan con el cambio, sin guardar nada. */
+function Ajustar({ idExterno }: { idExterno: string }) {
+  const router = useRouter();
+  const estilos = crearEstilos(useTheme());
+  return (
+    <View style={estilos.tarjeta} accessibilityLabel="Ajustar este ejercicio">
+      <Texto estilo="etiquetaEstrecha" tono="secundario">Ajustar este ejercicio</Texto>
+      <Texto estilo="nota" tono="secundario">Antes de guardar verás cómo queda el plan.</Texto>
+      {AJUSTES_EJERCICIO.map((a) => (
+        <Boton
+          key={a.tipo}
+          variante="secundario"
+          etiqueta={a.etiqueta}
+          onPress={() => router.push({ pathname: '/vista-previa', params: { tipo: a.tipo, id: idExterno } })}
+        />
+      ))}
+    </View>
   );
 }
 

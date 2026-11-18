@@ -18,10 +18,12 @@ public record ConfiguracionRutina(Pesos pesos, Volumen volumen, Basicos basicos,
 	 * @param serieCompuesto premio por serie de un compuesto; mayor que {@code fatiga}
 	 * @param holguraBasicos por cada patrón principal que falta en la semana
 	 * @param desequilibrioSesiones por minuto de diferencia entre la sesión más larga y la más corta
+	 * @param repetirPlan por serie de un ejercicio del plan anterior, si el usuario pidió más variedad
 	 */
 	public record Pesos(int coberturaPrioritarios, int posicionEstirada, int variedad, int fatiga,
 			int serieHastaObjetivo, int serieSobreObjetivo, int serieCompuesto, int holguraVolumen,
-			int holguraFrecuencia, int holguraBasicos, int desequilibrioSesiones, int movilidad, int palancas) {
+			int holguraFrecuencia, int holguraBasicos, int desequilibrioSesiones, int movilidad, int palancas,
+			int repetirPlan) {
 	}
 
 	/** Series semanales efectivas por músculo; los secundarios cuentan 0,5. */

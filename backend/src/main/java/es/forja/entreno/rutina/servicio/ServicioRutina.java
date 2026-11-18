@@ -13,6 +13,7 @@ import es.forja.entreno.movilidad.servicio.ServicioMovilidad;
 import es.forja.entreno.rutina.modelo.CatalogoRutina;
 import es.forja.entreno.rutina.modelo.EjercicioRutina;
 import es.forja.entreno.rutina.modelo.PlanRutina;
+import es.forja.entreno.rutina.modelo.Preferencias;
 import es.forja.entreno.rutina.modelo.SolicitudRutina;
 import es.forja.entreno.rutina.repositorio.CatalogoRutinaRepositorio;
 import es.forja.entreno.rutina.repositorio.CatalogoRutinaRepositorio.FichaCurado;
@@ -56,14 +57,18 @@ public class ServicioRutina {
 		this.movilidad = movilidad;
 	}
 
-	/** Con bandera roja o cribado urgente activos no se genera (409, sin gastar intento); si no, resolver cuesta CPU y gasta uno. */
-	public PlanRutina generar(UUID usuario, SolicitudRutina solicitud) {
+	/**
+	 * Con bandera roja o cribado urgente activos no se genera (409, sin gastar intento); si no, resolver cuesta CPU y
+	 * gasta uno. Las preferencias de los ajustes del plan van aparte porque las guarda {@code ServicioAjustes}.
+	 */
+	public PlanRutina generar(UUID usuario, SolicitudRutina solicitud, Preferencias preferencias) {
 		bloqueo.exigirSinBloqueo(usuario);
 		limitador.exigirPorClave(ACCION_GENERAR, usuario.toString());
 		CatalogoRutina cargado = catalogo();
 		validarCodigos(solicitud, cargado);
 		List<Restriccion> suyas = restricciones.paraLaRutina(usuario);
-		return generador.generar(cargado, solicitud.aEntrada(suyas, movilidad.paraLaRutina(usuario)));
+		return generador.generar(cargado, solicitud.aEntrada(suyas, movilidad.paraLaRutina(usuario),
+				preferencias));
 	}
 
 	/** Los curados del catálogo, con lo que mira el filtro y lo que necesita el modelo. */

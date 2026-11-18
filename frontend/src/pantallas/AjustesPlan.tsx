@@ -10,6 +10,7 @@ import { EncabezadoAtras } from '../componentes/EncabezadoAtras';
 import { Pantalla } from '../componentes/Pantalla';
 import { FichaOpcion, opcionesFila, Seleccion } from '../componentes/Seleccion';
 import { Texto } from '../componentes/Texto';
+import { ListaPreferencias } from '../plan/ListaPreferencias';
 import { DIAS_POSIBLES, MINUTOS_POSIBLES, useGuardarAjustes, useMateriales, usePerfilEntreno } from '../plan/ajustes';
 import { type Theme, useTheme } from '../theme';
 
@@ -101,12 +102,13 @@ function Contenido() {
   );
 }
 
-/** Días por semana, minutos por sesión y material con los que se genera el plan. */
+/** Días por semana, minutos por sesión y material con los que se genera el plan, y lo que se ha ajustado de él. */
 export function AjustesPlan() {
   return (
     <Pantalla hueco="s4">
       <EncabezadoAtras titulo="Ajustes del plan" />
       <Contenido />
+      <ListaPreferencias />
     </Pantalla>
   );
 }

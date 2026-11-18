@@ -89,6 +89,7 @@ final class ModeloRutina {
 		volumen();
 		frecuencia();
 		basicos();
+		seriesFijadas();
 		cp.maximize(objetivo(movilidad, Map.of()));
 	}
 
@@ -119,6 +120,16 @@ final class ModeloRutina {
 	/** Obliga a que un ejercicio salga al menos un día. */
 	void forzar(int indice) {
 		cp.addGreaterOrEqual(LinearExpr.sum(esta[indice]), 1);
+	}
+
+	/** «Una serie más o menos»: las series de la semana que fijó el usuario, duras; si no caben, el modelo es inviable. */
+	private void seriesFijadas() {
+		for (int e = 0; e < ejercicios.size(); e++) {
+			Integer fijadas = entrada.seriesSemana().get(ejercicios.get(e).idExterno());
+			if (fijadas != null) {
+				cp.addEquality(LinearExpr.sum(series[e]), fijadas);
+			}
+		}
 	}
 
 	private void crearVariables() {
@@ -274,7 +285,7 @@ final class ModeloRutina {
 		ConfiguracionRutina.Pesos p = config.pesos();
 		LinearExprBuilder objetivo = LinearExpr.newBuilder();
 		for (int e = 0; e < ejercicios.size(); e++) {
-			long porSerie = Terminos.porSerie(config, ejercicios.get(e), entrada.prioritarios(), movilidad, palancas);
+			long porSerie = Terminos.porSerie(config, ejercicios.get(e), entrada, movilidad, palancas);
 			for (int d = 0; d < dias; d++) {
 				objetivo.addTerm(series[e][d], porSerie);
 			}

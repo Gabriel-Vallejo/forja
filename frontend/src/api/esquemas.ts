@@ -305,3 +305,44 @@ export const CAMPOS_MEDIDAS = ['alturaCm', 'pesoKg', 'cuelloCm', 'cinturaCm', 'c
 export type CampoMedida = (typeof CAMPOS_MEDIDAS)[number];
 /** Cuerpo de `PUT /perfil/medidas`: reemplaza las cinco; `null` borra esa medida. */
 export type CuerpoMedidas = Record<CampoMedida, number | null>;
+
+// Ajustes del plan (PRD v0.1). Preferencias de entreno, no datos de salud.
+/** Un ajuste: `mas`, `menos`, `no_recomendar` y `reemplazar` llevan `idExterno`; `enfocar`, `musculos` (0 a 2). */
+export type Ajuste = Esquemas['Ajuste'];
+/** Preferencias con códigos: el cuerpo que reemplaza las guardadas (para quitar una se manda el resto). */
+export type PreferenciasPlan = Required<Esquemas['PreferenciasPlan']>;
+
+const esquemaPreferenciasPlan = z.object({
+  exclusiones: z.array(z.string()),
+  prioritarios: z.array(z.string()),
+  series: z.record(z.string(), z.number().int()),
+  variedad: z.boolean(),
+}) satisfies z.ZodType<PreferenciasPlan>;
+
+// Del plan propuesto solo se enseñan los días con sus ejercicios y las notas; el resto de la traza se descarta.
+export const esquemaVistaPrevia = z.object({
+  version: z.uuid(),
+  plan: z.object({
+    resumen: z.string(),
+    notas: z.array(z.string()),
+    dias: z.array(
+      z.object({
+        dia: z.number().int(),
+        ejercicios: z.array(z.object({ idExterno: z.string(), nombre: z.string(), series: z.number().int() })),
+      }),
+    ),
+  }),
+  ejercicios: z.array(z.object({ idExterno: z.string(), nombre: z.string(), antes: z.number().int(), despues: z.number().int() })),
+  musculos: z.array(z.object({ musculo: z.string(), nombre: z.string(), antes: z.number(), despues: z.number() })),
+  preferencias: esquemaPreferenciasPlan,
+}) satisfies z.ZodType<Esquemas['VistaPrevia']>;
+export type VistaPrevia = z.infer<typeof esquemaVistaPrevia>;
+
+const esquemaElemento = z.object({ codigo: z.string(), nombre: z.string() });
+export const esquemaPreferencias = z.object({
+  exclusiones: z.array(esquemaElemento),
+  prioritarios: z.array(esquemaElemento),
+  series: z.array(z.object({ idExterno: z.string(), nombre: z.string(), series: z.number().int() })),
+  variedad: z.boolean(),
+}) satisfies z.ZodType<Esquemas['PreferenciasGuardadas']>;
+export type PreferenciasGuardadas = z.infer<typeof esquemaPreferencias>;

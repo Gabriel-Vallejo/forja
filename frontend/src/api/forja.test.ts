@@ -1,4 +1,14 @@
-import { almacenEnMemoria, DISPOSITIVO_ID, datosSesion, materialesDePrueba, perfilDePrueba, respuesta, tokenDe } from '../pruebas/dobles';
+import {
+  almacenEnMemoria,
+  DISPOSITIVO_ID,
+  datosSesion,
+  materialesDePrueba,
+  perfilDePrueba,
+  preferenciasDePrueba,
+  respuesta,
+  tokenDe,
+  vistaPreviaDePrueba,
+} from '../pruebas/dobles';
 import { crearCliente } from './cliente';
 import { crearApiForja } from './forja';
 
@@ -201,5 +211,30 @@ describe('API de Forja', () => {
 
     await expect(api.usuarioActual()).resolves.toBe(usuario);
     await expect(montar(jest.fn()).api.usuarioActual()).resolves.toBeNull();
+  });
+
+  test('ajustes del plan: vista previa, aplicar con la versión y preferencias', async () => {
+    const extra = { plan: { ...vistaPreviaDePrueba().plan, objetivo: 7, alternativas: [] } };
+    const fetchFalso = jest
+      .fn()
+      .mockResolvedValueOnce(respuesta(200, { ...vistaPreviaDePrueba(), ...extra }))
+      .mockResolvedValueOnce(respuesta(200, { uuid: vistaPreviaDePrueba().version }))
+      .mockResolvedValueOnce(respuesta(200, preferenciasDePrueba()))
+      .mockResolvedValueOnce(respuesta(200, preferenciasDePrueba({ variedad: false })));
+    const { api } = montar(fetchFalso, almacenEnMemoria(datosSesion(1)));
+    const sinVariedad = { exclusiones: ['press_banca'], prioritarios: ['biceps'], series: { remo: 5 }, variedad: false };
+
+    await expect(api.vistaPrevia({ tipo: 'reemplazar', idExterno: 'press_banca' })).resolves.toEqual(vistaPreviaDePrueba());
+    await api.aplicarAjuste({ tipo: 'reemplazar', idExterno: 'press_banca', version: vistaPreviaDePrueba().version });
+    await expect(api.preferencias()).resolves.toEqual(preferenciasDePrueba());
+    await expect(api.guardarPreferencias(sinVariedad)).resolves.toMatchObject({ variedad: false });
+
+    expect(llamada(fetchFalso, 0)[0]).toBe(`${URL_BASE}/api/v1/planes/actual/ajustes/vista-previa`);
+    expect(cuerpoEnviado(fetchFalso, 0)).toEqual({ tipo: 'reemplazar', idExterno: 'press_banca' });
+    expect(llamada(fetchFalso, 1)[0]).toBe(`${URL_BASE}/api/v1/planes/actual/ajustes`);
+    expect(cuerpoEnviado(fetchFalso, 1)).toMatchObject({ version: vistaPreviaDePrueba().version });
+    expect(llamada(fetchFalso, 2)[0]).toBe(`${URL_BASE}/api/v1/planes/preferencias`);
+    expect(llamada(fetchFalso, 3)[1].method).toBe('PUT');
+    expect(cuerpoEnviado(fetchFalso, 3)).toEqual(sinVariedad);
   });
 });

@@ -34,12 +34,20 @@ public class GeneradorRutina {
 		this.config = Objects.requireNonNull(config, "config es obligatoria");
 	}
 
-	public PlanRutina generar(CatalogoRutina catalogo, EntradaRutina entrada) {
+	public PlanRutina generar(CatalogoRutina catalogo, EntradaRutina solicitada) {
+		EntradaRutina entrada = solicitada;
 		FiltroPrevio.Resultado filtro = FiltroPrevio.aplicar(catalogo.ejercicios(), entrada);
 		List<String> notas = new ArrayList<>();
 		boolean minimos = true;
 		ModeloRutina modelo = new ModeloRutina(config, entrada, filtro.candidatos(), minimos);
 		Resultado resultado = Resolutor.resolver(modelo, config.solver(), config.solver().tiempoDeterminista());
+		if (resultado.inviable() && !entrada.seriesSemana().isEmpty()) {
+			// Las series fijadas son duras: si no caben, mejor un plan sin ellas (y decirlo) que ninguno.
+			notas.add(Textos.SERIES_NO_CABEN);
+			entrada = entrada.sinSeriesFijadas();
+			modelo = new ModeloRutina(config, entrada, filtro.candidatos(), minimos);
+			resultado = Resolutor.resolver(modelo, config.solver(), config.solver().tiempoDeterminista());
+		}
 		if (resultado.inviable()) {
 			// Con pocos candidatos los mínimos por sesión pueden no caber; sin ellos, el modelo siempre tiene
 			// solución (todo a cero) y la holgura cuenta lo que falta.

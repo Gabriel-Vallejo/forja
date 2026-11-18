@@ -48,6 +48,12 @@ import {
   type Medidas,
   type CuerpoMedidas,
   type TramosMovilidad,
+  type Ajuste,
+  type PreferenciasGuardadas,
+  type PreferenciasPlan,
+  type VistaPrevia,
+  esquemaPreferencias,
+  esquemaVistaPrevia,
 } from './esquemas';
 
 const NO_ENCONTRADO = 404;
@@ -78,6 +84,14 @@ export interface ApiForja {
   perfilEntreno(): Promise<PerfilEntreno>;
   guardarPerfilEntreno(ajustes: AjustesEntreno): Promise<PerfilEntreno>;
   materiales(): Promise<Material[]>;
+  // Ajustes del plan (PRD v0.1). Resolver tarda segundos: cada vista previa y cada aplicar gastan un intento.
+  /** El plan con el ajuste y lo que cambia; no guarda nada. */
+  vistaPrevia(ajuste: Ajuste): Promise<VistaPrevia>;
+  /** Guarda el ajuste y el plan nuevo; `version` es la de la vista previa (409 si el plan ya cambió). */
+  aplicarAjuste(ajuste: Ajuste & { version: string }): Promise<void>;
+  preferencias(): Promise<PreferenciasGuardadas>;
+  /** Reemplaza las preferencias guardadas; no cambia el plan hasta regenerar. */
+  guardarPreferencias(preferencias: PreferenciasPlan): Promise<PreferenciasGuardadas>;
   // Limitaciones (ADR 0007). Datos de salud: ninguna de estas respuestas se guarda fuera de la memoria.
   /** Los consentimientos vivos (los retirados no salen). */
   consentimientos(): Promise<Consentimiento[]>;
@@ -202,6 +216,14 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
     guardarPerfilEntreno: (ajustes) =>
       cliente.pedir({ metodo: 'PUT', ruta: '/api/v1/perfil/entreno', cuerpo: ajustes, esquema: esquemaPerfilEntreno }),
     materiales: () => cliente.pedir({ ruta: '/api/v1/catalogo/materiales', esquema: esquemaMateriales }),
+    vistaPrevia: (ajuste) =>
+      cliente.pedir({ metodo: 'POST', ruta: '/api/v1/planes/actual/ajustes/vista-previa', cuerpo: ajuste, esquema: esquemaVistaPrevia }),
+    async aplicarAjuste(ajuste) {
+      await cliente.pedir({ metodo: 'POST', ruta: '/api/v1/planes/actual/ajustes', cuerpo: ajuste, esquema: esquemaPlanGenerado });
+    },
+    preferencias: () => cliente.pedir({ ruta: '/api/v1/planes/preferencias', esquema: esquemaPreferencias }),
+    guardarPreferencias: (preferencias) =>
+      cliente.pedir({ metodo: 'PUT', ruta: '/api/v1/planes/preferencias', cuerpo: preferencias, esquema: esquemaPreferencias }),
     consentimientos: () => cliente.pedir({ ruta: '/api/v1/consentimientos', esquema: esquemaConsentimientos }),
     retirarConsentimiento,
     tieneConsentimientoLimitaciones: () => tieneConsentimiento(TIPO_LIMITACIONES),

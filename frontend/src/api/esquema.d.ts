@@ -284,7 +284,7 @@ export interface paths {
             cookie?: never;
         };
         get: operations["obtener_1"];
-        put: operations["guardar_2"];
+        put: operations["guardar_3"];
         post?: never;
         delete?: never;
         options?: never;
@@ -316,7 +316,7 @@ export interface paths {
             cookie?: never;
         };
         get: operations["obtener"];
-        put: operations["guardar_1"];
+        put: operations["guardar_2"];
         post?: never;
         delete?: never;
         options?: never;
@@ -356,6 +356,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/planes/actual/ajustes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["aplicar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/planes/actual/ajustes/vista-previa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["vistaPrevia"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/planes/actual/ejercicios/{dia}/{idExterno}/por-que": {
         parameters: {
             query?: never;
@@ -365,6 +397,22 @@ export interface paths {
         };
         get: operations["porQue"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/planes/preferencias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["preferencias"];
+        put: operations["guardar_1"];
         post?: never;
         delete?: never;
         options?: never;
@@ -488,6 +536,13 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        Ajuste: {
+            idExterno?: string;
+            musculos?: string[];
+            tipo: string;
+            /** Format: uuid */
+            version?: string;
+        };
         AjustesEntreno: {
             /** Format: int32 */
             diasPorSemana: number;
@@ -505,6 +560,22 @@ export interface components {
         };
         BorrarCuenta: {
             contrasena: string;
+        };
+        CambioEjercicio: {
+            /** Format: int32 */
+            antes?: number;
+            /** Format: int32 */
+            despues?: number;
+            idExterno?: string;
+            nombre?: string;
+        };
+        CambioMusculo: {
+            /** Format: double */
+            antes?: number;
+            /** Format: double */
+            despues?: number;
+            musculo?: string;
+            nombre?: string;
         };
         ContribucionEjercicio: {
             idExterno?: string;
@@ -563,6 +634,10 @@ export interface components {
             posicionEstirada?: boolean;
             /** Format: int32 */
             series?: number;
+        };
+        Elemento: {
+            codigo?: string;
+            nombre?: string;
         };
         EstadoBloqueo: {
             bloquea?: boolean;
@@ -696,11 +771,38 @@ export interface components {
             uuid?: string;
             volumen?: components["schemas"]["VolumenMusculo"][];
         };
+        PlanRutina: {
+            alternativas?: components["schemas"]["Alternativa"][];
+            contribuciones?: components["schemas"]["ContribucionEjercicio"][];
+            descartes?: components["schemas"]["Descarte"][];
+            dias?: components["schemas"]["DiaPlan"][];
+            estado?: string;
+            holguras?: components["schemas"]["Holgura"][];
+            notas?: string[];
+            /** Format: int64 */
+            objetivo?: number;
+            resumen?: string;
+            volumen?: components["schemas"]["VolumenMusculo"][];
+        };
         PorQueEjercicio: {
             /** Format: int32 */
             dia?: number;
             idExterno?: string;
             porQue?: components["schemas"]["Razon"][];
+        };
+        PreferenciasGuardadas: {
+            exclusiones?: components["schemas"]["Elemento"][];
+            prioritarios?: components["schemas"]["Elemento"][];
+            series?: components["schemas"]["SeriesFijadas"][];
+            variedad?: boolean;
+        };
+        PreferenciasPlan: {
+            exclusiones: string[];
+            prioritarios: string[];
+            series: {
+                [key: string]: number;
+            };
+            variedad?: boolean;
         };
         ProgresionEjercicio: {
             cargaSiguienteKg?: number;
@@ -852,6 +954,12 @@ export interface components {
             /** Format: uuid */
             uuid?: string;
         };
+        SeriesFijadas: {
+            idExterno?: string;
+            nombre?: string;
+            /** Format: int32 */
+            series?: number;
+        };
         SesionEntrada: {
             /** Format: int32 */
             diaPlan?: number;
@@ -922,6 +1030,14 @@ export interface components {
             cadera?: string;
             hombro?: string;
             tobillo?: string;
+        };
+        VistaPrevia: {
+            ejercicios?: components["schemas"]["CambioEjercicio"][];
+            musculos?: components["schemas"]["CambioMusculo"][];
+            plan?: components["schemas"]["PlanRutina"];
+            preferencias?: components["schemas"]["PreferenciasPlan"];
+            /** Format: uuid */
+            version?: string;
         };
         VolumenMusculo: {
             fuente?: string;
@@ -1357,7 +1473,7 @@ export interface operations {
             };
         };
     };
-    guardar_2: {
+    guardar_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -1445,7 +1561,7 @@ export interface operations {
             };
         };
     };
-    guardar_1: {
+    guardar_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -1533,6 +1649,54 @@ export interface operations {
             };
         };
     };
+    aplicar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Ajuste"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PlanGenerado"];
+                };
+            };
+        };
+    };
+    vistaPrevia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Ajuste"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["VistaPrevia"];
+                };
+            };
+        };
+    };
     porQue: {
         parameters: {
             query?: never;
@@ -1552,6 +1716,50 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PorQueEjercicio"];
+                };
+            };
+        };
+    };
+    preferencias: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PreferenciasGuardadas"];
+                };
+            };
+        };
+    };
+    guardar_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreferenciasPlan"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PreferenciasGuardadas"];
                 };
             };
         };

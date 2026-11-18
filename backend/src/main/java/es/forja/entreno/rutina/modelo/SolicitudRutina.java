@@ -1,5 +1,6 @@
 package es.forja.entreno.rutina.modelo;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,11 +45,17 @@ public record SolicitudRutina(
 	public static final int LARGO_MAXIMO_CODIGO = 30;
 	public static final int LARGO_MAXIMO_ID = 120;
 
-	public EntradaRutina aEntrada(List<Restriccion> restricciones, Map<TestMovilidad, Tramo> movilidad) {
-		return new EntradaRutina(diasPorSemana, minutosPorSesion, Set.copyOf(material),
-				exclusiones == null ? Set.of() : Set.copyOf(exclusiones),
-				prioritarios == null ? List.of() : List.copyOf(prioritarios),
+	/** Con las preferencias guardadas: sus exclusiones se suman y sus prioritarios cuentan si aquí no hay. */
+	public EntradaRutina aEntrada(List<Restriccion> restricciones, Map<TestMovilidad, Tramo> movilidad,
+			Preferencias preferencias) {
+		Set<String> todas = new HashSet<>(preferencias.exclusiones());
+		if (exclusiones != null) {
+			todas.addAll(exclusiones);
+		}
+		List<String> enfoque = prioritarios == null || prioritarios.isEmpty() ? preferencias.prioritarios()
+				: prioritarios;
+		return new EntradaRutina(diasPorSemana, minutosPorSesion, Set.copyOf(material), todas, enfoque,
 				frecuenciaMinima == null ? EntradaRutina.FRECUENCIA_POR_DEFECTO : frecuenciaMinima, restricciones,
-				movilidad);
+				movilidad, preferencias.series(), preferencias.evitar());
 	}
 }

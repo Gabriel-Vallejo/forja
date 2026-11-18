@@ -85,6 +85,9 @@ class BorradoTotalApiTest extends SoporteSesiones {
 		actualizar("/api/v1/perfil/datos", movil, Map.of("sexo", "hombre", "experiencia", "intermedio", "objetivo",
 				"fuerza")).andExpect(status().isOk());
 		actualizar("/api/v1/perfil/medidas", movil, Map.of("alturaCm", 180.0, "pesoKg", 78.5)).andExpect(status().isOk());
+		// Preferencias de los ajustes del plan (V9): las tres tablas también se vacían.
+		actualizar("/api/v1/planes/preferencias", movil, Map.of("exclusiones", List.of(objetivo.idExterno()),
+				"prioritarios", List.of("pecho"), "series", Map.of(), "variedad", true)).andExpect(status().isOk());
 		// Después de generar el plan: con bandera roja activa ya no se genera.
 		// Bandera roja: deja un bloqueo guardado, que también se borra con la cuenta.
 		enviarAutenticado("/api/v1/banderas", movil, banderasConDolorToracico()).andExpect(status().isOk());
@@ -93,7 +96,8 @@ class BorradoTotalApiTest extends SoporteSesiones {
 				.query(Long.class).list();
 		Map<String, Long> antes = filasDelUsuario(usuarioId, dispositivos);
 		assertThat(antes).containsKeys("usuario", "dispositivo", "token_refresco", "token_un_uso", "consentimiento",
-				"restriccion", "bloqueo_salud", "perfil_entreno", "perfil_entreno_material", "test_movilidad", "perfil_datos", "perfil_medidas");
+				"restriccion", "bloqueo_salud", "perfil_entreno", "perfil_entreno_material", "test_movilidad", "perfil_datos", "perfil_medidas",
+				"preferencia_plan", "preferencia_ejercicio", "preferencia_musculo");
 		assertThat(antes.get("test_movilidad")).isEqualTo(3);
 		assertThat(antes.get("consentimiento")).isEqualTo(CONSENTIMIENTOS.size());
 		assertThat(antes.get("restriccion")).isEqualTo(2);

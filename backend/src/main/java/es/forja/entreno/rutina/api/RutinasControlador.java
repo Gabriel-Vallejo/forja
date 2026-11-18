@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.forja.comun.seguridad.UsuarioAutenticado;
 import es.forja.entreno.plan.modelo.PlanGenerado;
+import es.forja.entreno.plan.servicio.ServicioAjustes;
 import es.forja.entreno.plan.servicio.ServicioPlan;
 import es.forja.entreno.rutina.modelo.SolicitudRutina;
 import es.forja.entreno.rutina.servicio.ServicioRutina;
@@ -15,7 +16,7 @@ import jakarta.validation.Valid;
 
 /**
  * Rutina del usuario autenticado con CP-SAT (ADR 0002). Devuelve el plan y su traza, y guarda el plan como una
- * versión nueva (ADR 0008 §6). Las limitaciones son dato de salud: nada de esto se escribe en el log.
+ * versión nueva (ADR 0008 §6), con las preferencias guardadas de los ajustes del plan. Las limitaciones son dato de salud: nada de esto se escribe en el log.
  */
 @RestController
 @RequestMapping("/api/v1/rutinas")
@@ -23,15 +24,18 @@ public class RutinasControlador {
 
 	private final ServicioRutina rutinas;
 	private final ServicioPlan planes;
+	private final ServicioAjustes ajustes;
 
-	public RutinasControlador(ServicioRutina rutinas, ServicioPlan planes) {
+	public RutinasControlador(ServicioRutina rutinas, ServicioPlan planes, ServicioAjustes ajustes) {
 		this.rutinas = rutinas;
 		this.planes = planes;
+		this.ajustes = ajustes;
 	}
 
 	@PostMapping("/generar")
 	public PlanGenerado generar(@AuthenticationPrincipal UsuarioAutenticado actual,
 			@Valid @RequestBody SolicitudRutina solicitud) {
-		return planes.guardar(actual.usuario(), rutinas.generar(actual.usuario(), solicitud));
+		return planes.guardar(actual.usuario(), rutinas.generar(actual.usuario(), solicitud,
+				ajustes.paraGenerar(actual.usuario())));
 	}
 }

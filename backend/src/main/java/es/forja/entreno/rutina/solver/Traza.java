@@ -121,7 +121,7 @@ final class Traza {
 			int diasUsados = (int) IntStream.of(solucion.series()[e]).filter(s -> s > 0).count();
 			int diasDeMas = Math.max(0, diasUsados - ModeloRutina.REPETICIONES_SIN_PENALIZAR);
 			return new ContribucionEjercicio(ej.idExterno(), ej.nombre(), Terminos.contribucion(config, ej,
-					entrada.prioritarios(), modelo.movilidad, seriesSemana(e), diasDeMas, parteDelVolumen(ej, seriesSemana(e))));
+					entrada, modelo.movilidad, seriesSemana(e), diasDeMas, parteDelVolumen(ej, seriesSemana(e))));
 		}).toList();
 	}
 
