@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
-import { processColor } from 'react-native';
+import { Linking, processColor } from 'react-native';
 
 import { ErrorApi } from '../api/errores';
 import { AVISO_PRIMERA_SESION } from '../plan/plan';
@@ -184,13 +184,28 @@ describe('Por qué este ejercicio', () => {
 
     expect(await screen.findByText('Carga el músculo estirado.')).toBeOnTheScreen();
     expect(porQue).toHaveBeenCalledWith(1, 'remo');
-    expect(screen.getByText('Maeo 2021')).toBeOnTheScreen();
+    expect(screen.getByRole('link', { name: 'Maeo 2021' })).toBeOnTheScreen();
     expect(screen.getByText('Evidencia B')).toBeOnTheScreen();
     expect(screen.getByText('Heurística')).toBeOnTheScreen();
     expect(screen.getByText('Propuesta propia')).toBeOnTheScreen();
     expect(screen.getByLabelText('Nivel H: heurística de entrenadores, no ciencia')).toBeOnTheScreen();
     expect(screen.getByLabelText('Nivel B: evidencia B de la fuente')).toBeOnTheScreen();
     expect(screen.getByLabelText('Nivel P: propuesta propia de Forja')).toBeOnTheScreen();
+  });
+
+  test('la cita y su insignia abren el artículo; una heurística no es enlace', async () => {
+    const abrir = jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined);
+    await renderizar(<Ejercicio dia={1} idExterno="remo" />, conPorQue(jest.fn().mockResolvedValue(razones)));
+
+    await fireEvent.press(await screen.findByRole('link', { name: 'Maeo 2021' }));
+    await fireEvent.press(screen.getByRole('link', { name: 'Nivel B: evidencia B de la fuente' }));
+
+    expect(abrir).toHaveBeenCalledTimes(2);
+    expect(abrir).toHaveBeenNthCalledWith(1, 'https://doi.org/10.1249/MSS.0000000000002523');
+    expect(abrir).toHaveBeenNthCalledWith(2, 'https://doi.org/10.1249/MSS.0000000000002523');
+    expect(screen.queryByRole('link', { name: /Nivel H/ })).toBeNull();
+    expect(screen.queryByRole('link', { name: /Heurística de entrenadores/ })).toBeNull();
+    abrir.mockRestore();
   });
 
   test('sin razones lo dice', async () => {

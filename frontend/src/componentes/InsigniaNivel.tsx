@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import type { Nivel } from '../api/esquemas';
 import { type Theme, useTheme } from '../theme';
@@ -23,13 +23,38 @@ const LEYENDA: Record<Nivel, string> = {
   P: 'propuesta propia de Forja',
 };
 
+// La insignia es pequeña: el área táctil crece hasta ~44 px sin cambiar el dibujo.
+const HOLGURA = { top: 12, bottom: 12, left: 8, right: 8 };
+
+interface PropsInsignia {
+  nivel: Nivel;
+  /** Si la regla tiene artículo, tocar la insignia lo abre (design-system §5.2). */
+  alTocar?: () => void;
+}
+
 /** Insignia del nivel de una regla (ADR 0007), con su leyenda para el lector de pantalla. */
-export function InsigniaNivel({ nivel }: { nivel: Nivel }) {
+export function InsigniaNivel({ nivel, alTocar }: PropsInsignia) {
   const estilos = crearEstilos(useTheme());
+  const etiqueta = `Nivel ${nivel}: ${LEYENDA[nivel]}`;
+  const dibujo = <Texto estilo="mini">{VISIBLE[nivel]}</Texto>;
+  if (!alTocar) {
+    return (
+      <View style={estilos.insignia} accessible accessibilityLabel={etiqueta}>
+        {dibujo}
+      </View>
+    );
+  }
   return (
-    <View style={estilos.insignia} accessible accessibilityLabel={`Nivel ${nivel}: ${LEYENDA[nivel]}`}>
-      <Texto estilo="mini">{VISIBLE[nivel]}</Texto>
-    </View>
+    <Pressable
+      style={estilos.insignia}
+      onPress={alTocar}
+      hitSlop={HOLGURA}
+      accessibilityRole="link"
+      accessibilityLabel={etiqueta}
+      accessibilityHint="Abre el artículo de la fuente"
+    >
+      {dibujo}
+    </Pressable>
   );
 }
 

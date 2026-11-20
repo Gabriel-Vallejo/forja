@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 
 import type { PlanActual, Razon } from '../api/esquemas';
 import { Aviso } from '../componentes/Aviso';
@@ -14,6 +14,7 @@ import { Texto } from '../componentes/Texto';
 import { etiquetaMusculo } from '../plan/musculos';
 import { NOMBRE_ESTADO, numeroDeOrden, prescripcion } from '../plan/plan';
 import { usePorQue } from '../plan/porQue';
+import { trozosFuente } from '../plan/referencias';
 import { useCargasSiguientes } from '../registro/sincronizacion';
 import { type Theme, useTheme } from '../theme';
 import { ConPlan } from './ConPlan';
@@ -110,14 +111,29 @@ function PorQue({ plan, dia, idExterno }: PropsEjercicio & { plan: string }) {
   );
 }
 
+// Sin navegador no hay nada que hacer: la cita sigue a la vista para buscarla a mano.
+const abrir = (url: string) => void Linking.openURL(url).catch(() => undefined);
+
 function FilaRazon({ razon }: { razon: Razon }) {
   const estilos = crearEstilos(useTheme());
+  const trozos = trozosFuente(razon.fuente);
+  const articulo = trozos.find((t) => t.url)?.url;
   return (
     <View style={estilos.razon}>
       <Texto estilo="texto">{razon.texto}</Texto>
       <View style={estilos.pie}>
-        <Texto estilo="mini" tono="secundario" estiloExtra={estilos.fuente}>{razon.fuente}</Texto>
-        <InsigniaNivel nivel={razon.nivel} />
+        <Texto estilo="mini" tono="secundario" estiloExtra={estilos.fuente}>
+          {trozos.map(({ texto, url }) =>
+            url ? (
+              <Text key={texto} style={estilos.enlace} accessibilityRole="link" onPress={() => abrir(url)}>
+                {texto}
+              </Text>
+            ) : (
+              texto
+            ),
+          )}
+        </Texto>
+        <InsigniaNivel nivel={razon.nivel} alTocar={articulo ? () => abrir(articulo) : undefined} />
       </View>
     </View>
   );
@@ -155,6 +171,7 @@ function crearEstilos(tema: Theme) {
     razon: { gap: tema.space.s1 },
     pie: { flexDirection: 'row', alignItems: 'center', gap: tema.space.s2 },
     fuente: { flexShrink: 1 },
+    enlace: { color: tema.color.onBackground, textDecorationLine: 'underline' },
     estado: {
       paddingHorizontal: tema.space.s15,
       paddingVertical: tema.space.s05,
