@@ -254,7 +254,15 @@ function Resumen({ outbox, sesion, series }: { outbox: Outbox; sesion: string; s
 
 type Final = 'terminar' | 'descartar' | null;
 
-function SesionDelDia({ outbox, plan, alGuardarSerie }: { outbox: Outbox; plan: PlanActual; alGuardarSerie: () => void }) {
+interface PropsSesionDelDia {
+  outbox: Outbox;
+  plan: PlanActual;
+  alGuardarSerie: () => void;
+  /** Avisa de si hay una confirmación abierta abajo del todo, para bajar hasta ella. */
+  alConfirmar: (abierta: boolean) => void;
+}
+
+function SesionDelDia({ outbox, plan, alGuardarSerie, alConfirmar }: PropsSesionDelDia) {
   const router = useRouter();
   const tema = useTheme();
   const estilos = crearEstilos(tema);
@@ -262,7 +270,11 @@ function SesionDelDia({ outbox, plan, alGuardarSerie }: { outbox: Outbox; plan: 
   const { sesion, series, error, recargar, reintentar } = useSesionDelDia(outbox, plan);
   const [elegido, setElegido] = useState<Activo>(null);
   const [porAnular, setPorAnular] = useState<string | null>(null);
-  const [final, setFinal] = useState<Final>(null);
+  const [final, setFinalLocal] = useState<Final>(null);
+  const setFinal = (f: Final) => {
+    setFinalLocal(f);
+    alConfirmar(f !== null);
+  };
   const [cerrando, setCerrando] = useState(false);
   const [errorFinal, setErrorFinal] = useState<string>();
   const [terminada, setTerminada] = useState(false);
@@ -330,6 +342,7 @@ function SesionDelDia({ outbox, plan, alGuardarSerie }: { outbox: Outbox; plan: 
   };
 
   const trabajo = series.filter((s) => !s.calentamiento).length;
+  const calentamiento = series.length - trabajo;
   return (
     <>
       <View>
@@ -356,7 +369,7 @@ function SesionDelDia({ outbox, plan, alGuardarSerie }: { outbox: Outbox; plan: 
           <Confirmacion
             mensaje={
               final === 'terminar'
-                ? `¿Terminar la sesión? Llevas ${plural(trabajo, 'serie', 'series')}.`
+                ? `¿Terminar la sesión? Llevas ${plural(trabajo, 'serie', 'series')}${calentamiento > 0 ? ` de trabajo y ${calentamiento} de calentamiento` : ''}.`
                 : 'No has guardado ninguna serie: no hay nada que terminar. ¿Descartas la sesión?'
             }
             etiquetaConfirmar={final === 'terminar' ? 'Sí, terminar' : 'Sí, descartar'}
@@ -394,11 +407,12 @@ function PanelDescanso({ descanso, restanteMs }: { descanso: Descanso; restanteM
 export function SesionEntreno() {
   const descanso = useDescanso();
   const { restanteMs } = descanso;
+  const [confirmando, setConfirmando] = useState(false);
   return (
-    <Pantalla hueco="s4" pie={restanteMs === null ? undefined : <PanelDescanso descanso={descanso} restanteMs={restanteMs} />}>
+    <Pantalla hueco="s4" seguirFinal={confirmando} pie={restanteMs === null ? undefined : <PanelDescanso descanso={descanso} restanteMs={restanteMs} />}>
       <EncabezadoAtras titulo="Sesión de hoy" />
       <ConOutbox>
-        {(outbox) => <ConPlanParaEntrenar>{(plan) => <SesionDelDia outbox={outbox} plan={plan} alGuardarSerie={descanso.empezar} />}</ConPlanParaEntrenar>}
+        {(outbox) => <ConPlanParaEntrenar>{(plan) => <SesionDelDia outbox={outbox} plan={plan} alGuardarSerie={descanso.empezar} alConfirmar={setConfirmando} />}</ConPlanParaEntrenar>}
       </ConOutbox>
     </Pantalla>
   );

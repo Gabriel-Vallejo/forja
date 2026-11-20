@@ -1,3 +1,4 @@
+import { ScrollView } from 'react-native';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 
 import { ErrorApi } from '../api/errores';
@@ -99,6 +100,24 @@ describe('Sesión en curso', () => {
     expect(screen.getByRole('button', { name: `Guardar serie, ${PRESS}` })).toBeOnTheScreen();
     const [sesion] = await almacen.listarSesiones();
     expect(await almacen.listarSeries(sesion!.uuid)).toEqual([expect.objectContaining({ calentamiento: true, dolor: 3 })]);
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Terminar sesión' }));
+    expect(screen.getByText('¿Terminar la sesión? Llevas 0 series de trabajo y 1 de calentamiento.')).toBeOnTheScreen();
+  });
+
+  test('al abrir la confirmación de terminar, la pantalla baja hasta ella', async () => {
+    const bajar = jest.spyOn(ScrollView.prototype, 'scrollToEnd');
+    await abrir();
+    await guardar();
+    await screen.findByText('Serie 1 hecha');
+    const desplazable = screen.getByTestId('pantalla-desplazable');
+
+    fireEvent(desplazable, 'contentSizeChange', 400, 2000);
+    expect(bajar).not.toHaveBeenCalled();
+    await fireEvent.press(screen.getByRole('button', { name: 'Terminar sesión' }));
+    fireEvent(desplazable, 'contentSizeChange', 400, 2200);
+    expect(bajar).toHaveBeenCalled();
+    bajar.mockRestore();
   });
 
   test('retoma la sesión en curso con sus series aunque se cerrara la app', async () => {

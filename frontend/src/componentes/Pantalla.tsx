@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { type ReactNode, useMemo } from 'react';
+import { type ComponentRef, type ReactNode, useMemo, useRef } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { type Edge, SafeAreaView } from 'react-native-safe-area-context';
 
@@ -17,13 +17,16 @@ interface PropsPantalla {
   bordes?: readonly Edge[];
   fondo?: string;
   pie?: ReactNode;
+  /** Baja al final cada vez que crece el contenido: para una confirmación que se abre abajo del todo. */
+  seguirFinal?: boolean;
   children: ReactNode;
 }
 
 const TODOS: readonly Edge[] = ['top', 'bottom', 'left', 'right'];
 
 /** Pantalla con zona segura, fondo del tema y desplazamiento para textos grandes. */
-export function Pantalla({ titulo, hueco = 's6', fija = false, bordes = TODOS, fondo, pie, children }: PropsPantalla) {
+export function Pantalla({ titulo, hueco = 's6', fija = false, bordes = TODOS, fondo, pie, seguirFinal = false, children }: PropsPantalla) {
+  const desplazable = useRef<ComponentRef<typeof ScrollView>>(null);
   const tema = useTheme();
   const estilos = useMemo(() => crearEstilos(tema), [tema]);
   const separacion = { gap: tema.space[hueco] };
@@ -42,7 +45,13 @@ export function Pantalla({ titulo, hueco = 's6', fija = false, bordes = TODOS, f
           {children}
         </View>
       ) : (
-        <ScrollView contentContainerStyle={[estilos.contenido, separacion]} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          ref={desplazable}
+          testID="pantalla-desplazable"
+          contentContainerStyle={[estilos.contenido, separacion]}
+          keyboardShouldPersistTaps="handled"
+          onContentSizeChange={seguirFinal ? () => desplazable.current?.scrollToEnd({ animated: true }) : undefined}
+        >
           {cabecera}
           {children}
         </ScrollView>
