@@ -156,11 +156,21 @@ public class SesionRepositorio implements HistorialSesiones {
 	}
 
 	public List<SerieVigente> vigentes(Collection<UUID> sesiones) {
+		return seriesDe("serie_vigente", sesiones);
+	}
+
+	/** Todas las series de esas sesiones, también las corregidas, las correcciones y las anulaciones. */
+	public List<SerieVigente> todas(Collection<UUID> sesiones) {
+		return seriesDe("serie_realizada", sesiones);
+	}
+
+	/** {@code origen} es la tabla o la vista, fija en el código: nunca llega de fuera. */
+	private List<SerieVigente> seriesDe(String origen, Collection<UUID> sesiones) {
 		return jdbc.sql("""
 				SELECT v.sesion_uuid, v.uuid, e.id_externo, v.orden, v.peso_kg, v.repeticiones, v.rir, v.rpe,
 				       v.calentamiento, v.dolor, v.corrige_a, v.anulada, v.realizada_en
-				FROM serie_vigente v JOIN ejercicio e ON e.id = v.ejercicio_id
-				WHERE v.sesion_uuid IN (:sesiones) ORDER BY v.orden, v.uuid""")
+				FROM %s v JOIN ejercicio e ON e.id = v.ejercicio_id
+				WHERE v.sesion_uuid IN (:sesiones) ORDER BY v.orden, v.uuid""".formatted(origen))
 				.param("sesiones", sesiones.stream().map(Conversiones::aBytes).toList())
 				.query((rs, n) -> new SerieVigente(Conversiones.uuid(rs, "sesion_uuid"), Conversiones.uuid(rs, "uuid"),
 						rs.getString("id_externo"), rs.getInt("orden"), rs.getBigDecimal("peso_kg"),

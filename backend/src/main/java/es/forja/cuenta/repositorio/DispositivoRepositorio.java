@@ -63,6 +63,12 @@ public class DispositivoRepositorio {
 				+ " ORDER BY ultima_actividad DESC, id DESC").param("usuario", usuarioId).query(FILA).list();
 	}
 
+	/** Todos los dispositivos del usuario, también los revocados (la fila sigue ahí). */
+	public List<Dispositivo> deUsuario(long usuarioId) {
+		return jdbc.sql("SELECT " + COLUMNAS + " FROM dispositivo WHERE usuario_id = :usuario ORDER BY id")
+				.param("usuario", usuarioId).query(FILA).list();
+	}
+
 	/** Dice si el {@code sid} del token sigue vivo y pertenece al {@code sub}. */
 	public boolean estaVivo(UUID dispositivo, UUID usuario) {
 		return jdbc.sql("""

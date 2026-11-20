@@ -35,7 +35,12 @@ public class LimitadorIntentos {
 
 	/** Gasta un intento solo por clave (sin IP), para operaciones ya autenticadas. */
 	public void exigirPorClave(String accion, String clave) {
-		gastar("clave|" + accion + "|" + clave, INTENTOS_POR_CORREO, VENTANA_POR_CORREO);
+		exigirPorClave(accion, clave, INTENTOS_POR_CORREO, VENTANA_POR_CORREO);
+	}
+
+	/** Igual, con un límite propio de la acción. */
+	public void exigirPorClave(String accion, String clave, int capacidad, Duration ventana) {
+		gastar("clave|" + accion + "|" + clave, capacidad, ventana);
 	}
 
 	private void gastar(String clave, int capacidad, Duration ventana) {

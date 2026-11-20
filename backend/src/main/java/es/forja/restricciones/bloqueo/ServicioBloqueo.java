@@ -2,7 +2,9 @@ package es.forja.restricciones.bloqueo;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +30,10 @@ public class ServicioBloqueo {
 	public static final String CODIGO_ERROR = "bandera_roja_activa";
 
 	private record Contenido(String nivel, String evaluadoEn) {
+	}
+
+	/** Un bloqueo activo con su origen, su nivel y cuándo se evaluó: es lo que se exporta. */
+	public record BloqueoActivo(String origen, String nivel, Instant evaluadoEn) {
 	}
 
 	private final BloqueoRepositorio bloqueos;
@@ -66,6 +72,16 @@ public class ServicioBloqueo {
 		return bloqueos.deUsuario(usuarioId).stream().map(this::nivel).max(Comparator.naturalOrder());
 	}
 
+	/** Los bloqueos guardados del usuario, descifrados. Sin consentimiento de limitaciones no hay ninguno. */
+	public List<BloqueoActivo> activos(UUID usuario) {
+		long usuarioId = usuarios.porUuid(usuario)
+				.orElseThrow(() -> ErrorNegocio.noAutenticado("La sesión ya no es válida.")).id();
+		return bloqueos.deUsuario(usuarioId).stream().map(fila -> {
+			Contenido c = contenido(fila);
+			return new BloqueoActivo(fila.origen().columna(), c.nivel(), Instant.parse(c.evaluadoEn()));
+		}).toList();
+	}
+
 	/** 409 con código estable si hay bloqueo; el mensaje es de fitness, sin diagnóstico. */
 	public void exigirSinBloqueo(UUID usuario) {
 		nivelActivo(usuario).ifPresent(nivel -> {
@@ -84,9 +100,12 @@ public class ServicioBloqueo {
 	}
 
 	private NivelBloqueo nivel(BloqueoRepositorio.FilaCifrada fila) {
+		return NivelBloqueo.valueOf(contenido(fila).nivel().toUpperCase(java.util.Locale.ROOT));
+	}
+
+	private Contenido contenido(BloqueoRepositorio.FilaCifrada fila) {
 		byte[] claro = cifrador.descifrar(BloqueoRepositorio.TABLA, BloqueoRepositorio.COLUMNA_DATOS, fila.uuid(),
 				fila.datos());
-		Contenido c = json.readValue(new String(claro, StandardCharsets.UTF_8), Contenido.class);
-		return NivelBloqueo.valueOf(c.nivel().toUpperCase(java.util.Locale.ROOT));
+		return json.readValue(new String(claro, StandardCharsets.UTF_8), Contenido.class);
 	}
 }

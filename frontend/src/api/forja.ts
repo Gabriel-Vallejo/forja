@@ -54,6 +54,8 @@ import {
   type VistaPrevia,
   esquemaPreferencias,
   esquemaVistaPrevia,
+  type DatosExportados,
+  esquemaDatosExportados,
 } from './esquemas';
 
 const NO_ENCONTRADO = 404;
@@ -117,6 +119,8 @@ export interface ApiForja {
   cerrarDispositivo(id: string): Promise<void>;
   /** Pide la contraseña, borra la cuenta en el backend (en cascada) y la sesión local (RF-47). */
   borrarCuenta(contrasena: string): Promise<void>;
+  /** Todo lo que el backend guarda del usuario (RGPD, arts. 15 y 20), descifrado. 429 pasado el límite por hora. */
+  exportarDatos(): Promise<DatosExportados>;
   // Tests de movilidad (RF-08), con el consentimiento de medidas de salud (ADR 0004). Igual: solo en memoria.
   tieneConsentimientoMedidas(): Promise<boolean>;
   darConsentimientoMedidas(versionTexto: string): Promise<void>;
@@ -270,6 +274,9 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
     dispositivos: () => cliente.pedir({ ruta: '/api/v1/dispositivos', esquema: esquemaDispositivos }),
     async cerrarDispositivo(id) {
       await cliente.pedir({ metodo: 'DELETE', ruta: `/api/v1/dispositivos/${encodeURIComponent(id)}` });
+    },
+    exportarDatos() {
+      return cliente.pedir({ ruta: '/api/v1/cuenta/datos', esquema: esquemaDatosExportados });
     },
     async borrarCuenta(contrasena) {
       await cliente.pedir({ metodo: 'DELETE', ruta: '/api/v1/cuenta', cuerpo: { contrasena } });

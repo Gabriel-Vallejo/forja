@@ -80,6 +80,15 @@ public class PlanRepositorio {
 				.param("incremento", f.incrementoKg()).update();
 	}
 
+	/** Todas las versiones del usuario, de la más antigua a la última. */
+	public List<CabeceraPlan> versiones(long usuarioId) {
+		return jdbc.sql("SELECT id, uuid, creado_en, estado FROM plan_version WHERE usuario_id = :usuario ORDER BY id")
+				.param("usuario", usuarioId)
+				.query((rs, n) -> new CabeceraPlan(rs.getLong("id"), Conversiones.uuid(rs, "uuid"),
+						Conversiones.instante(rs, "creado_en"), rs.getString("estado")))
+				.list();
+	}
+
 	/** El último plan del usuario. */
 	public Optional<CabeceraPlan> ultimo(long usuarioId) {
 		return jdbc.sql("""

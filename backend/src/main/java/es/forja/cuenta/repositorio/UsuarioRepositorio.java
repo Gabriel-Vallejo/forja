@@ -54,6 +54,12 @@ public class UsuarioRepositorio {
 				.param("uuid", Conversiones.aBytes(uuid)).query(FILA).optional();
 	}
 
+	/** Cuándo se dio de alta la cuenta; no va en {@link Usuario} porque solo la usa la exportación. */
+	public Optional<Instant> creadoEn(long id) {
+		return jdbc.sql("SELECT creado_en FROM usuario WHERE id = :id").param("id", id)
+				.query((rs, n) -> Conversiones.instante(rs, "creado_en")).optional();
+	}
+
 	public Optional<Usuario> porId(long id) {
 		return jdbc.sql("SELECT " + COLUMNAS + " FROM usuario WHERE id = :id").param("id", id).query(FILA)
 				.optional();

@@ -21,6 +21,10 @@ public class ManejadorErroresCuenta {
 		if (error.segundosDeEspera() > 0) {
 			respuesta.header(HttpHeaders.RETRY_AFTER, Long.toString(error.segundosDeEspera()));
 		}
-		return respuesta.body(ProblemDetail.forStatusAndDetail(error.estado(), error.getMessage()));
+		ProblemDetail problema = ProblemDetail.forStatusAndDetail(error.estado(), error.getMessage());
+		if (error.codigo() != null) {
+			problema.setProperty("codigo", error.codigo());
+		}
+		return respuesta.body(problema);
 	}
 }

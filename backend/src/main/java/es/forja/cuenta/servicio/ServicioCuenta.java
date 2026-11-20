@@ -1,5 +1,6 @@
 package es.forja.cuenta.servicio;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +16,10 @@ import es.forja.cuenta.repositorio.UsuarioRepositorio;
 public class ServicioCuenta implements DispositivosActivos {
 
 	private static final String ACCION_BORRAR = "borrar";
+
+	/** Lo que el usuario dio al registrarse y cuándo; sin el hash de la contraseña ni los contadores de intentos. */
+	public record DatosCuenta(String correo, boolean verificado, int anioNacimiento, Instant creadoEn) {
+	}
 
 	private final UsuarioRepositorio usuarios;
 	private final DispositivoRepositorio dispositivos;
@@ -32,6 +37,13 @@ public class ServicioCuenta implements DispositivosActivos {
 	@Override
 	public boolean estaActivo(UUID dispositivo, UUID usuario) {
 		return dispositivos.estaVivo(dispositivo, usuario);
+	}
+
+	public DatosCuenta datos(UUID usuarioUuid) {
+		Usuario usuario = usuarios.porUuid(usuarioUuid)
+				.orElseThrow(() -> ErrorCuenta.noAutenticado("La sesión ya no es válida."));
+		return new DatosCuenta(usuario.correo(), usuario.verificado(), usuario.anioNacimiento(),
+				usuarios.creadoEn(usuario.id()).orElseThrow());
 	}
 
 	/** Pide la contraseña otra vez y borra la cuenta; las claves foráneas en cascada se llevan el resto. */

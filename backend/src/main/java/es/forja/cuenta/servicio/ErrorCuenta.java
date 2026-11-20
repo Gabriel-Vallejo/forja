@@ -9,13 +9,22 @@ public class ErrorCuenta extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
+	/** Código estable de los 429, para que el cliente lo reconozca sin leer el mensaje. */
+	public static final String CODIGO_DEMASIADAS_PETICIONES = "demasiadas_peticiones";
+
 	private final HttpStatus estado;
 	private final transient Duration esperar;
+	private final String codigo;
 
 	private ErrorCuenta(HttpStatus estado, String mensaje, Duration esperar) {
+		this(estado, mensaje, esperar, null);
+	}
+
+	private ErrorCuenta(HttpStatus estado, String mensaje, Duration esperar, String codigo) {
 		super(mensaje);
 		this.estado = estado;
 		this.esperar = esperar;
+		this.codigo = codigo;
 	}
 
 	public static ErrorCuenta datosNoValidos(String mensaje) {
@@ -36,7 +45,12 @@ public class ErrorCuenta extends RuntimeException {
 
 	public static ErrorCuenta demasiadasPeticiones(Duration esperar) {
 		return new ErrorCuenta(HttpStatus.TOO_MANY_REQUESTS, "Demasiados intentos. Espera un poco y vuelve a probar.",
-				esperar);
+				esperar, CODIGO_DEMASIADAS_PETICIONES);
+	}
+
+	/** Código estable para el cliente, o nulo. */
+	public String codigo() {
+		return codigo;
 	}
 
 	public HttpStatus estado() {

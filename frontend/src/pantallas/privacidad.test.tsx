@@ -3,7 +3,8 @@ import { Text } from 'react-native';
 
 import { ErrorApi } from '../api/errores';
 import { useResumenLimitaciones } from '../limitaciones/consultas';
-import { apiFalsa, consentimiento, dispositivoCuenta, restriccion, USUARIO_ID } from '../pruebas/dobles';
+import { guardarJson } from '../privacidad/archivo';
+import { apiFalsa, consentimiento, datosExportados, dispositivoCuenta, restriccion, USUARIO_ID } from '../pruebas/dobles';
 import { renderizar } from '../pruebas/renderizar';
 import { crearAlmacenMemoria } from '../registro/almacenMemoria';
 import type { SesionLocal } from '../registro/almacen';
@@ -14,6 +15,7 @@ import { Privacidad } from './Privacidad';
 
 const mockRouter = { replace: jest.fn(), push: jest.fn(), back: jest.fn(), navigate: jest.fn() };
 jest.mock('expo-router', () => ({ useRouter: () => mockRouter }));
+jest.mock('../privacidad/archivo', () => ({ guardarJson: jest.fn(async () => undefined) }));
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -259,6 +261,72 @@ describe('Privacidad: dispositivos', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Reintentar' }));
 
     expect(await screen.findByText('Móvil · sin actividad registrada')).toBeOnTheScreen();
+  });
+});
+
+describe('Privacidad: descargar mis datos', () => {
+  const boton = () => screen.findByRole('button', { name: 'Descargar mis datos' });
+
+  test('explica qué lleva el archivo y que hay datos de salud', async () => {
+    await renderizar(<Privacidad />);
+
+    expect(await boton()).toBeOnTheScreen();
+    expect(screen.getByText(/todo lo que Forja guarda de ti/)).toBeOnTheScreen();
+    expect(screen.getByText(/tus datos de salud/)).toBeOnTheScreen();
+    expect(textoVisible()).not.toMatch(PROHIBIDAS);
+  });
+
+  test('pide la exportación y guarda el JSON entero con la fecha en el nombre', async () => {
+    const datos = datosExportados({ sesiones: [{ uuid: 's1', series: [] }] });
+    const api = apiFalsa({ exportarDatos: jest.fn().mockResolvedValue(datos) });
+    await renderizar(<Privacidad />, api);
+
+    await fireEvent.press(await boton());
+
+    expect(await screen.findByLabelText('Hecho: Archivo forja-mis-datos-2026-11-20.json preparado.')).toBeOnTheScreen();
+    expect(api.exportarDatos).toHaveBeenCalledTimes(1);
+    const [nombre, contenido] = jest.mocked(guardarJson).mock.calls[0] ?? [];
+    expect(nombre).toBe('forja-mis-datos-2026-11-20.json');
+    expect(JSON.parse(contenido ?? '')).toEqual(datos);
+  });
+
+  test('mientras prepara el archivo, el botón lo dice y no se puede pulsar otra vez', async () => {
+    let terminar: (d: ReturnType<typeof datosExportados>) => void = () => undefined;
+    const api = apiFalsa({ exportarDatos: jest.fn(() => new Promise((r) => (terminar = r))) });
+    await renderizar(<Privacidad />, api);
+
+    await fireEvent.press(await boton());
+
+    const cargando = await screen.findByRole('button', { name: 'Preparando tus datos…' });
+    expect(cargando).toBeDisabled();
+    await fireEvent.press(cargando);
+    expect(api.exportarDatos).toHaveBeenCalledTimes(1);
+    terminar(datosExportados());
+    expect(await boton()).toBeEnabled();
+  });
+
+  test('pasado el límite por hora, lo explica con claridad', async () => {
+    const error = new ErrorApi(429, 'Demasiados intentos. Espera un poco y vuelve a probar.', 'demasiadas_peticiones');
+    await renderizar(<Privacidad />, apiFalsa({ exportarDatos: jest.fn().mockRejectedValue(error) }));
+
+    await fireEvent.press(await boton());
+
+    expect(await screen.findByRole('alert')).toBeOnTheScreen();
+    expect(screen.getByText(/Ya has descargado tus datos varias veces en la última hora/)).toBeOnTheScreen();
+    expect(guardarJson).not.toHaveBeenCalled();
+  });
+
+  test('si falla otra cosa, enseña ese error y deja reintentar', async () => {
+    const exportarDatos = jest.fn().mockRejectedValueOnce(new ErrorApi(0, 'No hay conexión con el servidor.'))
+      .mockResolvedValue(datosExportados());
+    await renderizar(<Privacidad />, apiFalsa({ exportarDatos }));
+
+    await fireEvent.press(await boton());
+    expect(await screen.findByLabelText('Error: No hay conexión con el servidor.')).toBeOnTheScreen();
+
+    await fireEvent.press(await boton());
+    expect(await screen.findByText(/preparado/)).toBeOnTheScreen();
+    expect(screen.queryByLabelText(/^Error:/)).toBeNull();
   });
 });
 

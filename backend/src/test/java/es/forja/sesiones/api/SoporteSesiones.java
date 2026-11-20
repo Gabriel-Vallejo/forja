@@ -122,4 +122,58 @@ public abstract class SoporteSesiones extends SoporteLimitaciones {
 		return objetivos(planActual(cliente)).stream().filter(o -> o.idExterno().equals(idExterno)).findFirst()
 				.orElseThrow().cargaKg();
 	}
+
+	protected static final List<String> CONSENTIMIENTOS = List.of("fotos_cuerpo", "medidas_salud", "lesiones",
+			"limitaciones", "suplementos");
+
+	/** Lo que deja {@link #rellenarTodasLasTablas}: la versión del plan, la sesión y su serie con dolor. */
+	protected record Rellenado(String plan, Objetivo objetivo, UUID sesion, UUID serie) {
+	}
+
+	/**
+	 * Deja al menos una fila del usuario en cada tabla con datos suyos (salvo los tokens, que dependen del login): la
+	 * base del borrado total y de la exportación. Si añades una tabla con datos del usuario, rellénala aquí.
+	 */
+	protected Rellenado rellenarTodasLasTablas(Cliente cliente) throws Exception {
+		for (String tipo : CONSENTIMIENTOS) {
+			darConsentimiento(cliente, tipo).andExpect(status().isOk());
+		}
+		crearRestriccion(cliente, restriccion("rodilla", "sentadilla", "sin_carga_axial"));
+		crearRestriccion(cliente, restriccion("hombro", "empuje_vertical", "sin_por_encima_cabeza"));
+		// Plan versionado y una sesión con una serie con dolor cifrado.
+		String plan = generarPlan(cliente);
+		Objetivo objetivo = ejercicioConIncremento(cliente);
+		UUID sesion = UUID.randomUUID();
+		UUID serie = UUID.randomUUID();
+		guardarSesion(cliente, sesion, sesion(plan, Instant.now().minusSeconds(60),
+				List.of(con(serie(serie, objetivo.idExterno(), 0, "50", 8, 2), "dolor", 3)))).andExpect(status().isOk());
+		// Ajustes del plan: perfil_entreno y su tabla puente de material.
+		actualizar("/api/v1/perfil/entreno", cliente, Map.of("diasPorSemana", 4, "minutosPorSesion", 45, "material",
+				List.of("barra", "mancuerna"))).andExpect(status().isOk());
+		// Tests de movilidad (con el consentimiento de medidas de salud).
+		actualizar("/api/v1/movilidad", cliente, Map.of("tobillo", "limitado", "cadera", "medio", "hombro", "bueno"))
+				.andExpect(status().isOk());
+		// Perfil manual: sexo, experiencia y objetivo (en claro) y las medidas (cifradas, con el consentimiento).
+		actualizar("/api/v1/perfil/datos", cliente, Map.of("sexo", "hombre", "experiencia", "intermedio", "objetivo",
+				"fuerza")).andExpect(status().isOk());
+		actualizar("/api/v1/perfil/medidas", cliente, Map.of("alturaCm", 180.0, "pesoKg", 78.5))
+				.andExpect(status().isOk());
+		// Preferencias de los ajustes del plan (V9): las tres tablas.
+		actualizar("/api/v1/planes/preferencias", cliente, Map.of("exclusiones", List.of(objetivo.idExterno()),
+				"prioritarios", List.of("pecho"), "series", Map.of(), "variedad", true)).andExpect(status().isOk());
+		// Al final: con una bandera roja activa ya no se genera el plan. Deja un bloqueo guardado.
+		enviarAutenticado("/api/v1/banderas", cliente, banderasConDolorToracico()).andExpect(status().isOk());
+		return new Rellenado(plan, objetivo, sesion, serie);
+	}
+
+	private static Map<String, Object> banderasConDolorToracico() {
+		Map<String, Object> cuerpo = new LinkedHashMap<>();
+		cuerpo.put("dolorPorZona", Map.of());
+		for (String senal : List.of("dolorEnReposo", "dolorNocturnoQueDespierta", "hormigueoOEntumecimiento",
+				"perdidaDeFuerza", "perdidaControlEsfinteresOAnestesiaSillaDeMontar", "fiebreConDolorDeEspalda",
+				"traumatismoReciente", "perdidaDePesoSinExplicacion", "dolorToracico", "mareoODesmayo")) {
+			cuerpo.put(senal, senal.equals("dolorToracico"));
+		}
+		return cuerpo;
+	}
 }

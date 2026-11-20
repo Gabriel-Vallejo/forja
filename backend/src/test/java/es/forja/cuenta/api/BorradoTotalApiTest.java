@@ -16,9 +16,6 @@ import es.forja.sesiones.api.SoporteSesiones;
 /** Criterio de la v0.1 (PRD, ADR 0004 §6): al borrar la cuenta no queda ninguna fila suya en ninguna tabla. */
 class BorradoTotalApiTest extends SoporteSesiones {
 
-	private static final List<String> CONSENTIMIENTOS = List.of("fotos_cuerpo", "medidas_salud", "lesiones",
-			"limitaciones", "suplementos");
-
 	private List<String> tablasConColumna(String columna) {
 		return jdbc.sql("""
 				SELECT DISTINCT table_name FROM information_schema.columns
@@ -43,54 +40,13 @@ class BorradoTotalApiTest extends SoporteSesiones {
 		return filas;
 	}
 
-	private static Map<String, Object> banderasConDolorToracico() {
-		Map<String, Object> cuerpo = new java.util.LinkedHashMap<>();
-		cuerpo.put("dolorPorZona", Map.of());
-		for (String senal : List.of("dolorEnReposo", "dolorNocturnoQueDespierta", "hormigueoOEntumecimiento",
-				"perdidaDeFuerza", "perdidaControlEsfinteresOAnestesiaSillaDeMontar", "fiebreConDolorDeEspalda",
-				"traumatismoReciente", "perdidaDePesoSinExplicacion", "dolorToracico", "mareoODesmayo")) {
-			cuerpo.put(senal, senal.equals("dolorToracico"));
-		}
-		return cuerpo;
-	}
-
 	@Test
 	void borrarLaCuentaNoDejaNingunaFilaSuyaEnNingunaTabla() throws Exception {
 		String correo = crearCuenta();
 		Cliente movil = iniciarSesion(correo, "Móvil", null);
 		iniciarSesion(correo, "PC", null);
 		enviar("/api/v1/auth/recuperar", Map.of("correo", correo));
-		for (String tipo : CONSENTIMIENTOS) {
-			darConsentimiento(movil, tipo).andExpect(status().isOk());
-		}
-		crearRestriccion(movil, restriccion("rodilla", "sentadilla", "sin_carga_axial"));
-		crearRestriccion(movil, restriccion("hombro", "empuje_vertical", "sin_por_encima_cabeza"));
-		// Plan versionado y una sesión con una serie con dolor cifrado: las tablas de la v4 también se vacían.
-		String plan = generarPlan(movil);
-		Objetivo objetivo = ejercicioConIncremento(movil);
-		Map<String, Object> serie = serie(java.util.UUID.randomUUID(), objetivo.idExterno(), 0, "50", 8, 2);
-		serie.put("dolor", 3);
-		guardarSesion(movil, java.util.UUID.randomUUID(),
-				sesion(plan, java.time.Instant.now().minusSeconds(60), List.of(serie))).andExpect(status().isOk());
-		// Ajustes del plan: perfil_entreno y su tabla puente de material también se vacían.
-		mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/v1/perfil/entreno")
-				.header("Authorization", movil.cabecera()).contentType(MediaType.APPLICATION_JSON)
-				.content(json.writeValueAsString(Map.of("diasPorSemana", 4, "minutosPorSesion", 45, "material",
-						List.of("barra", "mancuerna")))))
-				.andExpect(status().isOk());
-		// Tests de movilidad (con el consentimiento de medidas de salud): test_movilidad también se vacía.
-		actualizar("/api/v1/movilidad", movil, Map.of("tobillo", "limitado", "cadera", "medio", "hombro", "bueno"))
-				.andExpect(status().isOk());
-		// Perfil manual: sexo, experiencia y objetivo (en claro) y las medidas (cifradas, con el consentimiento).
-		actualizar("/api/v1/perfil/datos", movil, Map.of("sexo", "hombre", "experiencia", "intermedio", "objetivo",
-				"fuerza")).andExpect(status().isOk());
-		actualizar("/api/v1/perfil/medidas", movil, Map.of("alturaCm", 180.0, "pesoKg", 78.5)).andExpect(status().isOk());
-		// Preferencias de los ajustes del plan (V9): las tres tablas también se vacían.
-		actualizar("/api/v1/planes/preferencias", movil, Map.of("exclusiones", List.of(objetivo.idExterno()),
-				"prioritarios", List.of("pecho"), "series", Map.of(), "variedad", true)).andExpect(status().isOk());
-		// Después de generar el plan: con bandera roja activa ya no se genera.
-		// Bandera roja: deja un bloqueo guardado, que también se borra con la cuenta.
-		enviarAutenticado("/api/v1/banderas", movil, banderasConDolorToracico()).andExpect(status().isOk());
+		rellenarTodasLasTablas(movil);
 		long usuarioId = contar("SELECT id FROM usuario WHERE correo = ?", correo);
 		List<Long> dispositivos = jdbc.sql("SELECT id FROM dispositivo WHERE usuario_id = :u").param("u", usuarioId)
 				.query(Long.class).list();

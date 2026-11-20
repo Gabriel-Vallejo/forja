@@ -93,7 +93,7 @@ public class ServicioSesiones {
 			exigirMismaCabecera(existente, planId, entrada);
 		}
 		anadirSeries(usuario, usuarioId, uuid, entrada.series(), ejercicios);
-		return sesiones.cabecera(usuarioId, uuid).map(c -> vistas(usuario, List.of(c)).get(0)).orElseThrow();
+		return sesiones.cabecera(usuarioId, uuid).map(c -> vistas(usuario, List.of(c), false).get(0)).orElseThrow();
 	}
 
 	/** Sesiones del usuario desde una fecha, de la más antigua a la más reciente, con sus series vigentes. */
@@ -101,7 +101,17 @@ public class ServicioSesiones {
 		long usuarioId = idDe(usuario);
 		Instant inicio = desde == null ? Instant.EPOCH : desde;
 		List<CabeceraVista> cabeceras = sesiones.cabeceras(usuarioId, inicio, tamano, (long) pagina * tamano);
-		return new PaginaSesiones(vistas(usuario, cabeceras), pagina, tamano, sesiones.contar(usuarioId, inicio));
+		return new PaginaSesiones(vistas(usuario, cabeceras, false), pagina, tamano,
+				sesiones.contar(usuarioId, inicio));
+	}
+
+	/**
+	 * Todas las sesiones del usuario con todas sus series (también las corregidas y las anulaciones), para la
+	 * exportación. El dolor sale descifrado solo con el consentimiento de limitaciones, como en el listado.
+	 */
+	public List<SesionVista> historial(UUID usuario) {
+		long usuarioId = idDe(usuario);
+		return vistas(usuario, sesiones.cabeceras(usuarioId, Instant.EPOCH, Integer.MAX_VALUE, 0), true);
 	}
 
 	/** Revocar el consentimiento de limitaciones borra el dolor guardado, en la misma transacción. */
@@ -225,13 +235,15 @@ public class ServicioSesiones {
 		return a == null ? b == null : b != null && a.compareTo(b) == 0;
 	}
 
-	private List<SesionVista> vistas(UUID usuario, List<CabeceraVista> cabeceras) {
+	/** Con {@code historial}, todas las series; si no, solo las vigentes. */
+	private List<SesionVista> vistas(UUID usuario, List<CabeceraVista> cabeceras, boolean historial) {
 		if (cabeceras.isEmpty()) {
 			return List.of();
 		}
 		boolean conConsentimiento = consentimientos.tiene(usuario, TipoConsentimiento.LIMITACIONES);
-		Map<UUID, List<SerieVista>> porSesion = sesiones
-				.vigentes(cabeceras.stream().map(CabeceraVista::uuid).toList()).stream()
+		List<UUID> uuids = cabeceras.stream().map(CabeceraVista::uuid).toList();
+		List<SerieVigente> series = historial ? sesiones.todas(uuids) : sesiones.vigentes(uuids);
+		Map<UUID, List<SerieVista>> porSesion = series.stream()
 				.collect(Collectors.groupingBy(SerieVigente::sesionUuid,
 						Collectors.mapping(s -> aVista(s, conConsentimiento), Collectors.toList())));
 		return cabeceras.stream().map(c -> new SesionVista(c.uuid(), c.planVersion(), c.diaPlan(), c.realizadaEn(),

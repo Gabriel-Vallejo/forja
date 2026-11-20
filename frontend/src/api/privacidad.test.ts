@@ -1,5 +1,5 @@
-import { ErrorApi } from './errores';
-import { almacenEnMemoria, consentimiento, datosSesion, dispositivoCuenta, respuesta } from '../pruebas/dobles';
+import { ErrorApi, RESPUESTA_INESPERADA } from './errores';
+import { almacenEnMemoria, consentimiento, datosExportados, datosSesion, dispositivoCuenta, respuesta } from '../pruebas/dobles';
 import { crearCliente } from './cliente';
 import { crearApiForja } from './forja';
 
@@ -77,5 +77,36 @@ describe('API de privacidad', () => {
     await expect(api.borrarCuenta('mala')).rejects.toMatchObject({ estado: 403, message: 'La contraseña no es correcta.' });
 
     expect(await api.haySesionGuardada()).toBe(true);
+  });
+
+  test('exportar los datos es un GET a /cuenta/datos y no quita nada de lo que llega', async () => {
+    const sesiones = [{ uuid: 's1', series: [{ uuid: 'x', dolor: 3, anulada: true }] }];
+    const fetchFalso = jest.fn(async () => respuesta(200, { ...datosExportados({ sesiones }), seccionFutura: { a: 1 } }));
+
+    const datos = await montar(fetchFalso).api.exportarDatos();
+
+    expect(llamada(fetchFalso)[0]).toBe(`${URL_BASE}/api/v1/cuenta/datos`);
+    expect(llamada(fetchFalso)[1].method).toBe('GET');
+    expect(datos.sesiones).toEqual(sesiones);
+    expect(datos).toMatchObject({ formato: 1, seccionFutura: { a: 1 } });
+  });
+
+  test('un formato que la app no conoce o sin secciones se rechaza como respuesta inesperada', async () => {
+    const formatoNuevo = jest.fn(async () => respuesta(200, datosExportados({ formato: 2 as 1 })));
+    const sinSesiones = jest.fn(async () => {
+      const { sesiones: _, ...resto } = datosExportados();
+      return respuesta(200, resto);
+    });
+
+    await expect(montar(formatoNuevo).api.exportarDatos()).rejects.toMatchObject({ message: RESPUESTA_INESPERADA });
+    await expect(montar(sinSesiones).api.exportarDatos()).rejects.toMatchObject({ message: RESPUESTA_INESPERADA });
+  });
+
+  test('pasado el límite, el 429 llega con su estado y su código', async () => {
+    const fetchFalso = jest.fn(async () =>
+      respuesta(429, { detail: 'Demasiados intentos. Espera un poco y vuelve a probar.', codigo: 'demasiadas_peticiones' }),
+    );
+
+    await expect(montar(fetchFalso).api.exportarDatos()).rejects.toMatchObject({ estado: 429, codigo: 'demasiadas_peticiones' });
   });
 });

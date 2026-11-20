@@ -546,6 +546,7 @@ Prefijo `/api/v1`. Es la tabla de CONTEXT §1.7 con los cambios de los ADR 0003,
 | `POST /auth/registro`, `/verificar`, `/login`, `/refresco`, `/recuperar`, `/restablecer`, `/cerrar-sesion` | métodos **[propuesta]** | 0009 |
 | `GET /dispositivos` · `DELETE /dispositivos/{id}` | lista y revoca | 0009 |
 | `DELETE /cuenta` | con la contraseña otra vez; borra en cascada | 0009 |
+| `GET /cuenta/datos` | «Descargar mis datos»: JSON con todo lo del usuario, descifrado y con `formato` versionado; adjunto `forja-mis-datos-AAAA-MM-DD.json`; 5 por hora y usuario (429 con `codigo`) | 0004 |
 | `POST /worker/trabajos/reclamar` | trabajo + `lease_token`; solo con token de worker | 0003 |
 | `POST /worker/trabajos/{id}/renovar` · `POST /worker/trabajos/{id}/resultado` · `POST /worker/latido` | **[propuesta]**: el ADR describe la renovación, la entrega y el latido sin darles ruta | 0003 |
 | Entrada de limitaciones, confirmación de restricciones, tests de movilidad y consentimiento | `/cribado`, `/cribado/preguntas`, `/banderas`, `/banderas/estado`, `/restricciones`, `/restricciones/efecto`, `/movilidad`, `/consentimientos` (ver `docs/api/openapi.json`) | 0004, 0007 |
@@ -564,6 +565,7 @@ Prefijo `/api/v1`. Es la tabla de CONTEXT §1.7 con los cambios de los ADR 0003,
 - **Fotos:** se procesan en memoria y no tocan disco, la base, la cola ni los logs. La subida va en `octet-stream`, `/tmp` está en `tmpfs` y un test falla si aparece un temporal. De las etiquetas solo queda el texto del OCR.
 - **Consentimiento:** uno por tipo, versionado y revocable con la misma facilidad con la que se da. Sin consentimiento, la app sigue funcionando con menos funciones.
 - **Edad:** mínimo 18 años. El alta valida la fecha completa, pero solo se guardan el año y `mayor_de_edad`.
+- **Acceso y portabilidad:** `GET /cuenta/datos` exporta todo lo del usuario, salvo los hashes de la contraseña y de los tokens, y un test falla si aparece una tabla que cuelga de `usuario` sin su sección en la exportación.
 - **Borrado:** real y en cascada, con un test que comprueba que no queda ninguna fila. Las copias caducan a los 30 días **[a fijar]** y restaurar una copia no resucita cuentas.
 - **Encargados del tratamiento:** Hostinger, Azure, el push (FCM/Expo), GitHub y el proveedor de correo. El push lleva texto genérico.
 

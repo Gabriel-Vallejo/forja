@@ -2,6 +2,7 @@
 import type {
   Consentimiento,
   CuestionarioCribado,
+  DatosExportados,
   DispositivoCuenta,
   EfectoEjercicio,
   Material,
@@ -88,6 +89,7 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
     dispositivos: jest.fn().mockResolvedValue([dispositivoCuenta()]),
     cerrarDispositivo: jest.fn().mockResolvedValue(undefined),
     borrarCuenta: jest.fn().mockResolvedValue(undefined),
+    exportarDatos: jest.fn().mockResolvedValue(datosExportados()),
     tieneConsentimientoLimitaciones: jest.fn().mockResolvedValue(false),
     darConsentimientoLimitaciones: jest.fn().mockResolvedValue(undefined),
     retirarConsentimientoLimitaciones: jest.fn().mockResolvedValue(undefined),
@@ -134,6 +136,27 @@ export function consentimiento(tipo: string, cambios: Partial<Consentimiento> = 
 }
 
 /** Un dispositivo de la cuenta: por defecto, el actual. */
+/** La exportación de «Descargar mis datos» con todas las secciones vacías salvo la cuenta. */
+export function datosExportados(cambios: Partial<DatosExportados> = {}): DatosExportados {
+  return {
+    formato: 1,
+    generadoEn: '2026-11-20T09:30:00Z',
+    cuenta: { correo: 'ana@forja.test', verificado: true, anioNacimiento: 1998, creadoEn: '2026-11-01T10:00:00Z' },
+    dispositivos: [],
+    consentimientos: [],
+    perfilDatos: { sexo: 'no_indica' },
+    medidas: null,
+    perfilEntreno: { diasPorSemana: 3, minutosPorSesion: 60, material: [], porDefecto: true },
+    movilidad: null,
+    limitaciones: [],
+    bloqueos: [],
+    preferenciasPlan: { exclusiones: [], prioritarios: [], series: [], variedad: false },
+    planes: [],
+    sesiones: [],
+    ...cambios,
+  };
+}
+
 export function dispositivoCuenta(cambios: Partial<DispositivoCuenta> = {}): DispositivoCuenta {
   return { id: DISPOSITIVO_ID, nombre: 'Pixel 8', plataforma: 'movil', ultimaActividad: '2026-11-18T12:00:00Z', actual: true, ...cambios };
 }

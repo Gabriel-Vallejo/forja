@@ -189,6 +189,7 @@ Horas de [CONTEXT](../CONTEXT.md) §1.8 **[estimación]**. Cada versión es publ
 | RF-47 | `DELETE /api/v1/cuenta` con la contraseña: revoca todo y borra en cascada; restaurar una copia no resucita cuentas | v0.1 | [0004](adr/0004-privacidad-fotos-y-datos-de-salud.md), [0009](adr/0009-autenticacion.md) |
 | RF-48 | Pantalla «Datos y licencias» con © Open Food Facts contributors, la frase de OpenPowerlifting, autores de wger y el identificador del BOE | v0.2 **[propuesta: versión]** | [0005](adr/0005-fuentes-de-datos.md) |
 | RF-49 | El formulario de feedback avisa de que va a GitHub | v1.0 | [0004](adr/0004-privacidad-fotos-y-datos-de-salud.md) |
+| RF-50 | «Descargar mis datos» en Privacidad: un JSON con todo lo que Forja guarda del usuario, datos de salud incluidos (acceso y portabilidad, arts. 15 y 20 del RGPD) | v0.1 | [0004](adr/0004-privacidad-fotos-y-datos-de-salud.md) |
 
 ## 5. Requisitos no funcionales
 

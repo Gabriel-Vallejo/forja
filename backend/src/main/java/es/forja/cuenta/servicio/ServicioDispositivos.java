@@ -46,6 +46,11 @@ public class ServicioDispositivos {
 				.map(d -> new Vista(d, d.uuid().equals(dispositivoActual))).toList();
 	}
 
+	/** Todos los dispositivos de la cuenta, también los revocados: es lo que se exporta. */
+	public List<Dispositivo> todos(UUID usuarioUuid) {
+		return dispositivos.deUsuario(usuario(usuarioUuid).id());
+	}
+
 	/** Revoca uno de los dispositivos del usuario; si no existe o es de otra cuenta, 404. */
 	public void revocar(UUID usuarioUuid, UUID dispositivoUuid) {
 		Dispositivo dispositivo = dispositivos.vivoDeUsuario(dispositivoUuid, usuario(usuarioUuid).id())

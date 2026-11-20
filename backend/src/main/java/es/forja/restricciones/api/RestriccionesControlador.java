@@ -34,7 +34,7 @@ public class RestriccionesControlador {
 	public record RespuestaRestriccion(UUID uuid, String region, String lado, String patron, String tipo,
 			String parametro, String estado, String origen, String textoOriginal) {
 
-		static RespuestaRestriccion de(RestriccionGuardada guardada) {
+		public static RespuestaRestriccion de(RestriccionGuardada guardada) {
 			RestriccionCodificada c = RestriccionCodificada.de(guardada.restriccion());
 			return new RespuestaRestriccion(guardada.uuid(), c.region(), c.lado(), c.patron(), c.tipo(),
 					c.parametro(), c.estado(), c.origen(), c.textoOriginal());

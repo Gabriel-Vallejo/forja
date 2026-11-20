@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import es.forja.comun.repositorio.Conversiones;
 import es.forja.consentimiento.modelo.Consentimiento;
+import es.forja.consentimiento.modelo.RegistroConsentimiento;
 import es.forja.consentimiento.modelo.TipoConsentimiento;
 
 @Repository
@@ -30,6 +31,17 @@ public class ConsentimientoRepositorio {
 				SELECT tipo, version_texto, dado_en FROM consentimiento
 				WHERE usuario_id = :usuario AND revocado_en IS NULL ORDER BY dado_en, id""")
 				.param("usuario", usuarioId).query(FILA).list();
+	}
+
+	/** Todos los consentimientos del usuario, vivos y retirados, del más antiguo al más reciente. */
+	public List<RegistroConsentimiento> historial(long usuarioId) {
+		return jdbc.sql("""
+				SELECT tipo, version_texto, dado_en, revocado_en FROM consentimiento
+				WHERE usuario_id = :usuario ORDER BY dado_en, id""").param("usuario", usuarioId)
+				.query((rs, n) -> new RegistroConsentimiento(TipoConsentimiento.desdeCodigo(rs.getString("tipo")),
+						rs.getString("version_texto"), Conversiones.instante(rs, "dado_en"),
+						Conversiones.instante(rs, "revocado_en")))
+				.list();
 	}
 
 	public Optional<Consentimiento> vivo(long usuarioId, TipoConsentimiento tipo) {

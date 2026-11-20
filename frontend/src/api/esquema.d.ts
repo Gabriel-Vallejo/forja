@@ -244,6 +244,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/cuenta/datos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["exportar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dispositivos": {
         parameters: {
             query?: never;
@@ -558,6 +574,12 @@ export interface components {
             mensaje?: string;
             nombreAlternativa?: string;
         };
+        BloqueoActivo: {
+            /** Format: date-time */
+            evaluadoEn?: string;
+            nivel?: string;
+            origen?: string;
+        };
         BorrarCuenta: {
             contrasena: string;
         };
@@ -577,12 +599,28 @@ export interface components {
             musculo?: string;
             nombre?: string;
         };
+        ConsentimientoExportado: {
+            /** Format: date-time */
+            dadoEn?: string;
+            /** Format: date-time */
+            revocadoEn?: string;
+            tipo?: string;
+            versionTexto?: string;
+        };
         ContribucionEjercicio: {
             idExterno?: string;
             nombre?: string;
             terminos?: {
                 [key: string]: number;
             };
+        };
+        DatosCuenta: {
+            /** Format: int32 */
+            anioNacimiento?: number;
+            correo?: string;
+            /** Format: date-time */
+            creadoEn?: string;
+            verificado?: boolean;
         };
         DatosDispositivo: {
             actual?: boolean;
@@ -593,6 +631,24 @@ export interface components {
             plataforma?: "movil" | "pc";
             /** Format: date-time */
             ultimaActividad?: string;
+        };
+        DatosExportados: {
+            bloqueos?: components["schemas"]["BloqueoActivo"][];
+            consentimientos?: components["schemas"]["ConsentimientoExportado"][];
+            cuenta?: components["schemas"]["DatosCuenta"];
+            dispositivos?: components["schemas"]["DispositivoExportado"][];
+            /** Format: int32 */
+            formato?: number;
+            /** Format: date-time */
+            generadoEn?: string;
+            limitaciones?: components["schemas"]["RespuestaRestriccion"][];
+            medidas?: components["schemas"]["MedidasPerfil"];
+            movilidad?: components["schemas"]["Movilidad"];
+            perfilDatos?: components["schemas"]["DatosPerfil"];
+            perfilEntreno?: components["schemas"]["PerfilEntreno"];
+            planes?: components["schemas"]["VersionPlan"][];
+            preferenciasPlan?: components["schemas"]["PreferenciasGuardadas"];
+            sesiones?: components["schemas"]["SesionVista"][];
         };
         DatosPerfil: {
             experiencia?: string;
@@ -626,12 +682,40 @@ export interface components {
             /** Format: int32 */
             segundos?: number;
         };
+        DispositivoExportado: {
+            nombre?: string;
+            plataforma?: string;
+            /** Format: date-time */
+            revocadoEn?: string;
+            /** Format: date-time */
+            ultimaActividad?: string;
+            /** Format: uuid */
+            uuid?: string;
+        };
         EjercicioPlan: {
             anotaciones?: string[];
             idExterno?: string;
             nombre?: string;
             patron?: string;
             posicionEstirada?: boolean;
+            /** Format: int32 */
+            series?: number;
+        };
+        EjercicioVersion: {
+            cargaKg?: number;
+            /** Format: int32 */
+            dia?: number;
+            idExterno?: string;
+            incrementoKg?: number;
+            nombre?: string;
+            /** Format: int32 */
+            orden?: number;
+            /** Format: int32 */
+            repeticionesMax?: number;
+            /** Format: int32 */
+            repeticionesMin?: number;
+            /** Format: int32 */
+            rirObjetivo?: number;
             /** Format: int32 */
             series?: number;
         };
@@ -1031,6 +1115,23 @@ export interface components {
             hombro?: string;
             tobillo?: string;
         };
+        TrazaGuardada: {
+            contribuciones?: components["schemas"]["ContribucionEjercicio"][];
+            descartes?: components["schemas"]["Descarte"][];
+            /** Format: int64 */
+            objetivo?: number;
+            volumen?: components["schemas"]["VolumenMusculo"][];
+        };
+        VersionPlan: {
+            actual?: boolean;
+            /** Format: date-time */
+            creadoEn?: string;
+            ejercicios?: components["schemas"]["EjercicioVersion"][];
+            estado?: string;
+            traza?: components["schemas"]["TrazaGuardada"];
+            /** Format: uuid */
+            uuid?: string;
+        };
         VistaPrevia: {
             ejercicios?: components["schemas"]["CambioEjercicio"][];
             musculos?: components["schemas"]["CambioMusculo"][];
@@ -1410,6 +1511,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    exportar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DatosExportados"];
+                };
             };
         };
     };

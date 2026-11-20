@@ -2,11 +2,12 @@
 // vive en memoria y `ProveedorSesion` la vacía al salir.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import type { TipoConsentimiento } from '../api/esquemas';
+import type { DatosExportados, TipoConsentimiento } from '../api/esquemas';
 import { olvidarLimitaciones } from '../limitaciones/consultas';
 import { olvidarMovilidad } from '../movilidad/consultas';
 import { useSincronizacion } from '../registro/sincronizacion';
 import { useSesion } from '../sesion/sesion';
+import { guardarJson } from './archivo';
 import { esTipoConocido } from './catalogo';
 import { CLAVE_CONSENTIMIENTOS, CLAVE_DISPOSITIVOS } from './claves';
 
@@ -54,6 +55,25 @@ export function useBorrarCuenta() {
       borrarCuenta(contrasena, async (usuario) => {
         if (outbox && usuario) await outbox.borrarDatosDe(usuario);
       }),
+  });
+}
+
+/** Nombre del archivo: el mismo que propone el backend, con la fecha (UTC) en que se generó. */
+export const nombreArchivoDatos = (datos: DatosExportados) => `forja-mis-datos-${datos.generadoEn.slice(0, 10)}.json`;
+
+/**
+ * «Descargar mis datos»: pide la exportación y se la da al usuario como archivo. No pasa por la caché de TanStack
+ * Query ni por ningún almacén: el JSON lleva datos de salud. Devuelve el nombre del archivo.
+ */
+export function useDescargarDatos() {
+  const { api } = useSesion();
+  return useMutation({
+    mutationFn: async () => {
+      const datos = await api.exportarDatos();
+      const nombre = nombreArchivoDatos(datos);
+      await guardarJson(nombre, JSON.stringify(datos, null, 2));
+      return nombre;
+    },
   });
 }
 

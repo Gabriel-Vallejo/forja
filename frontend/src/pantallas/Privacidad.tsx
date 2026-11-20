@@ -2,8 +2,9 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { mensajeDeError } from '../api/errores';
+import { ErrorApi, mensajeDeError } from '../api/errores';
 import type { Consentimiento, DispositivoCuenta } from '../api/esquemas';
+import { Aviso } from '../componentes/Aviso';
 import { Boton } from '../componentes/Boton';
 import { ConConsulta } from '../componentes/ConConsulta';
 import { Confirmacion } from '../componentes/Confirmacion';
@@ -11,7 +12,13 @@ import { EncabezadoAtras } from '../componentes/EncabezadoAtras';
 import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
 import { CONSENTIMIENTOS, type InfoConsentimiento } from '../privacidad/catalogo';
-import { useCerrarDispositivo, useConsentimientos, useDispositivos, useRetirarConsentimiento } from '../privacidad/consultas';
+import {
+  useCerrarDispositivo,
+  useConsentimientos,
+  useDescargarDatos,
+  useDispositivos,
+  useRetirarConsentimiento,
+} from '../privacidad/consultas';
 import { type Theme, useTheme } from '../theme';
 
 const fecha = (iso: string) => new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -133,12 +140,44 @@ function Dispositivos() {
   );
 }
 
+const DEMASIADAS_PETICIONES = 429;
+const LIMITE_DESCARGAS = 'Ya has descargado tus datos varias veces en la última hora. Vuelve a probar dentro de un rato.';
+
+function errorDeDescarga(error: unknown): string {
+  return error instanceof ErrorApi && error.estado === DEMASIADAS_PETICIONES ? LIMITE_DESCARGAS : mensajeDeError(error);
+}
+
+function TusDatos() {
+  const estilos = crearEstilos(useTheme());
+  const descargar = useDescargarDatos();
+  return (
+    <>
+      <Texto estilo="heading" encabezado>Tus datos</Texto>
+      <Texto tono="secundario">
+        Un archivo JSON con todo lo que Forja guarda de ti: cuenta, perfil, plan, sesiones y, si los diste, tus datos de salud. Guárdalo en un sitio seguro. Hasta 5 descargas por hora.
+      </Texto>
+      <View style={estilos.lista}>
+        <Boton
+          variante="secundario"
+          etiqueta="Descargar mis datos"
+          etiquetaCargando="Preparando tus datos…"
+          cargando={descargar.isPending}
+          onPress={() => descargar.mutate()}
+        />
+        {descargar.isError ? <Aviso tipo="error" mensaje={errorDeDescarga(descargar.error)} /> : null}
+        {descargar.isSuccess ? <Aviso tipo="exito" mensaje={`Archivo ${descargar.data} preparado.`} /> : null}
+      </View>
+    </>
+  );
+}
+
 export function Privacidad() {
   return (
     <Pantalla hueco="s4">
       <EncabezadoAtras titulo="Privacidad" />
       <Consentimientos />
       <Dispositivos />
+      <TusDatos />
     </Pantalla>
   );
 }

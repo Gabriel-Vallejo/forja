@@ -79,6 +79,21 @@
         },
         "type" : "object"
       },
+      "BloqueoActivo" : {
+        "properties" : {
+          "evaluadoEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "nivel" : {
+            "type" : "string"
+          },
+          "origen" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "BorrarCuenta" : {
         "properties" : {
           "contrasena" : {
@@ -128,6 +143,25 @@
         },
         "type" : "object"
       },
+      "ConsentimientoExportado" : {
+        "properties" : {
+          "dadoEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "revocadoEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "tipo" : {
+            "type" : "string"
+          },
+          "versionTexto" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "ContribucionEjercicio" : {
         "properties" : {
           "idExterno" : {
@@ -142,6 +176,25 @@
               "type" : "integer"
             },
             "type" : "object"
+          }
+        },
+        "type" : "object"
+      },
+      "DatosCuenta" : {
+        "properties" : {
+          "anioNacimiento" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "correo" : {
+            "type" : "string"
+          },
+          "creadoEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "verificado" : {
+            "type" : "boolean"
           }
         },
         "type" : "object"
@@ -165,6 +218,73 @@
           "ultimaActividad" : {
             "format" : "date-time",
             "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "DatosExportados" : {
+        "properties" : {
+          "bloqueos" : {
+            "items" : {
+              "$ref" : "#/components/schemas/BloqueoActivo"
+            },
+            "type" : "array"
+          },
+          "consentimientos" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ConsentimientoExportado"
+            },
+            "type" : "array"
+          },
+          "cuenta" : {
+            "$ref" : "#/components/schemas/DatosCuenta"
+          },
+          "dispositivos" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DispositivoExportado"
+            },
+            "type" : "array"
+          },
+          "formato" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "generadoEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "limitaciones" : {
+            "items" : {
+              "$ref" : "#/components/schemas/RespuestaRestriccion"
+            },
+            "type" : "array"
+          },
+          "medidas" : {
+            "$ref" : "#/components/schemas/MedidasPerfil"
+          },
+          "movilidad" : {
+            "$ref" : "#/components/schemas/Movilidad"
+          },
+          "perfilDatos" : {
+            "$ref" : "#/components/schemas/DatosPerfil"
+          },
+          "perfilEntreno" : {
+            "$ref" : "#/components/schemas/PerfilEntreno"
+          },
+          "planes" : {
+            "items" : {
+              "$ref" : "#/components/schemas/VersionPlan"
+            },
+            "type" : "array"
+          },
+          "preferenciasPlan" : {
+            "$ref" : "#/components/schemas/PreferenciasGuardadas"
+          },
+          "sesiones" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SesionVista"
+            },
+            "type" : "array"
           }
         },
         "type" : "object"
@@ -260,6 +380,29 @@
         },
         "type" : "object"
       },
+      "DispositivoExportado" : {
+        "properties" : {
+          "nombre" : {
+            "type" : "string"
+          },
+          "plataforma" : {
+            "type" : "string"
+          },
+          "revocadoEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "ultimaActividad" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "uuid" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "EjercicioPlan" : {
         "properties" : {
           "anotaciones" : {
@@ -279,6 +422,47 @@
           },
           "posicionEstirada" : {
             "type" : "boolean"
+          },
+          "series" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "EjercicioVersion" : {
+        "properties" : {
+          "cargaKg" : {
+            "type" : "number"
+          },
+          "dia" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "idExterno" : {
+            "type" : "string"
+          },
+          "incrementoKg" : {
+            "type" : "number"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "orden" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "repeticionesMax" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "repeticionesMin" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "rirObjetivo" : {
+            "format" : "int32",
+            "type" : "integer"
           },
           "series" : {
             "format" : "int32",
@@ -1465,6 +1649,61 @@
         },
         "type" : "object"
       },
+      "TrazaGuardada" : {
+        "properties" : {
+          "contribuciones" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ContribucionEjercicio"
+            },
+            "type" : "array"
+          },
+          "descartes" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Descarte"
+            },
+            "type" : "array"
+          },
+          "objetivo" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "volumen" : {
+            "items" : {
+              "$ref" : "#/components/schemas/VolumenMusculo"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "VersionPlan" : {
+        "properties" : {
+          "actual" : {
+            "type" : "boolean"
+          },
+          "creadoEn" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "ejercicios" : {
+            "items" : {
+              "$ref" : "#/components/schemas/EjercicioVersion"
+            },
+            "type" : "array"
+          },
+          "estado" : {
+            "type" : "string"
+          },
+          "traza" : {
+            "$ref" : "#/components/schemas/TrazaGuardada"
+          },
+          "uuid" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "VistaPrevia" : {
         "properties" : {
           "ejercicios" : {
@@ -1891,6 +2130,24 @@
           }
         },
         "tags" : [ "cuenta-controlador" ]
+      }
+    },
+    "/api/v1/cuenta/datos" : {
+      "get" : {
+        "operationId" : "exportar",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DatosExportados"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "exportacion-controlador" ]
       }
     },
     "/api/v1/dispositivos" : {

@@ -120,6 +120,30 @@ export const esquemaDispositivos = z.array(
 /** Un dispositivo de la cuenta tal como lo lista el backend (distinto de `Dispositivo`, que es el de este móvil al entrar). */
 export type DispositivoCuenta = z.infer<typeof esquemaDispositivos>[number];
 
+/** Versión del JSON de «Descargar mis datos» que entiende la app; el backend la sube si cambia de forma. */
+export const FORMATO_EXPORTACION = 1;
+
+// Solo se comprueba el primer nivel: el contenido se guarda tal cual para el usuario (`looseObject` no quita nada).
+// El `satisfies` obliga a nombrar aquí cada sección del OpenAPI: si el backend añade una, `tsc` falla.
+const seccionesExportadas = {
+  formato: z.literal(FORMATO_EXPORTACION),
+  generadoEn: z.iso.datetime(),
+  cuenta: z.looseObject({ correo: z.string() }),
+  dispositivos: z.array(z.unknown()),
+  consentimientos: z.array(z.unknown()),
+  perfilDatos: z.looseObject({}),
+  medidas: z.looseObject({}).nullable(),
+  perfilEntreno: z.looseObject({}),
+  movilidad: z.looseObject({}).nullable(),
+  limitaciones: z.array(z.unknown()),
+  bloqueos: z.array(z.unknown()),
+  preferenciasPlan: z.looseObject({}),
+  planes: z.array(z.unknown()),
+  sesiones: z.array(z.unknown()),
+} satisfies Record<keyof Esquemas['DatosExportados'], z.ZodType>;
+export const esquemaDatosExportados = z.looseObject(seccionesExportadas);
+export type DatosExportados = z.infer<typeof esquemaDatosExportados>;
+
 export const esquemaRestriccion = z.object({
   uuid: z.uuid(),
   region: opcional(z.enum(codigos(REGIONES))),

@@ -15,7 +15,7 @@ public class BloqueoRepositorio {
 	public static final String TABLA = "bloqueo_salud";
 	public static final String COLUMNA_DATOS = "datos";
 
-	public record FilaCifrada(UUID uuid, byte[] datos) {
+	public record FilaCifrada(UUID uuid, OrigenBloqueo origen, byte[] datos) {
 	}
 
 	private final JdbcClient jdbc;
@@ -40,8 +40,11 @@ public class BloqueoRepositorio {
 	}
 
 	public List<FilaCifrada> deUsuario(long usuarioId) {
-		return jdbc.sql("SELECT uuid, datos FROM bloqueo_salud WHERE usuario_id = :usuario")
+		return jdbc.sql("SELECT uuid, origen, datos FROM bloqueo_salud WHERE usuario_id = :usuario ORDER BY id")
 				.param("usuario", usuarioId)
-				.query((rs, n) -> new FilaCifrada(Conversiones.uuid(rs, "uuid"), rs.getBytes("datos"))).list();
+				.query((rs, n) -> new FilaCifrada(Conversiones.uuid(rs, "uuid"),
+						OrigenBloqueo.valueOf(rs.getString("origen").toUpperCase(java.util.Locale.ROOT)),
+						rs.getBytes("datos")))
+				.list();
 	}
 }

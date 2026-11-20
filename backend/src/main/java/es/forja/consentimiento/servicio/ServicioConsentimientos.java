@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import es.forja.comun.api.ErrorNegocio;
 import es.forja.consentimiento.modelo.Consentimiento;
 import es.forja.consentimiento.modelo.ConsentimientoRevocado;
+import es.forja.consentimiento.modelo.RegistroConsentimiento;
 import es.forja.consentimiento.modelo.TipoConsentimiento;
 import es.forja.consentimiento.repositorio.ConsentimientoRepositorio;
 import es.forja.cuenta.repositorio.UsuarioRepositorio;
@@ -37,6 +38,11 @@ public class ServicioConsentimientos {
 
 	public List<Consentimiento> listar(UUID usuario) {
 		return consentimientos.vivos(idDe(usuario));
+	}
+
+	/** Vivos y retirados, con sus fechas: es lo que se exporta. */
+	public List<RegistroConsentimiento> historial(UUID usuario) {
+		return consentimientos.historial(idDe(usuario));
 	}
 
 	/**

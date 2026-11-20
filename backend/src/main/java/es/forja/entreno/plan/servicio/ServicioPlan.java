@@ -30,6 +30,8 @@ import es.forja.entreno.plan.modelo.ReglasDia;
 import es.forja.entreno.plan.modelo.ResultadoProgresion;
 import es.forja.entreno.plan.modelo.SesionEjercicio;
 import es.forja.entreno.plan.modelo.TrazaGuardada;
+import es.forja.entreno.plan.modelo.VersionPlan;
+import es.forja.entreno.plan.modelo.VersionPlan.EjercicioVersion;
 import es.forja.entreno.plan.repositorio.PlanRepositorio;
 import es.forja.entreno.plan.repositorio.PlanRepositorio.CabeceraPlan;
 import es.forja.entreno.plan.repositorio.PlanRepositorio.FichaEjercicio;
@@ -108,6 +110,26 @@ public class ServicioPlan {
 		int diaDeHoy = ReglasDia.diaDeHoy(dias.stream().map(DiaEntreno::dia).toList(),
 				historial.ultimoDiaDePlan(usuarioId, cabecera.id()));
 		return new PlanActual(cabecera.uuid(), cabecera.creadoEn(), cabecera.estado(), diaDeHoy, dias);
+	}
+
+	/**
+	 * Todas las versiones del plan con lo que se guardó de cada una, para la exportación.
+	 *
+	 * <p>shortcut: una consulta de ejercicios por versión; si un usuario acumula cientos, leerlas de una vez.
+	 */
+	public List<VersionPlan> versiones(UUID usuario) {
+		List<CabeceraPlan> cabeceras = planes.versiones(idDe(usuario));
+		List<VersionPlan> versiones = new ArrayList<>();
+		for (int i = 0; i < cabeceras.size(); i++) {
+			CabeceraPlan c = cabeceras.get(i);
+			List<EjercicioVersion> ejercicios = planes.ejercicios(c.id()).stream().map(l -> new EjercicioVersion(
+					l.fila().dia(), l.fila().orden(), l.idExterno(), l.nombre(), l.fila().series(),
+					l.fila().repeticionesMin(), l.fila().repeticionesMax(), l.fila().rirObjetivo(),
+					l.fila().cargaKg(), l.fila().incrementoKg())).toList();
+			versiones.add(new VersionPlan(c.uuid(), c.creadoEn(), c.estado(), i == cabeceras.size() - 1, ejercicios,
+					json.readValue(planes.traza(c.id()), TrazaGuardada.class)));
+		}
+		return versiones;
 	}
 
 	/** Los grupos del cuerpo de cada ejercicio del plan, con una sola consulta. */
