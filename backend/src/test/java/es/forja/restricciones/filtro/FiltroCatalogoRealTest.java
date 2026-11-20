@@ -65,7 +65,7 @@ class FiltroCatalogoRealTest {
 		assertThat(r.get("Barbell_Squat")).isInstanceOfSatisfying(Sustituido.class, s -> {
 			assertThat(s.porIdExterno()).isEqualTo("Leg_Press");
 			assertThat(s.motivo()).isEqualTo(
-					"sin carga axial en sentadilla: prensa de piernas en vez de sentadilla con barra");
+					"Sin carga axial en sentadilla: prensa de piernas en vez de sentadilla con barra");
 		});
 		assertThat(r.get("Leg_Press")).isInstanceOf(Permitido.class);
 	}

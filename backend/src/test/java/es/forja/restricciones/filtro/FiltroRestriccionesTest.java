@@ -64,7 +64,7 @@ class FiltroRestriccionesTest {
 		assertThat(r.get("b_prensa")).isInstanceOf(Excluido.class);
 		assertThat(r.get("c_goblet")).isInstanceOf(Excluido.class);
 		assertThat(r.get("d_press_militar")).isInstanceOf(Permitido.class);
-		assertThat(((Excluido) r.get("b_prensa")).motivo()).contains("evitar").contains("sentadilla")
+		assertThat(((Excluido) r.get("b_prensa")).motivo()).contains("Evitar").contains("sentadilla")
 				.contains("ejercicio b_prensa");
 	}
 
@@ -105,7 +105,7 @@ class FiltroRestriccionesTest {
 		assertThat(r.get("a_sentadilla_barra")).isInstanceOfSatisfying(Sustituido.class, s -> {
 			assertThat(s.porIdExterno()).isEqualTo("b_prensa");
 			assertThat(s.motivo()).isEqualTo(
-					"sin carga axial en sentadilla: ejercicio b_prensa en vez de ejercicio a_sentadilla_barra");
+					"Sin carga axial en sentadilla: ejercicio b_prensa en vez de ejercicio a_sentadilla_barra");
 		});
 		assertThat(r.get("b_prensa")).isInstanceOf(Permitido.class);
 		assertThat(r.get("c_goblet")).isInstanceOf(Permitido.class);
@@ -134,7 +134,7 @@ class FiltroRestriccionesTest {
 
 		// Ninguna cumple el rango reducido: no se inventa un sustituto que incumpla la restricción.
 		assertThat(r.get("a_barra")).isInstanceOfSatisfying(Excluido.class,
-				e -> assertThat(e.motivo()).contains("sin variante compatible").contains("limitar rango"));
+				e -> assertThat(e.motivo()).contains("sin variante compatible").contains("Limitar rango"));
 		assertThat(r.get("b_goblet")).isInstanceOf(Excluido.class);
 	}
 
@@ -260,7 +260,7 @@ class FiltroRestriccionesTest {
 				deProfesional(sobrePatron(Patron.SENTADILLA, TipoRestriccion.SIN_CARGA_AXIAL)));
 
 		assertThat(r.get("a_sentadilla_barra")).isInstanceOfSatisfying(Excluido.class,
-				e -> assertThat(e.motivo()).contains("sin carga axial").contains("profesional"));
+				e -> assertThat(e.motivo()).contains("Sin carga axial").contains("profesional"));
 		assertThat(r.get("b_prensa")).isInstanceOf(Permitido.class);
 	}
 

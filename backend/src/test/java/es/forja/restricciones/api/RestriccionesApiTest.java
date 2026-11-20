@@ -196,7 +196,10 @@ class RestriccionesApiTest extends SoporteLimitaciones {
 		JsonNode efecto = cuerpoDe(consultar(RUTA_RESTRICCIONES + "/efecto", cliente).andExpect(status().isOk()));
 
 		JsonNode sentadilla = null;
+		java.util.List<String> ids = new java.util.ArrayList<>();
 		for (JsonNode e : efecto) {
+			ids.add(e.get("idExterno").asString());
+			assertThat(e.get("motivo").asString()).matches("\\p{Lu}.*");
 			assertThat(e.get("decision").asString()).isIn("excluido", "sustituido", "con_anotaciones");
 			assertThat(e.get("idExterno").asString()).isNotEqualTo("Leg_Press");
 			if ("Barbell_Squat".equals(e.get("idExterno").asString())) {
@@ -204,11 +207,14 @@ class RestriccionesApiTest extends SoporteLimitaciones {
 			}
 		}
 		assertThat(sentadilla).isNotNull();
+		// Solo lo que el generador puede poner en el plan: los curados, todos con nombre en español.
+		assertThat(jdbc.sql("SELECT DISTINCT origen_etiquetado FROM ejercicio WHERE id_externo IN (:ids)")
+				.param("ids", ids).query(String.class).list()).containsExactly("curado");
 		assertThat(sentadilla.get("nombre").asString()).isEqualTo("Sentadilla con barra");
 		assertThat(sentadilla.get("decision").asString()).isEqualTo("sustituido");
 		assertThat(sentadilla.get("sustituto").get("idExterno").asString()).isEqualTo("Leg_Press");
 		assertThat(sentadilla.get("motivo").asString())
-				.isEqualTo("sin carga axial en sentadilla: prensa de piernas en vez de sentadilla con barra");
+				.isEqualTo("Sin carga axial en sentadilla: prensa de piernas en vez de sentadilla con barra");
 	}
 
 	@Test

@@ -31,7 +31,10 @@ public class ServicioEfecto {
 		this.ejercicios = ejercicios;
 	}
 
-	/** Solo los ejercicios que cambian: excluidos, sustituidos o permitidos con anotaciones. */
+	/**
+	 * Solo los ejercicios que cambian (excluidos, sustituidos o permitidos con anotaciones) y que el generador puede
+	 * poner en el plan: los curados. Los derivados nunca entran y su nombre está sin traducir.
+	 */
 	@Transactional(readOnly = true)
 	public List<EfectoEjercicio> calcular(UUID usuario) {
 		long usuarioId = restricciones.exigir(usuario);
@@ -41,7 +44,7 @@ public class ServicioEfecto {
 		Map<String, EjercicioCandidato> porId = candidatos.stream()
 				.collect(Collectors.toMap(EjercicioCandidato::idExterno, e -> e));
 		return filtro.aplicar(candidatos, activas).entrySet().stream()
-				.filter(e -> cambia(e.getValue()))
+				.filter(e -> porId.get(e.getKey()).curado() && cambia(e.getValue()))
 				.map(e -> new EfectoEjercicio(porId.get(e.getKey()), e.getValue(), sustituto(e.getValue(), porId)))
 				.toList();
 	}

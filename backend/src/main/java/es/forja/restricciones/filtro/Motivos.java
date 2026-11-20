@@ -18,16 +18,21 @@ final class Motivos {
 	}
 
 	static String excluido(Restriccion r, EjercicioCandidato e) {
-		return describir(r) + ": se excluye " + minusculaInicial(e.nombre());
+		return mayusculaInicial(describir(r) + ": se excluye " + minusculaInicial(e.nombre()));
 	}
 
 	static String sinVariante(Restriccion r, EjercicioCandidato e) {
-		return describir(r) + ": sin variante compatible para " + minusculaInicial(e.nombre());
+		return mayusculaInicial(describir(r) + ": sin variante compatible para " + minusculaInicial(e.nombre()));
 	}
 
 	static String sustituido(Restriccion r, EjercicioCandidato original, EjercicioCandidato sustituto) {
-		return describir(r) + ": " + minusculaInicial(sustituto.nombre()) + " en vez de "
-				+ minusculaInicial(original.nombre());
+		return mayusculaInicial(describir(r) + ": " + minusculaInicial(sustituto.nombre()) + " en vez de "
+				+ minusculaInicial(original.nombre()));
+	}
+
+	/** El motivo es una frase suelta en la app: empieza en mayúscula. */
+	private static String mayusculaInicial(String texto) {
+		return texto.isEmpty() ? texto : Character.toUpperCase(texto.charAt(0)) + texto.substring(1);
 	}
 
 	private static String minusculaInicial(String texto) {
