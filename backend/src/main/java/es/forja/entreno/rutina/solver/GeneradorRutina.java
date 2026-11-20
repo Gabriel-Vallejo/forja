@@ -17,6 +17,7 @@ import es.forja.entreno.rutina.modelo.PlanRutina.Alternativa;
 import es.forja.entreno.rutina.modelo.PlanRutina.Holgura;
 import es.forja.entreno.rutina.solver.Resolutor.Resultado;
 import es.forja.entreno.rutina.solver.Resolutor.Solucion;
+import es.forja.restricciones.modelo.Patron;
 
 /**
  * Genera la rutina semanal con CP-SAT (ADR 0002): filtro previo, modelo, solución, traza y «por qué este y no
@@ -39,13 +40,15 @@ public class GeneradorRutina {
 		FiltroPrevio.Resultado filtro = FiltroPrevio.aplicar(catalogo.ejercicios(), entrada);
 		List<String> notas = new ArrayList<>();
 		boolean minimos = true;
-		ModeloRutina modelo = new ModeloRutina(config, entrada, filtro.candidatos(), minimos);
+		Map<String, Patron> patrones = new TreeMap<>();
+		catalogo.ejercicios().forEach(e -> patrones.put(e.idExterno(), e.patron()));
+		ModeloRutina modelo = new ModeloRutina(config, entrada, filtro.candidatos(), minimos, patrones);
 		Resultado resultado = Resolutor.resolver(modelo, config.solver(), config.solver().tiempoDeterminista());
 		if (resultado.inviable() && !entrada.seriesSemana().isEmpty()) {
 			// Las series fijadas son duras: si no caben, mejor un plan sin ellas (y decirlo) que ninguno.
 			notas.add(Textos.SERIES_NO_CABEN);
 			entrada = entrada.sinSeriesFijadas();
-			modelo = new ModeloRutina(config, entrada, filtro.candidatos(), minimos);
+			modelo = new ModeloRutina(config, entrada, filtro.candidatos(), minimos, patrones);
 			resultado = Resolutor.resolver(modelo, config.solver(), config.solver().tiempoDeterminista());
 		}
 		if (resultado.inviable()) {
@@ -54,7 +57,7 @@ public class GeneradorRutina {
 			notas.add(Textos.minimoRebajado(config.sesion().ejerciciosMinimos(),
 					config.sesion().porcentajeMinimoDelTiempo()));
 			minimos = false;
-			modelo = new ModeloRutina(config, entrada, filtro.candidatos(), minimos);
+			modelo = new ModeloRutina(config, entrada, filtro.candidatos(), minimos, patrones);
 			resultado = Resolutor.resolver(modelo, config.solver(), config.solver().tiempoDeterminista());
 		}
 		Solucion solucion = resultado.solucion()
@@ -119,7 +122,8 @@ public class GeneradorRutina {
 
 	private Alternativa comparar(EntradaRutina entrada, List<EjercicioRutina> candidatos, boolean minimos,
 			Solucion base, int elegido, int alternativa) {
-		ModeloRutina modelo = new ModeloRutina(config, entrada, candidatos, minimos);
+		// Sin la partida: la diferencia es la del plan, no el coste de alejarse del actual.
+		ModeloRutina modelo = new ModeloRutina(config, entrada.sinPartida(), candidatos, minimos);
 		modelo.sugerir(base.series());
 		modelo.prohibir(elegido);
 		modelo.forzar(alternativa);

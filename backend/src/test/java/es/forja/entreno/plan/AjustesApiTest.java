@@ -59,6 +59,14 @@ class AjustesApiTest extends SoporteSesiones {
 		return series;
 	}
 
+	/** Series por día y {@code idExterno}: el plan entero, no solo la semana. */
+	private static Map<Integer, Map<String, Integer>> seriesPorDia(JsonNode plan) {
+		Map<Integer, Map<String, Integer>> dias = new TreeMap<>();
+		plan.get("dias").forEach(d -> d.get("ejercicios").forEach(e -> dias.computeIfAbsent(d.get("dia").asInt(),
+				n -> new TreeMap<>()).put(e.get("idExterno").asString(), e.get("series").asInt())));
+		return dias;
+	}
+
 	private long versiones(Cliente cliente) {
 		return contar("SELECT COUNT(*) FROM plan_version p JOIN usuario u ON u.id = p.usuario_id WHERE u.correo = ?",
 				cliente.correo());
@@ -138,7 +146,7 @@ class AjustesApiTest extends SoporteSesiones {
 	@Test
 	void unaSerieMenosLaBajaYEnElMinimoExplicaPorQueNo() throws Exception {
 		Cliente cliente = cuentaConSesion("Pixel");
-		generarComoElPerfil(cliente);
+		String version = generarComoElPerfil(cliente);
 		Map<String, Integer> antes = seriesSemana(planActual(cliente));
 		String conMargen = antes.entrySet().stream().filter(e -> e.getValue() > 2).findFirst().orElseThrow().getKey();
 
@@ -146,6 +154,15 @@ class AjustesApiTest extends SoporteSesiones {
 
 		assertThat(seriesSemana(vista.get("plan")).get(conMargen)).isEqualTo(antes.get(conMargen) - 1);
 		assertThat(vista.get("ejercicios").findValuesAsString("idExterno")).contains(conMargen);
+		// Parte del plan actual: nada entra ni sale y, como mucho, dos compensaciones de series.
+		assertThat(vista.get("ejercicios")).hasSizeLessThanOrEqualTo(3)
+				.allSatisfy(c -> assertThat(c.get("antes").asInt() * c.get("despues").asInt()).isPositive());
+
+		// Aplicar vuelve a resolver y, con la pista y la penalización, sale el plan de la vista previa, día a día.
+		Map<String, Object> aplicar = ajuste("menos", conMargen);
+		aplicar.put("version", version);
+		enviarAutenticado(RUTA_APLICAR, cliente, aplicar).andExpect(status().isOk());
+		assertThat(seriesPorDia(planActual(cliente))).isEqualTo(seriesPorDia(vista.get("plan")));
 
 		antes.entrySet().stream().filter(e -> e.getValue() == 2).findFirst().ifPresent(e -> {
 			try {

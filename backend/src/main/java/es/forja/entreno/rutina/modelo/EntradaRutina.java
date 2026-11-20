@@ -18,10 +18,12 @@ import es.forja.restricciones.modelo.Restriccion;
  * @param movilidad tramo de cada test hecho, si tiene el consentimiento de medidas de salud; si no, vacío
  * @param seriesSemana series de la semana fijadas por el usuario para un {@code idExterno} («una serie más o menos»)
  * @param evitar {@code idExterno} que pierden puntos por serie: los del plan anterior si pidió más variedad
+ * @param partida plan del que parte un ajuste; {@link Partida#NINGUNA} al generar desde cero
  */
 public record EntradaRutina(int dias, int minutos, Set<String> material, Set<String> exclusiones,
 		List<String> prioritarios, int frecuenciaMinima, List<Restriccion> restricciones,
-		Map<TestMovilidad, Tramo> movilidad, Map<String, Integer> seriesSemana, Set<String> evitar) {
+		Map<TestMovilidad, Tramo> movilidad, Map<String, Integer> seriesSemana, Set<String> evitar,
+		Partida partida) {
 
 	public static final int DIAS_MINIMOS = 2;
 	public static final int DIAS_MAXIMOS = 6;
@@ -46,18 +48,40 @@ public record EntradaRutina(int dias, int minutos, Set<String> material, Set<Str
 		evitar = Set.copyOf(evitar);
 	}
 
+	/**
+	 * El plan actual del que parte un ajuste: cambiarlo cuesta en el objetivo, salvo los primeros
+	 * {@code cambiosLibres}.
+	 *
+	 * @param series series por día (índice 0 = día 1) de cada {@code idExterno}
+	 * @param cambiosLibres series o presencias por día que pueden cambiar sin coste («enfocar»); 0 en el resto
+	 */
+	public record Partida(Map<String, List<Integer>> series, int cambiosLibres) {
+
+		public static final Partida NINGUNA = new Partida(Map.of(), 0);
+
+		public Partida {
+			series = Map.copyOf(series);
+		}
+	}
+
 	/** Sin preferencias de los ajustes del plan. */
 	public EntradaRutina(int dias, int minutos, Set<String> material, Set<String> exclusiones,
 			List<String> prioritarios, int frecuenciaMinima, List<Restriccion> restricciones,
 			Map<TestMovilidad, Tramo> movilidad) {
 		this(dias, minutos, material, exclusiones, prioritarios, frecuenciaMinima, restricciones, movilidad, Map.of(),
-				Set.of());
+				Set.of(), Partida.NINGUNA);
 	}
 
 	/** La misma entrada sin las series fijadas: cuando no caben, el plan se genera sin ellas. */
 	public EntradaRutina sinSeriesFijadas() {
 		return new EntradaRutina(dias, minutos, material, exclusiones, prioritarios, frecuenciaMinima, restricciones,
-				movilidad, Map.of(), evitar);
+				movilidad, Map.of(), evitar, partida);
+	}
+
+	/** La misma entrada sin plan de partida: el «por qué este y no aquel» compara sin el coste de cambiar. */
+	public EntradaRutina sinPartida() {
+		return new EntradaRutina(dias, minutos, material, exclusiones, prioritarios, frecuenciaMinima, restricciones,
+				movilidad, seriesSemana, evitar, Partida.NINGUNA);
 	}
 
 	/** Sin tests de movilidad. */

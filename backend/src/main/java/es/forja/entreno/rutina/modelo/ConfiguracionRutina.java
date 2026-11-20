@@ -19,11 +19,14 @@ public record ConfiguracionRutina(Pesos pesos, Volumen volumen, Basicos basicos,
 	 * @param holguraBasicos por cada patrón principal que falta en la semana
 	 * @param desequilibrioSesiones por minuto de diferencia entre la sesión más larga y la más corta
 	 * @param repetirPlan por serie de un ejercicio del plan anterior, si el usuario pidió más variedad
+	 * @param cambioPlan en un ajuste, por cada serie o presencia de un ejercicio en un día que cambia frente al plan
+	 *            actual
+	 * @param cambiosLibresEnfocar series o presencias por día que «enfocar» puede cambiar sin pagar {@code cambioPlan}
 	 */
 	public record Pesos(int coberturaPrioritarios, int posicionEstirada, int variedad, int fatiga,
 			int serieHastaObjetivo, int serieSobreObjetivo, int serieCompuesto, int holguraVolumen,
 			int holguraFrecuencia, int holguraBasicos, int desequilibrioSesiones, int movilidad, int palancas,
-			int repetirPlan) {
+			int repetirPlan, int cambioPlan, int cambiosLibresEnfocar) {
 	}
 
 	/** Series semanales efectivas por músculo; los secundarios cuentan 0,5. */

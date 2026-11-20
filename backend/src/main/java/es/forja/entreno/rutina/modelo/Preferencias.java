@@ -12,11 +12,12 @@ import java.util.Set;
  * @param prioritarios músculos a enfocar; mandan si la solicitud no trae los suyos
  * @param series series de la semana fijadas por {@code idExterno} («una serie más o menos»)
  * @param evitar {@code idExterno} del plan anterior, que pierden puntos si pidió más variedad
+ * @param partida plan actual del que parte un ajuste; ninguna al regenerar
  */
 public record Preferencias(Set<String> exclusiones, List<String> prioritarios, Map<String, Integer> series,
-		Set<String> evitar) {
+		Set<String> evitar, EntradaRutina.Partida partida) {
 
-	public static final Preferencias NINGUNA = new Preferencias(Set.of(), List.of(), Map.of(), Set.of());
+	public static final Preferencias NINGUNA = new Preferencias(Set.of(), List.of(), Map.of(), Set.of(), EntradaRutina.Partida.NINGUNA);
 
 	public Preferencias {
 		exclusiones = Set.copyOf(exclusiones);

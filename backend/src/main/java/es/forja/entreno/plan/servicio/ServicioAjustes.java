@@ -2,6 +2,7 @@ package es.forja.entreno.plan.servicio;
 
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,6 +37,7 @@ import es.forja.entreno.plan.repositorio.PreferenciasRepositorio;
 import es.forja.entreno.rutina.modelo.CatalogoRutina;
 import es.forja.entreno.rutina.modelo.ConfiguracionRutina;
 import es.forja.entreno.rutina.modelo.EjercicioRutina;
+import es.forja.entreno.rutina.modelo.EntradaRutina.Partida;
 import es.forja.entreno.rutina.modelo.PlanRutina;
 import es.forja.entreno.rutina.modelo.PlanRutina.VolumenMusculo;
 import es.forja.entreno.rutina.modelo.Preferencias;
@@ -99,7 +101,7 @@ public class ServicioAjustes {
 	public Preferencias paraGenerar(UUID usuario) {
 		long usuarioId = idDe(usuario);
 		return paraElGenerador(preferencias.de(usuarioId).aCodigos(),
-				planes.ultimo(usuarioId).map(c -> planes.ejercicios(c.id())).orElse(List.of()));
+				planes.ultimo(usuarioId).map(c -> planes.ejercicios(c.id())).orElse(List.of()), Partida.NINGUNA);
 	}
 
 	/** Resuelve con el ajuste y enseña qué cambia; no guarda nada. */
@@ -143,7 +145,7 @@ public class ServicioAjustes {
 		validar(nuevas);
 		SolicitudRutina solicitud = new SolicitudRutina(ajustes.diasPorSemana(), ajustes.minutosPorSesion(),
 				ajustes.material(), List.of(), List.of(), null);
-		PlanRutina plan = rutina.generar(usuario, solicitud, paraElGenerador(nuevas, filas));
+		PlanRutina plan = rutina.generar(usuario, solicitud, paraElGenerador(nuevas, filas, partida(ajuste, filas)));
 		if (Ajuste.MAS.equals(ajuste.tipo()) || Ajuste.MENOS.equals(ajuste.tipo())) {
 			exigirSeries(ajuste, nuevas.series().get(ajuste.idExterno()), plan, cabecera, filas);
 		}
@@ -238,10 +240,30 @@ public class ServicioAjustes {
 		}
 	}
 
-	private Preferencias paraElGenerador(PreferenciasPlan p, List<FilaLeida> planAnterior) {
+	private Preferencias paraElGenerador(PreferenciasPlan p, List<FilaLeida> planAnterior, Partida partida) {
 		Set<String> evitar = p.variedad() ? planAnterior.stream().map(FilaLeida::idExterno).collect(Collectors.toSet())
 				: Set.of();
-		return new Preferencias(Set.copyOf(p.exclusiones()), p.prioritarios(), p.series(), evitar);
+		return new Preferencias(Set.copyOf(p.exclusiones()), p.prioritarios(), p.series(), evitar, partida);
+	}
+
+	/**
+	 * Un ajuste parte del plan actual (cambiarlo cuesta en el objetivo), y como la vista previa y aplicar resuelven
+	 * igual, salen el mismo plan. «Más variedad» no parte de él, porque pide justo lo contrario; con la variedad ya
+	 * guardada, en el resto de ajustes la partida pesa más que la penalización por repetir y solo desempata.
+	 * «Enfocar» tiene cambios libres para poder subir el músculo.
+	 */
+	private Partida partida(Ajuste ajuste, List<FilaLeida> filas) {
+		if (Ajuste.VARIEDAD.equals(ajuste.tipo())) {
+			return Partida.NINGUNA;
+		}
+		Map<String, Integer[]> porDia = new TreeMap<>();
+		int dias = filas.stream().mapToInt(f -> f.fila().dia()).max().orElse(0);
+		filas.forEach(f -> porDia.computeIfAbsent(f.idExterno(), id -> new Integer[dias])[f.fila().dia() - 1] = f
+				.fila().series());
+		Map<String, List<Integer>> series = new TreeMap<>();
+		porDia.forEach((id, s) -> series.put(id, Arrays.stream(s).map(n -> n == null ? 0 : n).toList()));
+		int libres = Ajuste.ENFOCAR.equals(ajuste.tipo()) ? config.pesos().cambiosLibresEnfocar() : 0;
+		return new Partida(series, libres);
 	}
 
 	private Optional<EjercicioRutina> ejercicio(String idExterno) {

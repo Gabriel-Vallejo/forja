@@ -30,6 +30,8 @@ forja:
       movilidad: 5                # por serie y punto de ReglasMovilidad (limitado ±2, medio ±1); heurística, nivel H
       palancas: 0                 # sin datos todavía (fase 2)
       repetir-plan: 3             # por serie de un ejercicio del plan anterior con «más variedad»; menor que el premio del compuesto
+      cambio-plan: 50             # en un ajuste, por serie o presencia por día que cambia frente al plan actual; más que lo que gana una serie (≤ ~45) y menos que la holgura de volumen (100 por serie doble): solo se mueve lo que el ajuste o los mínimos obligan
+      cambios-libres-enfocar: 6   # «enfocar» mueve hasta 6 series o presencias por día sin coste: en el caso real, 1 ejercicio sale y 2 cambian (sin ellos no se movía nada)
     volumen:
       # Heurística de entrenadores (RP), nivel H: ver docs/referencias.md.
       minimo: 10

@@ -56,6 +56,6 @@ public record SolicitudRutina(
 				: prioritarios;
 		return new EntradaRutina(diasPorSemana, minutosPorSesion, Set.copyOf(material), todas, enfoque,
 				frecuenciaMinima == null ? EntradaRutina.FRECUENCIA_POR_DEFECTO : frecuenciaMinima, restricciones,
-				movilidad, preferencias.series(), preferencias.evitar());
+				movilidad, preferencias.series(), preferencias.evitar(), preferencias.partida());
 	}
 }

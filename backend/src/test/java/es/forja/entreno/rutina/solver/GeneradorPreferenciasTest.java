@@ -26,7 +26,8 @@ class GeneradorPreferenciasTest {
 
 	private PlanRutina generar(Map<String, Integer> series, Set<String> evitar) {
 		return GENERADOR.generar(servicio.catalogo(), new EntradaRutina(3, 60, GeneradorCatalogoRealTest.MATERIAL_COMPLETO,
-				Set.of(), List.of(), EntradaRutina.FRECUENCIA_POR_DEFECTO, List.of(), Map.of(), series, evitar));
+				Set.of(), List.of(), EntradaRutina.FRECUENCIA_POR_DEFECTO, List.of(), Map.of(), series, evitar,
+				EntradaRutina.Partida.NINGUNA));
 	}
 
 	private static Map<String, Integer> seriesSemana(PlanRutina plan) {

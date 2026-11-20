@@ -62,6 +62,8 @@ final class Resolutor {
 		Map<String, Long> frecuencia = new TreeMap<>();
 		modelo.holguraFrecuencia.forEach((m, v) -> frecuencia.put(m, solver.value(v)));
 		String nombre = estado == CpSolverStatus.OPTIMAL ? PlanRutina.OPTIMO : PlanRutina.FACTIBLE;
-		return new Solucion(nombre, Math.round(solver.objectiveValue()), series, volumen, frecuencia);
+		// El objetivo que se enseña (y con el que se comparan las alternativas) es el del plan, sin el coste de cambiar.
+		long objetivo = Math.round(solver.objectiveValue()) + modelo.pesoCambios() * solver.value(modelo.cambiosDeMas);
+		return new Solucion(nombre, objetivo, series, volumen, frecuencia);
 	}
 }

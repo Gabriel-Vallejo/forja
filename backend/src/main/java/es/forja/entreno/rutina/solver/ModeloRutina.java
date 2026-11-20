@@ -64,6 +64,8 @@ final class ModeloRutina {
 	private final Map<String, IntVar> sobreObjetivo = new TreeMap<>();
 	private final LinearExprBuilder[] duracion;
 	private IntVar desequilibrio;
+	/** Cambios frente al plan de partida por encima de los libres; lo que se penaliza. 0 sin partida. */
+	IntVar cambiosDeMas;
 	private final ConfiguracionRutina config;
 	private final EntradaRutina entrada;
 
@@ -73,6 +75,15 @@ final class ModeloRutina {
 	 */
 	ModeloRutina(ConfiguracionRutina config, EntradaRutina entrada, List<EjercicioRutina> ejercicios,
 			boolean exigirMinimosPorSesion) {
+		this(config, entrada, ejercicios, exigirMinimosPorSesion, Map.of());
+	}
+
+	/**
+	 * @param patrones patrón de cada {@code idExterno} del catálogo: el hueco que deja en la partida un ejercicio que
+	 *            ya no es candidato se puede rellenar con otro de su patrón sin coste de cambio
+	 */
+	ModeloRutina(ConfiguracionRutina config, EntradaRutina entrada, List<EjercicioRutina> ejercicios,
+			boolean exigirMinimosPorSesion, Map<String, Patron> patrones) {
 		this.config = config;
 		this.entrada = entrada;
 		this.ejercicios = List.copyOf(ejercicios);
@@ -90,7 +101,12 @@ final class ModeloRutina {
 		frecuencia();
 		basicos();
 		seriesFijadas();
+		partida(patrones);
 		cp.maximize(objetivo(movilidad, Map.of()));
+	}
+
+	long pesoCambios() {
+		return config.pesos().cambioPlan();
 	}
 
 	/** Todos los músculos que tocan los candidatos más los que tienen meta, ordenados. */
@@ -120,6 +136,50 @@ final class ModeloRutina {
 	/** Obliga a que un ejercicio salga al menos un día. */
 	void forzar(int indice) {
 		cp.addGreaterOrEqual(LinearExpr.sum(esta[indice]), 1);
+	}
+
+	/**
+	 * Un ajuste parte del plan actual: pista con sus series y, en {@code cambios}, cada serie y cada presencia por día
+	 * que difiere. Lo que ya no está entre los candidatos o cae en un día que ya no existe se ignora, así que la
+	 * partida nunca hace inviable el modelo (es blanda); el hueco de un ejercicio que ya no está queda libre para
+	 * otro de su patrón ese día («no recomendar» lo cambia por otro).
+	 */
+	private void partida(Map<String, Patron> patrones) {
+		cambiosDeMas = cp.newConstant(0);
+		if (entrada.partida().series().isEmpty()) {
+			return;
+		}
+		LinearExprBuilder cambios = LinearExpr.newBuilder();
+		Set<String> candidatos = new TreeSet<>();
+		ejercicios.forEach(e -> candidatos.add(e.idExterno()));
+		Set<String> huecos = new TreeSet<>();
+		entrada.partida().series().forEach((id, porDia) -> {
+			for (int d = 0; d < Math.min(dias, porDia.size()); d++) {
+				if (!candidatos.contains(id) && patrones.containsKey(id) && porDia.get(d) > 0) {
+					huecos.add(patrones.get(id) + "/" + d);
+				}
+			}
+		});
+		int[][] base = new int[ejercicios.size()][dias];
+		for (int e = 0; e < ejercicios.size(); e++) {
+			List<Integer> porDia = entrada.partida().series().getOrDefault(ejercicios.get(e).idExterno(), List.of());
+			for (int d = 0; d < dias; d++) {
+				base[e][d] = d < porDia.size() ? porDia.get(d) : 0;
+				if (base[e][d] > 0) {
+					IntVar diferencia = cp.newIntVar(0, Math.max(base[e][d], config.sesion().seriesMaximasPorEjercicio()),
+							"cambio_" + e + "_" + d);
+					cp.addGreaterOrEqual(LinearExpr.newBuilder().add(diferencia).add(series[e][d]), base[e][d]);
+					cp.addGreaterOrEqual(LinearExpr.newBuilder().add(diferencia).addTerm(series[e][d], -1), -base[e][d]);
+					cambios.add(diferencia).add(1).addTerm(esta[e][d], -1);
+				} else if (!huecos.contains(ejercicios.get(e).patron() + "/" + d)) {
+					cambios.add(series[e][d]).add(esta[e][d]);
+				}
+			}
+		}
+		sugerir(base);
+		cambiosDeMas = cp.newIntVar(0, (long) ejercicios.size() * dias * (config.sesion().seriesMaximasPorEjercicio() + 1),
+				"cambios_de_mas");
+		cp.addGreaterOrEqual(LinearExpr.newBuilder().add(cambiosDeMas).add(entrada.partida().cambiosLibres()), cambios);
 	}
 
 	/** «Una serie más o menos»: las series de la semana que fijó el usuario, duras; si no caben, el modelo es inviable. */
@@ -297,6 +357,7 @@ final class ModeloRutina {
 		holguraFrecuencia.values().forEach(h -> objetivo.addTerm(h, -p.holguraFrecuencia()));
 		faltaBasico.values().forEach(f -> objetivo.addTerm(f, -p.holguraBasicos()));
 		objetivo.addTerm(desequilibrio, -p.desequilibrioSesiones());
+		objetivo.addTerm(cambiosDeMas, -p.cambioPlan());
 		return objetivo;
 	}
 }

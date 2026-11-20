@@ -15,6 +15,8 @@ public final class ConfiguracionDePrueba {
 			"empuje_vertical", "traccion_horizontal", "traccion_vertical");
 	private static final int MOVILIDAD = 5;
 	private static final int REPETIR_PLAN = 3;
+	private static final int CAMBIO_PLAN = 50;
+	private static final int CAMBIOS_LIBRES_ENFOCAR = 6;
 
 	private ConfiguracionDePrueba() {
 	}
@@ -39,6 +41,7 @@ public final class ConfiguracionDePrueba {
 	}
 
 	private static Pesos pesos(int posicionEstirada) {
-		return new Pesos(5, posicionEstirada, 10, 2, 10, 3, 4, 100, 300, 500, 5, MOVILIDAD, 0, REPETIR_PLAN);
+		return new Pesos(5, posicionEstirada, 10, 2, 10, 3, 4, 100, 300, 500, 5, MOVILIDAD, 0, REPETIR_PLAN, CAMBIO_PLAN,
+				CAMBIOS_LIBRES_ENFOCAR);
 	}
 }
