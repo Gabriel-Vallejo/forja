@@ -9,7 +9,11 @@ name: Registrar una serie
 - extendedWaitUntil:
     visible: Guardar serie.*
     timeout: 30000
-# Peso y repeticiones vienen ya del plan.
+# El peso puede venir del plan o vacío («elige») si es la primera vez: se borra y se escribe siempre.
+- tapOn: "Peso, .*serie 1"
+- eraseText: 10
+- inputText: "20"
+- hideKeyboard
 - tapOn: Calentamiento
 - tapOn: Guardar serie.*
 - extendedWaitUntil:

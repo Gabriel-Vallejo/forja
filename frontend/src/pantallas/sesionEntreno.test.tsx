@@ -288,6 +288,6 @@ describe('Sesión sin conexión con el plan guardado', () => {
     expect(peso.props.value).toBe('');
     expect(peso.props.placeholder).toBe('elige');
     await guardar();
-    expect(await screen.findByText('Escribe peso, repeticiones y RIR con números.')).toBeOnTheScreen();
+    expect(await screen.findByText('Falta el peso: escribe con cuántos kg haces esta serie.')).toBeOnTheScreen();
   });
 });

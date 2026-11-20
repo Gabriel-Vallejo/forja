@@ -57,6 +57,11 @@ export function FilaSerie({ objetivo, titulo, inicial, etiquetaGuardar, alGuarda
 
   const guardar = async () => {
     const valores = { pesoKg: aNumero(peso), repeticiones: aNumero(repeticiones), rir: aNumero(rir) };
+    if (Number.isNaN(valores.pesoKg) && peso.trim() === '' && !Number.isNaN(valores.repeticiones) && !Number.isNaN(valores.rir)) {
+      // Lo normal la primera vez: el peso viene vacío para que lo elijas. Mejor decir justo eso.
+      setError(`Falta el ${corporal ? 'lastre' : 'peso'}: escribe con cuántos kg haces esta serie.`);
+      return;
+    }
     if (Object.values(valores).some(Number.isNaN)) {
       setError('Escribe peso, repeticiones y RIR con números.');
       return;

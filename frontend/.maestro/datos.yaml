@@ -1,0 +1,24 @@
+# Camino crítico 4: Perfil → «Descargar mis datos» → Privacidad → descargar → hoja de compartir del sistema.
+appId: com.anonymous.forja
+name: Descargar mis datos
+---
+- runFlow: comun/abrir.yaml
+- runFlow: comun/entrar.yaml
+- tapOn: Perfil
+- scrollUntilVisible:
+    element: Descargar mis datos.*
+    direction: DOWN
+- tapOn: Descargar mis datos.*
+# La pantalla baja sola hasta «Tus datos».
+- extendedWaitUntil:
+    visible: Tus datos
+    timeout: 20000
+- tapOn: Descargar mis datos
+# La hoja de compartir es del sistema (Android no enseña su título): basta con que salga el archivo.
+- extendedWaitUntil:
+    visible: forja-mis-datos-.*\.json
+    timeout: 30000
+- back
+- extendedWaitUntil:
+    visible: Archivo forja-mis-datos-.* preparado\.
+    timeout: 10000

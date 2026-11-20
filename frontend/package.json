@@ -47,7 +47,7 @@
   },
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
+    "android": "expo run:android",
     "web": "expo start --web",
     "api": "openapi-typescript ../docs/api/openapi.json -o src/api/esquema.d.ts",
     "lint": "eslint . --max-warnings 0",

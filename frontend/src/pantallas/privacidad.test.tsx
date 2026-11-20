@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react-native';
-import { Text } from 'react-native';
+import { ScrollView, Text } from 'react-native';
 
 import { ErrorApi } from '../api/errores';
 import { useResumenLimitaciones } from '../limitaciones/consultas';
@@ -265,6 +265,23 @@ describe('Privacidad: dispositivos', () => {
 });
 
 describe('Privacidad: descargar mis datos', () => {
+  test('sin venir de «Descargar mis datos», la pantalla se queda arriba', async () => {
+    const bajar = jest.spyOn(ScrollView.prototype, 'scrollToEnd');
+    await renderizar(<Privacidad />);
+    fireEvent(await screen.findByTestId('pantalla-desplazable'), 'contentSizeChange', 400, 2000);
+    expect(bajar).not.toHaveBeenCalled();
+    bajar.mockRestore();
+  });
+
+  test('viniendo de «Descargar mis datos» en Perfil, baja hasta «Tus datos»', async () => {
+    const bajar = jest.spyOn(ScrollView.prototype, 'scrollToEnd');
+    await renderizar(<Privacidad irADatos />);
+    fireEvent(await screen.findByTestId('pantalla-desplazable'), 'contentSizeChange', 400, 2000);
+    expect(bajar).toHaveBeenCalled();
+    bajar.mockRestore();
+  });
+
+
   const boton = () => screen.findByRole('button', { name: 'Descargar mis datos' });
 
   test('explica qué lleva el archivo y que hay datos de salud', async () => {
@@ -341,6 +358,14 @@ describe('Perfil: fila de privacidad', () => {
     await fireEvent.press(await screen.findByRole('button', { name: 'Consentimientos y dispositivos: 2 de 5 · 2 dispositivos' }));
 
     expect(mockRouter.push).toHaveBeenCalledWith('/privacidad');
+  });
+
+  test('«Descargar mis datos» en Perfil lleva a la sección de Privacidad donde está el botón', async () => {
+    await renderizar(<Perfil />);
+
+    await fireEvent.press(await screen.findByRole('button', { name: 'Descargar mis datos: JSON' }));
+
+    expect(mockRouter.push).toHaveBeenCalledWith('/privacidad?seccion=datos');
   });
 
   test('con un solo dispositivo y ningún consentimiento, en singular', async () => {

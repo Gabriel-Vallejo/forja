@@ -171,9 +171,10 @@ function TusDatos() {
   );
 }
 
-export function Privacidad() {
+/** @param irADatos baja hasta «Tus datos», la última sección, en cuanto carga lo de encima. */
+export function Privacidad({ irADatos = false }: { irADatos?: boolean }) {
   return (
-    <Pantalla hueco="s4">
+    <Pantalla hueco="s4" seguirFinal={irADatos}>
       <EncabezadoAtras titulo="Privacidad" />
       <Consentimientos />
       <Dispositivos />

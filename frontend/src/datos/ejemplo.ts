@@ -130,7 +130,4 @@ export const PERFIL = {
     { etiqueta: 'Unidades · descanso', valor: 'kg · 2:00', dato: true },
     { etiqueta: 'Avisos', valor: 'Días de entreno' },
   ],
-  privacidad: [
-    { etiqueta: 'Descargar mis datos', valor: '' },
-  ],
 } as const;

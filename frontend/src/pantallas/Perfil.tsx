@@ -159,7 +159,10 @@ export function Perfil() {
       <Grupo titulo="Personaliza" opciones={PERFIL.personaliza} />
       <Grupo
         titulo="Privacidad"
-        opciones={[{ etiqueta: 'Consentimientos y dispositivos', valor: privacidad, ruta: '/privacidad' }, ...PERFIL.privacidad]}
+        opciones={[
+          { etiqueta: 'Consentimientos y dispositivos', valor: privacidad, ruta: '/privacidad' },
+          { etiqueta: 'Descargar mis datos', valor: 'JSON', ruta: '/privacidad?seccion=datos' },
+        ]}
         peligro={{ etiqueta: 'Borrar mi cuenta', ruta: '/borrar-cuenta' }}
       />
       {cierre.isError ? <Aviso tipo="error" mensaje={mensajeDeError(cierre.error)} /> : null}
