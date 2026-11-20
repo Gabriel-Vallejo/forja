@@ -9,11 +9,11 @@ import { Icono } from '../componentes/Icono';
 import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
 import {
-  AVISO_PRIMERA_SEMANA,
+  AVISO_PRIMERA_SESION,
   calidadPlan,
   numeroDeOrden,
-  esPrimeraSemana,
   fechaCorta,
+  hayPrimeraSesion,
   prescripcion,
   seriesDe,
 } from '../plan/plan';
@@ -37,7 +37,6 @@ function Plan({ plan }: { plan: PlanActual }) {
   const cargas = useCargasSiguientes(plan);
   const [elegido, setElegido] = useState(plan.diaDeHoy);
   const dia = plan.dias.find((d) => d.dia === elegido) ?? plan.dias[0];
-  const primeraSemana = esPrimeraSemana(plan);
   const optimo = plan.estado === 'optimo';
 
   const desplaza = plan.dias.length > DIAS_SIN_DESPLAZAR;
@@ -82,7 +81,7 @@ function Plan({ plan }: { plan: PlanActual }) {
 {pestanas}
         </View>
       )}
-      {primeraSemana ? <Aviso tipo="info" mensaje={AVISO_PRIMERA_SEMANA} /> : null}
+      {dia && hayPrimeraSesion(dia) ? <Aviso tipo="info" mensaje={AVISO_PRIMERA_SESION} /> : null}
       {dia ? (
         <>
           <View style={estilos.cabeceraLista}>

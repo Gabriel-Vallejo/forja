@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { processColor } from 'react-native';
 
 import { ErrorApi } from '../api/errores';
-import { AVISO_PRIMERA_SEMANA } from '../plan/plan';
+import { AVISO_PRIMERA_SESION } from '../plan/plan';
 import { apiFalsa, planDePrueba } from '../pruebas/dobles';
 import { renderizar } from '../pruebas/renderizar';
 import { dark } from '../theme';
@@ -106,15 +106,27 @@ describe('Plan', () => {
   test('el aviso de primera semana sale una sola vez y no se repite en las filas', async () => {
     await renderizar(<MiPlan />, conPlan(true));
 
-    expect(await screen.findAllByText(AVISO_PRIMERA_SEMANA)).toHaveLength(1);
+    expect(await screen.findAllByText(AVISO_PRIMERA_SESION)).toHaveLength(1);
     expect(screen.queryByText(/elige una carga con la que te queden/)).toBeNull();
+  });
+
+  test('el aviso va por día: no sale en un día con carga aunque otro tenga ejercicios nuevos', async () => {
+    const base = planDePrueba(false);
+    const [torso, pierna] = base.dias;
+    const mixto = { ...base, dias: [torso!, { ...pierna!, ejercicios: pierna!.ejercicios.map((e) => ({ ...e, primeraSesion: true })) }] };
+    await renderizar(<MiPlan />, apiFalsa({ planActual: jest.fn().mockResolvedValue(mixto) }));
+
+    expect(await screen.findAllByText(/^Repite 80 kg/)).not.toHaveLength(0);
+    expect(screen.queryByText(AVISO_PRIMERA_SESION)).toBeNull();
+    await fireEvent.press(screen.getByRole('tab', { name: /^Día 2/ }));
+    expect(await screen.findByText(AVISO_PRIMERA_SESION)).toBeOnTheScreen();
   });
 
   test('sin primera semana no hay aviso y cada fila dice qué toca', async () => {
     await renderizar(<MiPlan />, conPlan());
 
     expect(await screen.findAllByText(/^Repite 80 kg/)).toHaveLength(3);
-    expect(screen.queryByText(AVISO_PRIMERA_SEMANA)).toBeNull();
+    expect(screen.queryByText(AVISO_PRIMERA_SESION)).toBeNull();
   });
 
   test('los días son pestañas y una fila abre su detalle', async () => {

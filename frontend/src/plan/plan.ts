@@ -28,8 +28,11 @@ export function prescripcion(e: ObjetivoEjercicio, cargaSiguiente?: number): str
 
 export const seriesDe = (dia: Dia) => dia.ejercicios.reduce((total, e) => total + e.series, 0);
 
-/** Algún ejercicio sin sesiones: su motivo es el genérico de elegir carga, que el plan dice una sola vez arriba. */
-export const esPrimeraSemana = (plan: PlanActual) => plan.dias.some((d) => d.ejercicios.some((e) => e.primeraSesion));
+/**
+ * Algún ejercicio del día sin sesiones: su motivo es el genérico de elegir carga, que se dice una sola vez arriba.
+ * Va por día porque en el mismo plan otros ejercicios ya pueden tener carga.
+ */
+export const hayPrimeraSesion = (dia: Dia) => dia.ejercicios.some((e) => e.primeraSesion);
 
 /** El día de hoy primero y, detrás, los demás en el orden del ciclo. */
 export function diasDesdeHoy(plan: PlanActual): Dia[] {
@@ -37,8 +40,8 @@ export function diasDesdeHoy(plan: PlanActual): Dia[] {
   return [...plan.dias.slice(posicion), ...plan.dias.slice(0, posicion)];
 }
 
-export const AVISO_PRIMERA_SEMANA =
-  'Primera semana: todavía no hay sesiones de estos ejercicios. Elige en cada uno una carga con la que te queden las repeticiones en reserva (RIR) que marca.';
+export const AVISO_PRIMERA_SESION =
+  'Los ejercicios sin carga aún no tienen sesiones: elige en cada uno una carga con la que te queden las repeticiones en reserva (RIR) que marca.';
 
 export const NOMBRE_ESTADO: Record<ObjetivoEjercicio['estado'], string> = {
   acumulando: 'Acumulando',

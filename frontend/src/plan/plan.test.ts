@@ -1,5 +1,5 @@
 import { objetivo, planDePrueba } from '../pruebas/dobles';
-import { calidadPlan, diasDesdeHoy, esPrimeraSemana, numeroDeOrden, prescripcion } from './plan';
+import { calidadPlan, diasDesdeHoy, hayPrimeraSesion, numeroDeOrden, prescripcion } from './plan';
 
 describe('plan', () => {
   test('la prescripción lleva la carga, o «tu peso» si es de peso corporal', () => {
@@ -8,9 +8,11 @@ describe('plan', () => {
     expect(prescripcion(objetivo({ incrementoKg: 0, cargaKg: 0 }))).toBe('4 × 6-10 · RIR 2 · tu peso');
   });
 
-  test('la primera semana sale de `primeraSesion`, no del texto del motivo', () => {
-    expect(esPrimeraSemana(planDePrueba(true))).toBe(true);
-    expect(esPrimeraSemana(planDePrueba(false))).toBe(false);
+  test('la primera sesión sale de `primeraSesion` del día, no del texto del motivo', () => {
+    const [nuevo] = planDePrueba(true).dias;
+    const [conCarga] = planDePrueba(false).dias;
+    expect(hayPrimeraSesion(nuevo!)).toBe(true);
+    expect(hayPrimeraSesion(conCarga!)).toBe(false);
   });
 
   test('los días salen empezando por el de hoy y siguiendo el ciclo', () => {
