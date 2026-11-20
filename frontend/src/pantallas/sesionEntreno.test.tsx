@@ -255,7 +255,9 @@ describe('Sesión sin conexión con el plan guardado', () => {
   });
 
   test('si la red tarda, no espera: pasado el margen usa el plan guardado', async () => {
-    jest.useFakeTimers();
+    // Solo se falsean los temporizadores: con nextTick, setImmediate y queueMicrotask falsos, en el runner de GitHub
+    // (más lento) un await de React o del almacén se quedaba esperando para siempre y el CI se cancelaba a las 6 h.
+    jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'], advanceTimers: true });
     try {
       const almacen = crearAlmacenMemoria();
       await outboxDe(almacen).guardarPlan(PLAN);

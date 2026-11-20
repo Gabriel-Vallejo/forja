@@ -5,7 +5,8 @@ describe('guardar el JSON en el navegador', () => {
   const original = { createObjectURL: URL.createObjectURL, revokeObjectURL: URL.revokeObjectURL };
 
   beforeEach(() => {
-    jest.useFakeTimers();
+    // Solo temporizadores: con las microtareas falsas un await puede quedarse colgado en el CI (ver sesionEntreno.test).
+    jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'] });
     URL.createObjectURL = jest.fn(() => 'blob:forja/1');
     URL.revokeObjectURL = jest.fn();
     (globalThis as { document?: unknown }).document = { createElement: jest.fn(() => enlace) };
