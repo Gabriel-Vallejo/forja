@@ -1,0 +1,25 @@
+# Camino crítico 3: empezar la sesión de hoy, apuntar una serie y terminar.
+# La serie va marcada como calentamiento para no mover la progresión de la cuenta de prueba.
+appId: com.anonymous.forja
+name: Registrar una serie
+---
+- runFlow: comun/abrir.yaml
+- runFlow: comun/entrar.yaml
+- tapOn: Empezar sesión
+- extendedWaitUntil:
+    visible: Guardar serie.*
+    timeout: 30000
+# Peso y repeticiones vienen ya del plan.
+- tapOn: Calentamiento
+- tapOn: Guardar serie.*
+- extendedWaitUntil:
+    visible: .*hecha.*
+    timeout: 15000
+- scrollUntilVisible:
+    element: Terminar sesión
+    direction: DOWN
+- tapOn: Terminar sesión
+- tapOn: Sí, terminar
+- extendedWaitUntil:
+    visible: Volver a Hoy
+    timeout: 30000

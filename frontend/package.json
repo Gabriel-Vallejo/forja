@@ -63,6 +63,20 @@
     "setupFiles": [
       "./jest.setup.js"
     ],
-    "resolver": "react-native-reanimated/jest/resolver"
+    "resolver": "react-native-reanimated/jest/resolver",
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "app/**/*.{ts,tsx}",
+      "!**/*.d.ts",
+      "!**/*.test.{ts,tsx}"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 80,
+        "statements": 80,
+        "functions": 80,
+        "branches": 80
+      }
+    }
   }
 }

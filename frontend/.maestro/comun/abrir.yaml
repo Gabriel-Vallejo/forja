@@ -1,0 +1,9 @@
+# Abre la build de desarrollo sin datos y carga el bundle de Metro (adb reverse tcp:8081 tcp:8081).
+appId: com.anonymous.forja
+---
+- launchApp:
+    clearState: true
+- openLink: forja://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081
+- extendedWaitUntil:
+    visible: Entra en Forja
+    timeout: 90000

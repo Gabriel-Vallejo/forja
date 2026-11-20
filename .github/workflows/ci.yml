@@ -176,9 +176,10 @@ jobs:
       - name: Tipos
         if: steps.codigo.outputs.existe == 'true'
         run: npx tsc --noEmit
-      - name: Tests
+      - name: Tests con cobertura
+        # El umbral (80 %) está en package.json; cuenta también los archivos que ningún test importa.
         if: steps.codigo.outputs.existe == 'true'
-        run: npm test
+        run: npm test -- --coverage --coverageReporters=text-summary
       - name: Los tipos generados coinciden con el OpenAPI
         if: steps.codigo.outputs.existe == 'true'
         run: |

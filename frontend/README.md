@@ -27,9 +27,21 @@ La versión web todavía no guarda la sesión: el llavero del sistema de Tauri l
 npm run lint        # ESLint sin avisos
 npx tsc --noEmit    # tipos
 npm test            # Jest + React Native Testing Library
+npm test -- --coverage   # con el umbral del 80 % (package.json), contando también los archivos sin tests
 ```
 
-El CI (job `frontend` de `.github/workflows/ci.yml`) corre lo mismo en Node 22.
+El CI (job `frontend` de `.github/workflows/ci.yml`) corre lo mismo en Node 22, con cobertura.
+
+### Caminos críticos con Maestro
+
+Los flujos de `.maestro/` recorren la app de verdad: entrar, la vista previa de un ajuste (se descarta) y apuntar una serie de calentamiento (no mueve la progresión). Necesitan la build de desarrollo instalada en un emulador, Metro, el backend y una cuenta de prueba. Las credenciales se pasan al lanzar los flujos y nunca van al repo.
+
+```bash
+adb reverse tcp:8081 tcp:8081
+MAESTRO_CLI_NO_ANALYTICS=1 maestro test -e CORREO=… -e CONTRASENA=… .maestro/
+```
+
+`.maestro/comun/` tiene los pasos compartidos (abrir sin datos y entrar); Maestro solo ejecuta los flujos del primer nivel. Todavía no corren en el CI: hace falta una build (EAS) y un emulador en el runner.
 
 ## Cliente de la API
 

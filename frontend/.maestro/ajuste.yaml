@@ -1,0 +1,24 @@
+# Camino crítico 2: Mi plan → ejercicio → «Una serie menos» → vista previa. Se descarta: no cambia la cuenta.
+appId: com.anonymous.forja
+name: Vista previa de un ajuste
+---
+- runFlow: comun/abrir.yaml
+- runFlow: comun/entrar.yaml
+- tapOn: Entreno
+- extendedWaitUntil:
+    visible: Mi plan
+    timeout: 20000
+- tapOn: "01"
+- extendedWaitUntil:
+    visible: Por qué este ejercicio
+    timeout: 20000
+- scrollUntilVisible:
+    element: Una serie menos
+    direction: DOWN
+- tapOn: Una serie menos
+- extendedWaitUntil:
+    visible: .*Aún no se ha guardado nada.*
+    timeout: 30000
+- assertVisible: Aplicar
+- tapOn: Descartar
+- assertVisible: Ajustar este ejercicio

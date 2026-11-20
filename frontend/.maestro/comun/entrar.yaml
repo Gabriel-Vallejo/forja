@@ -1,0 +1,16 @@
+# Entra con la cuenta de prueba: maestro test -e CORREO=… -e CONTRASENA=… (nunca en el repo).
+appId: com.anonymous.forja
+---
+- tapOn:
+    text: Correo
+    index: 1
+- inputText: ${CORREO}
+- tapOn:
+    text: Contraseña
+    index: 1
+- inputText: ${CONTRASENA}
+- hideKeyboard
+- tapOn: Entrar
+- extendedWaitUntil:
+    visible: Tu semana
+    timeout: 30000
