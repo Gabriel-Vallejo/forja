@@ -556,7 +556,7 @@ Prefijo `/api/v1`. Es la tabla de CONTEXT §1.7 con los cambios de los ADR 0003,
 **Seguridad**
 - **Tokens y contraseñas:** JWT Ed25519 de 15 min en `Authorization: Bearer`, nunca en cookies, y claves rotadas con `kid` (se aceptan la actual y la anterior). Refresco opaco de 256 bits, uno por dispositivo y rotatorio, que se guarda como hash. Argon2id con un mínimo de 12 caracteres y una lista local de contraseñas filtradas.
 - **CORS y CSP:** CORS solo admite el dominio web, `tauri://localhost` y `http://tauri.localhost`. Sin cookies no hace falta CSRF. La CSP de Tauri limita `connect-src` al dominio de la API.
-- **Límites de intentos:** Bucket4j en el login, el registro, la recuperación y las rutas del worker. Sin CAPTCHA de terceros.
+- **Límites de intentos:** Bucket4j en el login, el registro, la recuperación y las rutas del worker. Además, toda ruta con sesión tiene un tope de 120 peticiones por minuto y usuario (`LimitePorUsuario`, 429 con `Retry-After` y `codigo`), y las acciones caras (generar, exportar, borrar la cuenta) su propio límite. Sin CAPTCHA de terceros.
 - **Worker:** un token por worker, guardado como hash, revocable y que solo abre `/worker/**`.
 - **Cifrado:** AES-GCM por columna (`versión | id_clave | nonce de 12 bytes | cifrado + tag`, con la tabla, la columna y el id de la fila como datos asociados) en columnas `VARBINARY`. Se cifran las medidas, los ratios, las lesiones y restricciones, el peso, `stack_usuario`, `trabajo.carga` y `trabajo.resultado`. La clave va en `.env`, admite varias y rota sin parada. TLS con Caddy.
 - **Logs:** JSON con `traceId` y el ID de usuario con hash. Nunca cuerpos en las rutas de fotos, medidas y suplementos, ni la carga de un trabajo.
