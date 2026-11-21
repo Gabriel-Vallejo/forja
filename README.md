@@ -2,7 +2,7 @@
 
 Entrena, come y suplementa según tu cuerpo.
 
-> 🚧 **En desarrollo** · repo privado hasta la v1.0 · fase actual: **1** (hacia la v0.1: el entreno)
+> 🚧 **En desarrollo** · repo privado hasta la v1.0 · **v0.1** publicada (el entreno) · siguiente: fase **2**
 
 Te pregunta lo que te limita, mide tu movilidad y arma la rutina con un solver que te explica cada ejercicio con su fuente. Además, la cesta de proteína más barata del súper y un escáner de riesgo de tus suplementos.
 
@@ -13,7 +13,7 @@ Te pregunta lo que te limita, mide tu movilidad y arma la rutina con un solver q
 - **Registro de series** sin conexión, con progresión doble y deload automáticos.
 - **IA explicable:** un LLM local solo explica las decisiones de las reglas; nunca escribe series.
 
-## ◆ Lo que ya funciona (v0.1, en curso)
+## ◆ Lo que ya funciona (v0.1)
 - Cuenta con correo y contraseña (Argon2id, lista local de 46 000 contraseñas filtradas), verificación y recuperación por correo (Azure Communication Services, datos en Europa), dispositivos, «Descargar mis datos» y borrado total; si borras la cuenta desde otro dispositivo, este borra lo que guarda de ella.
 - Limitaciones con consentimiento aparte y cifradas, cribado de 7 preguntas y banderas rojas por reglas que bloquean el plan cuando toca.
 - Tres tests de movilidad que cambian variantes concretas del plan.
@@ -47,7 +47,8 @@ Lo que se mide (los resultados estarán en `eval/`):
 - Coste de la cesta frente a una cesta manual
 
 ## ◆ Descargar
-Con la v1.0: APK para Android y versión de PC en [Releases](https://github.com/Gabriel-Vallejo/forja/releases).
+- **v0.1:** [APK para Android](https://github.com/Gabriel-Vallejo/forja/releases/latest/download/forja-0.1.0.apk) (habla con el backend en Azure). Mientras el repo sea privado, solo se descarga con acceso.
+- Con la v1.0, también la versión de PC.
 
 ## ◆ Arrancar
 Base de datos y servicios:

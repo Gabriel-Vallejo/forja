@@ -13,6 +13,8 @@ cd "$(dirname "$0")/.."
 CLAVES=${FORJA_CLAVES:-$HOME/.config/forja}
 ALMACEN=$CLAVES/forja-release.jks
 export ANDROID_HOME=${ANDROID_HOME:-$HOME/Android/Sdk}
+# Gradle necesita una JDK 17-21 (con la 27 del sistema falla: «class file major version 71»).
+export JAVA_HOME=${JAVA_HOME:-$(ls -d "$HOME"/.local/jdk/jdk-21* 2>/dev/null | tail -1)}
 VERSION=$(node -p "require('./app.json').expo.version")
 
 mkdir -p "$CLAVES" && chmod 700 "$CLAVES"

@@ -1,4 +1,26 @@
 # Changelog
 
 ## [Sin publicar]
-- Esqueleto del repositorio.
+
+## [0.1.0] - 2026-11-21
+Primera versión: el entreno. APK para Android en [Releases](https://github.com/Gabriel-Vallejo/forja/releases/tag/v0.1.0), backend en Azure.
+
+### Cuenta y privacidad
+- Registro con correo y contraseña (Argon2id y lista local de 46 000 contraseñas filtradas), verificación y recuperación por correo (Azure Communication Services, datos en Europa).
+- Dispositivos con sesión propia, «Descargar mis datos» y borrado total de la cuenta.
+- Limitaciones con consentimiento aparte (texto v2) y cifradas por columna.
+
+### Entreno
+- Cribado de 7 preguntas con banderas rojas por reglas que bloquean el plan cuando toca.
+- Tres tests de movilidad que cambian variantes concretas del plan.
+- Rutina con CP-SAT: tiempo por sesión, topes por patrón y día, 10-20 series semanales por músculo, los 6 patrones básicos cada semana y «por qué este ejercicio» con su fuente y su nivel de evidencia.
+- Ajustes con vista previa: una serie más o menos, reemplazar, no recomendar, variedad, enfocar y material del gimnasio.
+
+### Registro
+- Series sin conexión con RPE y dolor, deshacer y sincronización al volver la cobertura.
+- Progresión doble con deload automático y aviso si un ejercicio duele en 2 de sus 3 últimas sesiones.
+- Racha semanal y cifras del perfil con las sesiones reales.
+
+### Infraestructura
+- Imagen Docker del backend y despliegue en Azure (Container Apps, MySQL Flexible y Communication Services) con `infra/azure/desplegar.sh`.
+- 2 652 tests del backend, 538 de la app y 4 flujos de Maestro en emulador.

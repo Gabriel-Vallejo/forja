@@ -16,6 +16,9 @@ cd "$(dirname "$0")"
 
 GRUPO=${GRUPO:-forja}
 REGION=${REGION:-spaincentral}
+# Con 0 el backend se duerme sin uso y tarda ~32 s en despertar (0,5 vCPU): el primer clic en el enlace del correo
+# o la primera petición de la app dan 503. Con 1 siempre responde; cuesta ~10 $/mes del crédito de estudiante.
+REPLICAS_MINIMAS=${REPLICAS_MINIMAS:-1}
 SECRETOS=.env.azure
 RAIZ=$(git rev-parse --show-toplevel)
 
@@ -108,12 +111,13 @@ IMAGEN="$REGISTRO.azurecr.io/forja-backend:$VERSION"
 echo "→ App $APP con la imagen $VERSION"
 if existe az containerapp show -g "$GRUPO" -n "$APP"; then
 	az containerapp secret set -g "$GRUPO" -n "$APP" --secrets "${SECRETOS_APP[@]}" -o none
-	az containerapp update -g "$GRUPO" -n "$APP" --image "$IMAGEN" --set-env-vars "${VARIABLES[@]}" -o none
+	az containerapp update -g "$GRUPO" -n "$APP" --image "$IMAGEN" --set-env-vars "${VARIABLES[@]}" \
+		--min-replicas "$REPLICAS_MINIMAS" -o none
 else
 	az containerapp create -g "$GRUPO" -n "$APP" --environment "$ENTORNO" --image "$IMAGEN" \
 		--registry-server "$REGISTRO.azurecr.io" --registry-username "$REGISTRO" --registry-password "$REGISTRO_CLAVE" \
 		--target-port 8080 --ingress external --transport auto \
-		--cpu 0.5 --memory 1.0Gi --min-replicas 0 --max-replicas 1 \
+		--cpu 0.5 --memory 1.0Gi --min-replicas "$REPLICAS_MINIMAS" --max-replicas 1 \
 		--secrets "${SECRETOS_APP[@]}" --env-vars "${VARIABLES[@]}" -o none
 fi
 
