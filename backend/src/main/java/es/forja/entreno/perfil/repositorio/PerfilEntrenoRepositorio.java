@@ -51,8 +51,13 @@ public class PerfilEntrenoRepositorio {
 	}
 
 	/** Materiales que la app ofrece: todos menos {@code otro}, que no es un material que el usuario pueda tener. */
+	/** El material que se puede elegir: el que tiene algún ejercicio curado (el solver solo usa esos), sin «otro». */
 	public List<Opcion> materialesOfrecidos() {
-		return jdbc.sql("SELECT codigo, nombre FROM material WHERE codigo <> 'otro' ORDER BY id")
+		return jdbc.sql("""
+				SELECT m.codigo, m.nombre FROM material m
+				WHERE m.codigo <> 'otro' AND EXISTS (SELECT 1 FROM ejercicio e
+				    WHERE e.implemento_id = m.id AND e.origen_etiquetado = 'curado')
+				ORDER BY m.id""")
 				.query((rs, n) -> new Opcion(rs.getString("codigo"), rs.getString("nombre"))).list();
 	}
 

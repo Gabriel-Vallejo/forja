@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react-native';
 
 import { ErrorApi } from '../api/errores';
+import { esMaterialCompleto } from '../plan/ajustes';
 import { apiFalsa, materialesDePrueba, perfilDePrueba, planDePrueba } from '../pruebas/dobles';
 import { renderizar } from '../pruebas/renderizar';
 import { AjustesPlan, ERROR_SIN_MATERIAL, NOTA_AJUSTES } from './AjustesPlan';
@@ -117,6 +118,16 @@ describe('Ajustes del plan', () => {
     await fireEvent.press(await screen.findByRole('button', { name: 'Volver' }));
 
     expect(mockRouter.back).toHaveBeenCalled();
+  });
+});
+
+describe('Material completo', () => {
+  const SIETE = ['barra', 'barra_ez', 'mancuerna', 'maquina', 'polea', 'kettlebell', 'peso_corporal'];
+
+  test('son los 7 con ejercicios; un perfil antiguo con banda sigue siendo completo y si falta uno no', () => {
+    expect(esMaterialCompleto(SIETE)).toBe(true);
+    expect(esMaterialCompleto([...SIETE, 'banda'])).toBe(true);
+    expect(esMaterialCompleto(SIETE.filter((m) => m !== 'polea'))).toBe(false);
   });
 });
 

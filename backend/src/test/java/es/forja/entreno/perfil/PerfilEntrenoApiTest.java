@@ -46,7 +46,7 @@ class PerfilEntrenoApiTest extends ApiCuentaSoporte {
 		consultar(RUTA, cliente).andExpect(status().isOk()).andExpect(jsonPath("$.diasPorSemana").value(3))
 				.andExpect(jsonPath("$.minutosPorSesion").value(60)).andExpect(jsonPath("$.porDefecto").value(true))
 				.andExpect(jsonPath("$.material", containsInAnyOrder("barra", "barra_ez", "mancuerna", "maquina",
-						"polea", "kettlebell", "banda", "peso_corporal")));
+						"polea", "kettlebell", "peso_corporal")));
 	}
 
 	@Test
@@ -104,11 +104,13 @@ class PerfilEntrenoApiTest extends ApiCuentaSoporte {
 	}
 
 	@Test
-	void elCatalogoOfreceElMaterialSinOtro() throws Exception {
+	void elCatalogoOfreceSoloElMaterialConEjerciciosYSinOtro() throws Exception {
 		Cliente cliente = cuentaConSesion("Pixel");
 
-		consultar(RUTA_MATERIALES, cliente).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(11)))
+		// Banda, balón medicinal, fitball y rodillo no tienen ejercicios curados: elegirlos no cambiaría el plan.
+		consultar(RUTA_MATERIALES, cliente).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(7)))
 				.andExpect(jsonPath("$[*].codigo", hasItem("barra"))).andExpect(jsonPath("$[*].codigo", not(hasItem("otro"))))
+				.andExpect(jsonPath("$[*].codigo", not(hasItem("banda"))))
 				.andExpect(jsonPath("$[0].codigo").value("barra")).andExpect(jsonPath("$[0].nombre").value("Barra"));
 	}
 }

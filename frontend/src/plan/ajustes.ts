@@ -14,8 +14,8 @@ export const DIAS_POSIBLES = [2, 3, 4, 5, 6] as const;
 /** De 30 a 120 minutos de 15 en 15. */
 export const MINUTOS_POSIBLES = [30, 45, 60, 75, 90, 105, 120] as const;
 
-/** Los 8 materiales de «gimnasio completo», que es el material por defecto del backend. */
-const MATERIAL_COMPLETO = ['barra', 'barra_ez', 'mancuerna', 'maquina', 'polea', 'kettlebell', 'banda', 'peso_corporal'];
+/** Los 7 materiales de «gimnasio completo» (el defecto del backend): los que tienen ejercicios curados. */
+const MATERIAL_COMPLETO = ['barra', 'barra_ez', 'mancuerna', 'maquina', 'polea', 'kettlebell', 'peso_corporal'];
 
 export function usePerfilEntreno() {
   const { api } = useSesion();
@@ -38,8 +38,9 @@ export function useGuardarAjustes() {
   });
 }
 
+/** Tiene los 7; un perfil antiguo que además guarda la banda (sin ejercicios) sigue siendo completo. */
 export function esMaterialCompleto(material: readonly string[]): boolean {
-  return material.length === MATERIAL_COMPLETO.length && MATERIAL_COMPLETO.every((m) => material.includes(m));
+  return MATERIAL_COMPLETO.every((m) => material.includes(m));
 }
 
 /** «3 × 60 min». */

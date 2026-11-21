@@ -27,7 +27,10 @@ public record AjustesEntreno(
 		@Size(max = SolicitudRutina.MAXIMO_MATERIAL, message = "Demasiado material.")
 		List<@NotBlank @Size(max = SolicitudRutina.LARGO_MAXIMO_CODIGO) String> material) {
 
-	/** Lo que recibe quien aún no ha guardado nada (y lo que la app mandaba hasta ahora). */
+	/**
+	 * Lo que recibe quien aún no ha guardado nada: el material de un gimnasio completo que tiene ejercicios curados (la
+	 * banda ya no va: no tiene ninguno y no cambiaba el plan).
+	 */
 	public static final AjustesEntreno POR_DEFECTO = new AjustesEntreno(3, 60,
-			List.of("barra", "mancuerna", "maquina", "polea", "peso_corporal", "kettlebell", "banda", "barra_ez"));
+			List.of("barra", "mancuerna", "maquina", "polea", "peso_corporal", "kettlebell", "barra_ez"));
 }
