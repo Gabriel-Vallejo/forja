@@ -10,7 +10,7 @@ import { Icono, type NombreIcono } from '../componentes/Icono';
 import { Pantalla } from '../componentes/Pantalla';
 import { TarjetaSesion } from '../componentes/TarjetaSesion';
 import { Texto } from '../componentes/Texto';
-import { RACHA } from '../datos/ejemplo';
+import { useResumenProgreso } from '../progreso/resumen';
 import { gruposPrincipales, musculosDelDia } from '../plan/musculos';
 import { diaDeLaSemana, diasDesdeHoy, seriesDe } from '../plan/plan';
 import { useSincronizacion } from '../registro/sincronizacion';
@@ -107,12 +107,13 @@ function Semana({ plan }: { plan: PlanActual }) {
 
 export function Hoy() {
   const router = useRouter();
+  const resumen = useResumenProgreso();
   const tema = useTheme();
   const estilos = crearEstilos(tema);
 
   return (
     <Pantalla bordes={['top']} hueco="s4">
-      <Cabecera racha={RACHA.semanas} ejemplo alPulsarRacha={() => router.push('/racha')} />
+      <Cabecera racha={resumen.data?.semanasDeRacha} alPulsarRacha={() => router.push('/racha')} />
       <View style={estilos.titulo}>
         <Texto estilo="pantalla" encabezado>Tu semana</Texto>
         <Pressable accessibilityRole="link" onPress={() => router.navigate('/entreno')} style={estilos.enlace}>

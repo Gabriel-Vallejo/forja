@@ -1386,6 +1386,65 @@
         "required" : [ "hechoEn", "tramo" ],
         "type" : "object"
       },
+      "ResumenProgreso" : {
+        "properties" : {
+          "diasEntrenados" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "hechosEstaSemana" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "kgMovidos" : {
+            "type" : "number"
+          },
+          "mejorRacha" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "objetivoSemanal" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "porcentajeCumplido" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "semanasDeRacha" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "sesiones" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "ultimasSemanas" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SemanaProgreso"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "diasEntrenados", "hechosEstaSemana", "kgMovidos", "mejorRacha", "objetivoSemanal", "porcentajeCumplido", "semanasDeRacha", "sesiones", "ultimasSemanas" ],
+        "type" : "object"
+      },
+      "SemanaProgreso" : {
+        "properties" : {
+          "dias" : {
+            "items" : {
+              "type" : "boolean"
+            },
+            "type" : "array"
+          },
+          "lunes" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        },
+        "required" : [ "dias", "lunes" ],
+        "type" : "object"
+      },
       "SerieEntrada" : {
         "properties" : {
           "anulada" : {
@@ -2640,6 +2699,34 @@
           }
         },
         "tags" : [ "progresion-controlador" ]
+      }
+    },
+    "/api/v1/progreso/resumen" : {
+      "get" : {
+        "operationId" : "resumen",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "zona",
+          "required" : false,
+          "schema" : {
+            "maxLength" : 64,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResumenProgreso"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "progreso-controlador" ]
       }
     },
     "/api/v1/restricciones" : {

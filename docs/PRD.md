@@ -148,6 +148,7 @@ Horas de [CONTEXT](../CONTEXT.md) §1.8 **[estimación]**. Cada versión es publ
 | RF-26 | Progresión doble y deload cuando el e1RM se estanca 2-3 semanas | v0.1 | [CONTEXT](../CONTEXT.md) §1.5 |
 | RF-27 | Un ejercicio que duele de forma repetida baja por la escalera; nunca se prohíbe sin preguntar | v0.1 | [0007](adr/0007-motor-de-seleccion-de-ejercicios.md) |
 | RF-28 | Plan versionado: cada sesión guarda su `plan_version` | v0.1 | [0008](adr/0008-sincronizacion-sin-conexion.md) |
+| RF-51 | Racha semanal: una semana cuenta si entrenas tus días (los de tus ajustes); descansar no la rompe y la semana en curso no la corta hasta que acaba. Con mejor racha, días entrenados, % de días cumplidos y mapa de 12 semanas, en el día de la zona horaria del móvil | v0.1 | `GET /api/v1/progreso/resumen` |
 
 ### Estándares y mapa
 | ID | Requisito | Versión | Respaldo |

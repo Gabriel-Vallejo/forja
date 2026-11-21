@@ -2,16 +2,25 @@
 
 Entrena, come y suplementa según tu cuerpo.
 
-> 🚧 **En desarrollo** · repo privado hasta la v1.0 · fase actual: **0**
+> 🚧 **En desarrollo** · repo privado hasta la v1.0 · fase actual: **1** (hacia la v0.1: el entreno)
 
 Te pregunta lo que te limita, mide tu movilidad y arma la rutina con un solver que te explica cada ejercicio con su fuente. Además, la cesta de proteína más barata del súper y un escáner de riesgo de tus suplementos.
 
 ## ◆ Qué hace
-- **Entreno:** entrada guiada de limitaciones (lesiones, dolor, discapacidad) con IA que solo transcribe, tests de movilidad, estándares de fuerza con OpenPowerlifting y rutina generada con CP-SAT que explica cada ejercicio con su fuente y su nivel de evidencia. Las proporciones por foto solo desempatan ([ADR 0007](docs/adr/0007-motor-de-seleccion-de-ejercicios.md)). Forja no evalúa, diagnostica, trata ni previene lesiones.
+- **Entreno:** entrada guiada de limitaciones (lesiones, dolor, discapacidad) con IA que solo transcribe, tests de movilidad, estándares de fuerza con OpenPowerlifting y rutina generada con CP-SAT que explica cada ejercicio con su fuente y su nivel de evidencia. Las proporciones por foto solo desempatan ([ADR 0007](docs/adr/0007-motor-de-seleccion-de-ejercicios.md)). Forja elige ejercicios compatibles con las limitaciones que tú indicas; no es una herramienta sanitaria.
 - **Dieta (ProteEuro):** cesta semanal que cumple tu proteína y tu tope de carbohidratos al menor coste (programación lineal con precios de Mercadona).
 - **Suplementos:** OCR de la etiqueta y riesgo por ingredientes frente a la lista de sustancias prohibidas del BOE y las alertas de la CELAD/AESAN.
 - **Registro de series** sin conexión, con progresión doble y deload automáticos.
 - **IA explicable:** un LLM local solo explica las decisiones de las reglas; nunca escribe series.
+
+## ◆ Lo que ya funciona (v0.1, en curso)
+- Cuenta con correo y contraseña (Argon2id, lista local de 46 000 contraseñas filtradas), dispositivos, recuperación, «Descargar mis datos» y borrado total; si borras la cuenta desde otro dispositivo, este borra lo que guarda de ella.
+- Limitaciones con consentimiento aparte y cifradas, cribado de 7 preguntas y banderas rojas por reglas que bloquean el plan cuando toca.
+- Tres tests de movilidad que cambian variantes concretas del plan.
+- Rutina con CP-SAT: duración, topes por patrón y día, volumen por músculo, como mucho 2 días por ejercicio si hay alternativa, y «por qué este ejercicio» con su fuente y su nivel.
+- Ajustes con vista previa (una serie más o menos, reemplazar, no recomendar, variedad, enfocar) y material de tu gimnasio.
+- Registro de series sin conexión: RPE, dolor (con aviso desde 7), deshacer, progresión doble con deload y aviso si un ejercicio te duele en 2 de sus 3 últimas sesiones.
+- Racha semanal y cifras del perfil con tus sesiones; el rango por percentil aún es de ejemplo (fase 2).
 
 ## ◆ Stack
 - **Backend:** Java 21 · Spring Boot 4 · JPA · Flyway · MySQL 8.4 LTS
@@ -41,7 +50,7 @@ Lo que se mide (los resultados estarán en `eval/`):
 Con la v1.0: APK para Android y versión de PC en [Releases](https://github.com/Gabriel-Vallejo/forja/releases).
 
 ## ◆ Arrancar
-La app llega con la v0.1. Lo que ya se puede levantar en local:
+Base de datos y servicios:
 ```bash
 cp .env.example .env   # rellena los valores
 docker compose --profile dev up -d   # dev: MySQL 8.4
@@ -51,6 +60,13 @@ docker compose --profile gpu up -d   # gpu: Ollama en contenedor (puerto 11435),
 - `down` también necesita los perfiles (`docker compose --profile dev --profile obs down`).
 - Compose pide todas las variables del `.env` aunque solo arranques un perfil.
 - La contraseña de Grafana solo se aplica en el primer arranque del volumen.
+
+Backend y app (Java 21 y Node 22):
+```bash
+cd backend && ./mvnw spring-boot:run     # API en :8080 (necesita el .env y MySQL)
+cd frontend && npm ci && npx expo start  # «a» abre Android con la build de desarrollo
+```
+Tests: `./mvnw verify` (backend), `npm test` (app). Los caminos críticos de Maestro corren en un emulador en el CI (`.github/workflows/e2e.yml`); en local, ver [frontend/README.md](frontend/README.md).
 
 ## Licencia
 [MIT](LICENSE)

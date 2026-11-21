@@ -120,6 +120,20 @@ export const esquemaConsentimientos = z.array(
 ) satisfies z.ZodType<Lectura<Esquemas['RespuestaConsentimiento'][]>>;
 export type Consentimiento = z.infer<typeof esquemaConsentimientos>[number];
 
+/** Racha semanal y cifras del perfil (`GET /progreso/resumen`). */
+export const esquemaResumenProgreso = z.object({
+  sesiones: z.number().int(),
+  kgMovidos: z.number(),
+  diasEntrenados: z.number().int(),
+  objetivoSemanal: z.number().int(),
+  hechosEstaSemana: z.number().int(),
+  semanasDeRacha: z.number().int(),
+  mejorRacha: z.number().int(),
+  porcentajeCumplido: z.number().int(),
+  ultimasSemanas: z.array(z.object({ lunes: z.iso.date(), dias: z.array(z.boolean()) })),
+}) satisfies z.ZodType<Lectura<Esquemas['ResumenProgreso']>>;
+export type ResumenProgreso = z.infer<typeof esquemaResumenProgreso>;
+
 /** RF-27: un ejercicio que ha dolido en varias de sus últimas sesiones. Es dato de salud: solo en memoria. */
 export const esquemaDolorRepetido = z.array(
   z.object({ idExterno: z.string(), sesionesConDolor: z.number().int(), sesionesMiradas: z.number().int() }),

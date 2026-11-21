@@ -206,6 +206,20 @@ public class SesionRepositorio implements HistorialSesiones {
 	}
 
 	/** Todo el historial del ejercicio. shortcut: sin tope; si un usuario acumula años de sesiones, limitar a los últimos meses. */
+	/** Cada sesión con alguna serie de trabajo vigente: cuándo se hizo y sus kg (peso × repeticiones). */
+	public List<SesionHechaFila> sesionesHechas(long usuarioId) {
+		return jdbc.sql("""
+				SELECT x.realizada_en, SUM(s.peso_kg * s.repeticiones) AS kg
+				FROM sesion x JOIN serie_vigente s ON s.sesion_uuid = x.uuid
+				WHERE x.usuario_id = :usuario AND s.calentamiento = FALSE AND s.anulada = FALSE
+				GROUP BY x.uuid, x.realizada_en""").param("usuario", usuarioId)
+				.query((rs, n) -> new SesionHechaFila(Conversiones.instante(rs, "realizada_en"), rs.getBigDecimal("kg")))
+				.list();
+	}
+
+	public record SesionHechaFila(Instant realizadaEn, BigDecimal kg) {
+	}
+
 	@Override
 	public List<SesionEjercicio> sesionesDeTrabajo(long usuarioId, long ejercicioId) {
 		Map<UUID, List<SerieTrabajo>> series = new LinkedHashMap<>();

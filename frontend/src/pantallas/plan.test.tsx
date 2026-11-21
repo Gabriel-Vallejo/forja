@@ -45,10 +45,11 @@ describe('Hoy', () => {
     expect(fill('grupo-abdomen-frente')).toBe(processColor(dark.cuerpo.neutro));
   });
 
-  test('avisa de que la racha es de ejemplo', async () => {
+  test('la racha de la cabecera es la real y ya no lleva aviso de ejemplo', async () => {
     await renderizar(<Hoy />, conPlan());
 
-    expect(await screen.findByLabelText('Datos de ejemplo')).toBeOnTheScreen();
+    expect(await screen.findByLabelText('Racha de 4 semanas')).toBeOnTheScreen();
+    expect(screen.queryByLabelText('Datos de ejemplo')).toBeNull();
   });
 
   test('sin plan, ofrece generarlo y vuelve a pedirlo', async () => {
@@ -270,6 +271,15 @@ describe('Por qué este ejercicio', () => {
 });
 
 describe('Perfil', () => {
+  test('las cifras de arriba salen de las sesiones reales', async () => {
+    await renderizar(<Perfil />, apiFalsa());
+
+    expect(await screen.findByText('54')).toBeOnTheScreen();
+    expect(screen.getByText('sesiones')).toBeOnTheScreen();
+    expect(screen.getByText('312')).toBeOnTheScreen();
+    expect(screen.getByText('t movidos')).toBeOnTheScreen();
+  });
+
   test('cerrar sesión llama a la API', async () => {
     const api = apiFalsa();
     await renderizar(<Perfil />, api);

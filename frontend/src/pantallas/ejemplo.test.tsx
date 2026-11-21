@@ -1,5 +1,7 @@
 import { fireEvent, screen } from '@testing-library/react-native';
 
+import { ErrorApi } from '../api/errores';
+import { apiFalsa } from '../pruebas/dobles';
 import { renderizar } from '../pruebas/renderizar';
 import { Calculadora } from './Calculadora';
 import { Escala } from './Escala';
@@ -113,13 +115,22 @@ describe('Calculadora', () => {
 });
 
 describe('Racha', () => {
-  test('semanas, estadísticas y aviso de ejemplo', async () => {
+  test('la racha, las estadísticas y el mapa salen de las sesiones reales, sin aviso de ejemplo', async () => {
     await renderizar(<Racha />);
 
-    avisoDeEjemplo();
-    expect(screen.getByRole('header', { name: '4' })).toBeOnTheScreen();
-    expect(screen.getByText('Mejor racha')).toBeOnTheScreen();
-    expect(screen.getByLabelText('1 de 3 días hechos')).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: '4' })).toBeOnTheScreen();
+    expect(screen.queryByLabelText('Datos de ejemplo')).toBeNull();
+    expect(screen.getByText('9')).toBeOnTheScreen();
+    expect(screen.getByText('88 %')).toBeOnTheScreen();
+    expect(screen.getByLabelText('2 de 3 días hechos')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Has entrenado 35 días en las últimas 12 semanas')).toBeOnTheScreen();
+    expect(screen.getByText('31 ago – 22 nov')).toBeOnTheScreen();
+  });
+
+  test('si no se puede cargar lo dice y deja reintentar', async () => {
+    await renderizar(<Racha />, apiFalsa({ resumenProgreso: jest.fn().mockRejectedValue(new ErrorApi(0, 'Sin conexión.')) }));
+
+    expect(await screen.findByText('Sin conexión.')).toBeOnTheScreen();
   });
 });
 

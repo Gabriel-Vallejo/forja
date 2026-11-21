@@ -4,6 +4,7 @@ import { AppState } from 'react-native';
 
 import type { PlanActual } from '../api/esquemas';
 import { CLAVE_PLAN_ACTUAL } from '../plan/plan';
+import { CLAVE_RESUMEN_PROGRESO } from '../progreso/resumen';
 import { useSesion } from '../sesion/sesion';
 import type { AlmacenRegistro } from './almacen';
 import { type Contadores, crearOutbox, type Outbox } from './outbox';
@@ -114,7 +115,10 @@ export function ProveedorSincronizacion({ abrirAlmacen, escucharRed, children }:
         if (dentroRef.current) {
           const resultado = await sincronizador.sincronizar({ forzar });
           if (resultado.cuentaEliminada) setCuentaEliminada(true);
-          if (resultado.confirmadas > 0) void consultas.invalidateQueries({ queryKey: CLAVE_PLAN_ACTUAL });
+          if (resultado.confirmadas > 0) {
+            void consultas.invalidateQueries({ queryKey: CLAVE_PLAN_ACTUAL });
+            void consultas.invalidateQueries({ queryKey: CLAVE_RESUMEN_PROGRESO });
+          }
           // Si el proveedor ya no está, un envío que acaba tarde no deja un reintento colgado.
           if (resultado.proximoIntento !== null && dentroRef.current && !desmontado.current) {
             // Vence el backoff: se reintenta solo, aunque no pase nada más.

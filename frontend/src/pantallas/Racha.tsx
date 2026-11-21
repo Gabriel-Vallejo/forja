@@ -1,49 +1,72 @@
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { AvisoEjemplo } from '../componentes/AvisoEjemplo';
+import type { ResumenProgreso } from '../api/esquemas';
 import { BotonIcono } from '../componentes/BotonIcono';
+import { ConConsulta } from '../componentes/ConConsulta';
 import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
-import { RACHA } from '../datos/ejemplo';
+import { useResumenProgreso } from '../progreso/resumen';
 import { type Theme, useTheme } from '../theme';
 
 const DIAS = ['L', '', 'X', '', 'V', '', 'D'];
-const DIAS_SEMANA = DIAS.length;
+const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const DOMINGO = 6;
 const ALTO_BARRA = 10;
 const MUESTRA = 12;
 const ANCHO_DIAS = 14;
 const ANCHO_TEXTO_RACHA = 220;
 
+/** «2026-11-16» → «16 nov», sin pasar por la zona horaria (la fecha ya viene en la del móvil). */
+function diaMes(fecha: string, masDias = 0): string {
+  const [a, m, d] = fecha.split('-').map(Number) as [number, number, number];
+  const dia = new Date(Date.UTC(a, m - 1, d + masDias));
+  return `${dia.getUTCDate()} ${MESES[dia.getUTCMonth()]}`;
+}
+
 export function Racha() {
   const router = useRouter();
-  const tema = useTheme();
-  const estilos = crearEstilos(tema);
-  const { estaSemana } = RACHA;
-  const columnas = Array.from({ length: RACHA.semanasMapa }, (_, s) => RACHA.celdas.slice(s * DIAS_SEMANA, (s + 1) * DIAS_SEMANA));
-  const estadisticas = [
-    { valor: String(RACHA.mejor), texto: 'Mejor racha' },
-    { valor: String(RACHA.diasEntrenados), texto: 'Días entrenados' },
-    { valor: `${RACHA.cumplidos} %`, texto: 'Días cumplidos' },
-  ];
-
+  const estilos = crearEstilos(useTheme());
+  const consulta = useResumenProgreso();
   return (
     <Pantalla hueco="s4">
       <Text style={estilos.kanji} accessibilityElementsHidden importantForAccessibility="no">炎</Text>
       <BotonIcono icono="atras" etiqueta="Volver" onPress={() => router.back()} />
-      <AvisoEjemplo />
+      <ConConsulta consulta={consulta} cargando="Contando tus semanas…">
+        {(resumen) => <Contenido resumen={resumen} />}
+      </ConConsulta>
+    </Pantalla>
+  );
+}
+
+function Contenido({ resumen }: { resumen: ResumenProgreso }) {
+  const estilos = crearEstilos(useTheme());
+  const columnas = resumen.ultimasSemanas.map((s) => s.dias);
+  const objetivo = resumen.objetivoSemanal;
+  const enMapa = columnas.flat().filter(Boolean).length;
+  const primera = resumen.ultimasSemanas.at(0);
+  const ultima = resumen.ultimasSemanas.at(-1);
+  const periodo = primera && ultima ? `${diaMes(primera.lunes)} – ${diaMes(ultima.lunes, DOMINGO)}` : '';
+  const estadisticas = [
+    { valor: String(resumen.mejorRacha), texto: 'Mejor racha' },
+    { valor: String(resumen.diasEntrenados), texto: 'Días entrenados' },
+    { valor: `${resumen.porcentajeCumplido} %`, texto: 'Días cumplidos' },
+  ];
+
+  return (
+    <>
       <View>
-        <Texto estilo="cifraGigante" encabezado>{RACHA.semanas}</Texto>
-        <Texto estilo="heading">Semanas de racha</Texto>
+        <Texto estilo="cifraGigante" encabezado>{resumen.semanasDeRacha}</Texto>
+        <Texto estilo="heading">{resumen.semanasDeRacha === 1 ? 'Semana de racha' : 'Semanas de racha'}</Texto>
         <Texto estilo="nota" tono="secundario" estiloExtra={estilos.explicacion}>
-          Cuenta la semana si cumples tus días. Descansar no la rompe.
+          {`Cuenta la semana si entrenas tus ${objetivo} días. Descansar no la rompe, y la semana en curso no corta la racha hasta que acaba.`}
         </Texto>
       </View>
       <View style={estilos.bloque}>
-        <Texto estilo="etiqueta" tono="secundario">{`Esta semana · ${estaSemana.hechos} de ${estaSemana.objetivo}`}</Texto>
-        <View style={estilos.barras} accessible accessibilityLabel={`${estaSemana.hechos} de ${estaSemana.objetivo} días hechos`}>
-          {Array.from({ length: estaSemana.objetivo }, (_, i) => (
-            <View key={i} style={[estilos.barra, i < estaSemana.hechos ? estilos.hecha : estilos.pendiente]} />
+        <Texto estilo="etiqueta" tono="secundario">{`Esta semana · ${resumen.hechosEstaSemana} de ${objetivo}`}</Texto>
+        <View style={estilos.barras} accessible accessibilityLabel={`${resumen.hechosEstaSemana} de ${objetivo} días hechos`}>
+          {Array.from({ length: Math.max(objetivo, resumen.hechosEstaSemana) }, (_, i) => (
+            <View key={i} style={[estilos.barra, i < resumen.hechosEstaSemana ? estilos.hecha : estilos.pendiente]} />
           ))}
         </View>
       </View>
@@ -58,7 +81,7 @@ export function Racha() {
       <View style={estilos.mapa} accessibilityLabel="Últimas 12 semanas">
         <View style={estilos.entre}>
           <Texto estilo="body" peso="700">Últimas 12 semanas</Texto>
-          <Texto estilo="dataMini" tono="secundario">{RACHA.periodo}</Texto>
+          <Texto estilo="dataMini" tono="secundario">{periodo}</Texto>
         </View>
         <View style={estilos.rejilla}>
           <View style={estilos.columnaDias}>
@@ -68,7 +91,7 @@ export function Racha() {
               </View>
             ))}
           </View>
-          <View style={estilos.semanas} accessible accessibilityRole="image" accessibilityLabel="Días entrenados: casi todas las semanas, 3 días">
+          <View style={estilos.semanas} accessible accessibilityRole="image" accessibilityLabel={`Has entrenado ${enMapa} ${enMapa === 1 ? 'día' : 'días'} en las últimas 12 semanas`}>
             {columnas.map((semana, s) => (
               <View key={s} style={estilos.semana}>
                 {semana.map((hecho, d) => (
@@ -87,7 +110,7 @@ export function Racha() {
           ))}
         </View>
       </View>
-    </Pantalla>
+    </>
   );
 }
 

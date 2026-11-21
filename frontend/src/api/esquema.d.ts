@@ -452,6 +452,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/progreso/resumen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["resumen"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/restricciones": {
         parameters: {
             query?: never;
@@ -1018,6 +1034,29 @@ export interface components {
             /** Format: date-time */
             hechoEn: string;
             tramo: string;
+        };
+        ResumenProgreso: {
+            /** Format: int32 */
+            diasEntrenados: number;
+            /** Format: int32 */
+            hechosEstaSemana: number;
+            kgMovidos: number;
+            /** Format: int32 */
+            mejorRacha: number;
+            /** Format: int32 */
+            objetivoSemanal: number;
+            /** Format: int32 */
+            porcentajeCumplido: number;
+            /** Format: int32 */
+            semanasDeRacha: number;
+            /** Format: int32 */
+            sesiones: number;
+            ultimasSemanas: components["schemas"]["SemanaProgreso"][];
+        };
+        SemanaProgreso: {
+            dias: boolean[];
+            /** Format: date */
+            lunes: string;
         };
         SerieEntrada: {
             anulada?: boolean;
@@ -1926,6 +1965,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ProgresionEjercicio"];
+                };
+            };
+        };
+    };
+    resumen: {
+        parameters: {
+            query?: {
+                zona?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ResumenProgreso"];
                 };
             };
         };

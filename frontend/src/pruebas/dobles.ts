@@ -1,5 +1,6 @@
 // Dobles de prueba compartidos. Datos sintéticos: nada real (ADR 0004).
 import type {
+  ResumenProgreso,
   Consentimiento,
   CuestionarioCribado,
   DatosExportados,
@@ -128,6 +129,7 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
     alCaducar: jest.fn().mockReturnValue(() => undefined),
     alBorrarseLaCuenta: jest.fn().mockReturnValue(() => undefined),
     dolorRepetido: jest.fn().mockResolvedValue([]),
+    resumenProgreso: jest.fn().mockResolvedValue(resumenDePrueba()),
     ...cambios,
   } as jest.Mocked<ApiForja>;
 }
@@ -334,6 +336,26 @@ export function preferenciasDePrueba(cambios: Partial<PreferenciasGuardadas> = {
     prioritarios: [{ codigo: 'biceps', nombre: 'Bíceps' }],
     series: [{ idExterno: 'remo', nombre: 'Remo con barra', series: 5 }],
     variedad: true,
+    ...cambios,
+  };
+}
+
+/** Racha de 4 semanas con 3 días de objetivo, 2 hechos esta semana y 12 semanas de mapa (la última, la actual). */
+export function resumenDePrueba(cambios: Partial<ResumenProgreso> = {}): ResumenProgreso {
+  const ultimasSemanas = Array.from({ length: 12 }, (_, i) => {
+    const lunes = new Date(Date.UTC(2026, 7, 31 + i * 7)).toISOString().slice(0, 10);
+    return { lunes, dias: [true, false, true, false, i < 11, false, false] };
+  });
+  return {
+    sesiones: 54,
+    kgMovidos: 312400,
+    diasEntrenados: 50,
+    objetivoSemanal: 3,
+    hechosEstaSemana: 2,
+    semanasDeRacha: 4,
+    mejorRacha: 9,
+    porcentajeCumplido: 88,
+    ultimasSemanas,
     ...cambios,
   };
 }

@@ -11,7 +11,8 @@ import type { ColoresCuerpo } from '../componentes/FiguraCuerpo';
 import { FilaRango } from '../componentes/FilaRango';
 import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
-import { MUSCULOS, NIVELES_DE_ARRIBA_ABAJO, RACHA, RANGO_GLOBAL, TOPS, ZONAS } from '../datos/ejemplo';
+import { MUSCULOS, NIVELES_DE_ARRIBA_ABAJO, RANGO_GLOBAL, TOPS, ZONAS } from '../datos/ejemplo';
+import { useResumenProgreso } from '../progreso/resumen';
 import { nombreRango, nombreRangoMayusculas, tipoEmblema } from '../rango/rango';
 import { type Theme, useTheme } from '../theme';
 
@@ -90,6 +91,7 @@ function Panel({ grupo }: { grupo: Grupo }) {
 
 export function Progreso() {
   const router = useRouter();
+  const resumen = useResumenProgreso();
   const tema = useTheme();
   const estilos = crearEstilos(tema);
   const [sel, setSel] = useState<Grupo>('pecho');
@@ -98,7 +100,7 @@ export function Progreso() {
 
   return (
     <Pantalla bordes={['top']} hueco="s35">
-      <Cabecera racha={RACHA.semanas} ejemplo alPulsarRacha={() => router.push('/racha')} />
+      <Cabecera racha={resumen.data?.semanasDeRacha} ejemplo alPulsarRacha={() => router.push('/racha')} />
       <Pestanas />
       <Pressable
         accessibilityRole="button"

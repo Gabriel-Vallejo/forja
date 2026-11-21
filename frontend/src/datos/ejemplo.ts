@@ -1,4 +1,5 @@
-// shortcut: datos de ejemplo del boceto (rangos por percentil, racha y perfil); en la v0.2 se sustituyen por la API.
+// shortcut: datos de ejemplo del boceto (rangos por percentil y «Personaliza»); en la v0.2 se sustituyen por la API.
+// La racha y las cifras del perfil ya son reales (`GET /progreso/resumen`).
 // Cada pantalla que los usa enseña la pastilla «Datos de ejemplo». Nada de aquí es de una persona real.
 import type { Grupo } from '../componentes/cuerpoTrazados';
 import type { Grado, TipoRango } from '../componentes/Emblema';
@@ -94,37 +95,7 @@ export const SERIE_INICIAL = { peso: 80.5, repeticiones: 8 } as const;
 /** Resultado del rango tras la calculadora: aún no sale de la curva real. */
 export const RESULTADO_RANGO: Rango & { percentil: number } = { tipo: 'acero', grado: 3, top: 31, percentil: 69 };
 
-const SEMANAS_MAPA = 12;
-const DIAS_SEMANA = 7;
-const DIAS_DE_ENTRENO = [0, 2, 5];
-
-/** Las 12 últimas semanas, por columnas de lunes a domingo: `true` si se entrenó. */
-function celdasRacha(): boolean[] {
-  const celdas: boolean[] = [];
-  for (let semana = 0; semana < SEMANAS_MAPA; semana += 1) {
-    for (let dia = 0; dia < DIAS_SEMANA; dia += 1) {
-      const hueco = semana === 6 && dia === 5;
-      const futuro = semana === SEMANAS_MAPA - 1 && dia > 0;
-      celdas.push(DIAS_DE_ENTRENO.includes(dia) && !hueco && !futuro);
-    }
-  }
-  return celdas;
-}
-
-export const RACHA = {
-  semanas: 4,
-  mejor: 9,
-  diasEntrenados: 54,
-  cumplidos: 96,
-  estaSemana: { hechos: 1, objetivo: 3 },
-  periodo: 'sep → nov',
-  semanasMapa: SEMANAS_MAPA,
-  celdas: celdasRacha(),
-} as const;
-
 export const PERFIL = {
-  sesiones: 54,
-  toneladas: 312,
   personaliza: [
     { etiqueta: 'Tema', valor: 'Oscuro' },
     { etiqueta: 'Unidades · descanso', valor: 'kg · 2:00', dato: true },

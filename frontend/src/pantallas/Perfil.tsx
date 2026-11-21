@@ -10,7 +10,8 @@ import { Emblema } from '../componentes/Emblema';
 import { Icono } from '../componentes/Icono';
 import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
-import { PERFIL, RACHA, RANGO_GLOBAL } from '../datos/ejemplo';
+import { PERFIL, RANGO_GLOBAL } from '../datos/ejemplo';
+import { formatoCarga, useResumenProgreso } from '../progreso/resumen';
 import { mensajeDeError } from '../api/errores';
 import { useResumenLimitaciones } from '../limitaciones/consultas';
 import { useResumenMovilidad } from '../movilidad/consultas';
@@ -93,6 +94,7 @@ export function Perfil() {
   const ajustes = usePerfilEntreno();
   const privacidad = useResumenPrivacidad();
   const datos = usePerfilDatos();
+  const resumen = useResumenProgreso();
   const medidas = useResumenMedidas();
   // Las filas de Entreno son datos reales; de ejemplo quedan las estadísticas, «Personaliza» y la descarga de datos.
   const entreno: readonly Opcion[] = [
@@ -123,10 +125,13 @@ export function Perfil() {
     { etiqueta: 'Limitaciones', ...limitaciones, ruta: '/limitaciones' },
     { etiqueta: 'Tests de movilidad', ...movilidad, ruta: '/movilidad' },
   ];
+  const r = resumen.data;
+  const carga = formatoCarga(r?.kgMovidos ?? 0);
+  // Mientras carga (o sin red) se ven guiones, no ceros que parezcan datos.
   const estadisticas = [
-    { valor: PERFIL.sesiones, texto: 'sesiones' },
-    { valor: RACHA.semanas, texto: 'semanas de racha', acento: true },
-    { valor: PERFIL.toneladas, texto: 't movidas' },
+    { valor: r ? String(r.sesiones) : '–', texto: r?.sesiones === 1 ? 'sesión' : 'sesiones' },
+    { valor: r ? String(r.semanasDeRacha) : '–', texto: r?.semanasDeRacha === 1 ? 'semana de racha' : 'semanas de racha', acento: true },
+    { valor: r ? carga.valor : '–', texto: `${carga.unidad} movidos` },
   ];
 
   return (

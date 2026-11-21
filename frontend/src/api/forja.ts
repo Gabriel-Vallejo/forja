@@ -7,6 +7,8 @@ import {
   type DispositivoCuenta,
   type DolorRepetido,
   esquemaDolorRepetido,
+  type ResumenProgreso,
+  esquemaResumenProgreso,
   type EfectoEjercicio,
   type EstadoBloqueo,
   esquemaConsentimientos,
@@ -84,6 +86,8 @@ export interface ApiForja {
   porQue(dia: number, idExterno: string): Promise<Razon[]>;
   /** Ejercicios que han dolido en 2 de sus 3 últimas sesiones (RF-27); vacío sin consentimiento de limitaciones. */
   dolorRepetido(): Promise<DolorRepetido[]>;
+  /** Racha y cifras del perfil, con los días en la zona horaria de este móvil. */
+  resumenProgreso(): Promise<ResumenProgreso>;
   /** Sin ajustes, usa los guardados del perfil (o los de por defecto del backend). */
   generarPlan(ajustes?: AjustesEntreno): Promise<void>;
   /** Días, minutos y material del plan; sin guardar, los de por defecto con `porDefecto: true`. */
@@ -210,6 +214,11 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
       }
     },
     dolorRepetido: () => cliente.pedir({ ruta: '/api/v1/sesiones/dolor-repetido', esquema: esquemaDolorRepetido }),
+    resumenProgreso: () =>
+      cliente.pedir({
+        ruta: `/api/v1/progreso/resumen?zona=${encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone)}`,
+        esquema: esquemaResumenProgreso,
+      }),
     async porQue(dia, idExterno) {
       const ruta = `/api/v1/planes/actual/ejercicios/${dia}/${encodeURIComponent(idExterno)}/por-que`;
       return (await cliente.pedir({ ruta, esquema: esquemaPorQue })).porQue;
