@@ -23,8 +23,9 @@ name: Registrar una serie
     element: Guardar serie.*
     direction: DOWN
 - tapOn: Guardar serie.*
+# Al guardar arranca el descanso, fijo abajo: se ve en cualquier tamaño de pantalla (la fila «hecha» puede quedar arriba).
 - extendedWaitUntil:
-    visible: .*hecha.*
+    visible: Descanso
     timeout: 15000
 # Un día con 7 ejercicios en una pantalla pequeña es largo: más margen que los 20 s por defecto.
 - scrollUntilVisible:
