@@ -41,7 +41,9 @@ adb reverse tcp:8081 tcp:8081
 MAESTRO_CLI_NO_ANALYTICS=1 maestro test -e CORREO=… -e CONTRASENA=… .maestro/
 ```
 
-`.maestro/comun/` tiene los pasos compartidos (abrir sin datos y entrar); Maestro solo ejecuta los flujos del primer nivel. Todavía no corren en el CI: hace falta una build (EAS) y un emulador en el runner.
+`.maestro/comun/` tiene los pasos compartidos (abrir sin datos y entrar); Maestro solo ejecuta los flujos del primer nivel.
+
+En GitHub los corre `.github/workflows/e2e.yml` en cada push a `main` que toque `frontend/` o `backend/`: backend y MySQL en el runner, una cuenta de prueba creada por la API, una build release del APK (con el JS dentro, sin Metro; por eso pasa `-e METRO=no`) y un emulador de Android.
 
 ## Cliente de la API
 

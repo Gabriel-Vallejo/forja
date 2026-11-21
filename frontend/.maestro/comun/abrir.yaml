@@ -1,9 +1,16 @@
-# Abre la build de desarrollo sin datos y carga el bundle de Metro (adb reverse tcp:8081 tcp:8081).
+# Abre la app sin datos. Con METRO=si (por defecto) carga el bundle de la build de desarrollo desde Metro
+# (adb reverse tcp:8081 tcp:8081); el CI pasa METRO=no porque usa una build release con el JS dentro.
 appId: com.anonymous.forja
+env:
+  METRO: si
 ---
 - launchApp:
     clearState: true
-- openLink: forja://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081
+- runFlow:
+    when:
+      true: ${METRO == 'si'}
+    commands:
+      - openLink: forja://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081
 - extendedWaitUntil:
     visible: Entra en Forja
     timeout: 90000
