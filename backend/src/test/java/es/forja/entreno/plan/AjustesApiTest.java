@@ -202,7 +202,7 @@ class AjustesApiTest extends SoporteSesiones {
 				biceps = m;
 			}
 		}
-		assertThat(biceps).isNotNull();
+		assertThat(biceps).as(vista.get("musculos").toString()).isNotNull();
 		assertThat(biceps.get("despues").asDouble()).isGreaterThan(biceps.get("antes").asDouble());
 		assertThat(vista.get("preferencias").get("prioritarios").get(0).asString()).isEqualTo("biceps");
 	}

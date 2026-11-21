@@ -39,7 +39,8 @@ class GeneradorPreferenciasTest {
 	@Test
 	void lasSeriesFijadasSeRespetanYSiNoCabenElPlanSaleSinEllasYLoDice() {
 		PlanRutina base = generar(Map.of(), Set.of());
-		String id = seriesSemana(base).keySet().iterator().next();
+		// El de menos series: a uno que ya llena sus días, una más le obliga a salir otro día y puede no caber.
+		String id = seriesSemana(base).entrySet().stream().min(Map.Entry.comparingByValue()).orElseThrow().getKey();
 		int antes = seriesSemana(base).get(id);
 
 		PlanRutina conUnaMas = generar(Map.of(id, antes + 1), Set.of());

@@ -41,7 +41,7 @@ public final class ConfiguracionDePrueba {
 	}
 
 	private static Pesos pesos(int posicionEstirada) {
-		return new Pesos(5, posicionEstirada, 10, 2, 10, 3, 4, 100, 300, 500, 5, MOVILIDAD, 0, REPETIR_PLAN, CAMBIO_PLAN,
+		return new Pesos(5, posicionEstirada, 20, 2, 10, 3, 4, 100, 300, 500, 5, MOVILIDAD, 0, REPETIR_PLAN, CAMBIO_PLAN,
 				CAMBIOS_LIBRES_ENFOCAR);
 	}
 }

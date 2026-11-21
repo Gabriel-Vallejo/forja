@@ -17,6 +17,7 @@ import es.forja.PruebaConMysql;
 import es.forja.entreno.rutina.modelo.CatalogoRutina;
 import es.forja.entreno.rutina.modelo.ConfiguracionRutina;
 import es.forja.entreno.rutina.modelo.EjercicioRutina;
+import es.forja.restricciones.filtro.EjercicioCandidato;
 import es.forja.entreno.rutina.modelo.EntradaRutina;
 import es.forja.entreno.rutina.modelo.PlanRutina;
 import es.forja.entreno.rutina.modelo.PlanRutina.DiaPlan;
@@ -131,6 +132,32 @@ class GeneradorCatalogoRealTest {
 					.forEach(v -> assertThat(v.series()).as(v.musculo())
 							.isGreaterThanOrEqualTo(config.volumen().rango(v.musculo()).minimo()));
 		}
+	}
+
+	/**
+	 * Caso real (revisión de Gabriel): fondos y remo salían los tres días de un 3×N. Entrenar a menudo un músculo no
+	 * obliga a repetir ejercicio: el tercer día va otro de su familia. Solo se permite repetir si no hay alternativa
+	 * curada en su familia con ese material (en casa solo hay un gemelo: con mancuernas).
+	 */
+	@ParameterizedTest(name = "{0}×{1}, en casa: {2}")
+	@CsvSource({ "3, 45, false", "3, 60, false", "3, 90, false", "4, 60, false", "5, 60, false", "6, 60, false",
+			"3, 60, true", "4, 60, true" })
+	void ningunEjercicioSaleMasDeDosDiasALaSemana(int dias, int minutos, boolean enCasa) {
+		Set<String> material = enCasa ? MATERIAL_DE_CASA : MATERIAL_COMPLETO;
+		PlanRutina plan = generar(entrada(dias, minutos, material, List.of()));
+		Map<String, EjercicioRutina> porId = porId();
+		Map<String, Long> curadosPorFamilia = porId.values().stream().map(EjercicioRutina::candidato)
+				.filter(c -> c.curado() && material.contains(c.implemento()))
+				.collect(Collectors.groupingBy(EjercicioCandidato::familiaSustitucion, Collectors.counting()));
+
+		Map<String, Long> diasPorEjercicio = plan.dias().stream().flatMap(d -> d.ejercicios().stream())
+				.collect(Collectors.groupingBy(EjercicioPlan::idExterno, Collectors.counting()));
+		diasPorEjercicio.forEach((id, n) -> {
+			boolean hayAlternativa = curadosPorFamilia.getOrDefault(porId.get(id).candidato().familiaSustitucion(), 0L) > 1;
+			if (hayAlternativa) {
+				assertThat(n).as(id).isLessThanOrEqualTo(2);
+			}
+		});
 	}
 
 	@Test

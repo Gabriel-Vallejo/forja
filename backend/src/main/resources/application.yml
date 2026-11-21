@@ -18,7 +18,7 @@ forja:
     pesos:
       cobertura-prioritarios: 5   # por serie doble (primario 2, secundario 1) de un músculo prioritario
       posicion-estirada: 2        # moderado: favorece la posición estirada sin mandar sobre el volumen (ADR 0007)
-      variedad: 10                # por cada día de más que se repite un ejercicio (más de 2)
+      variedad: 20                # por cada día de más que se repite un ejercicio (más de 2). Con 10 el hip thrust salía 3 días en 6×60; con 25 o más «enfocar» gastaba sus cambios libres en variar y no en el músculo [propuesta]
       fatiga: 2                   # por serie de básico pesado (compuesto con carga axial)
       serie-hasta-objetivo: 10    # premio por serie doble de un músculo hasta su objetivo
       serie-sobre-objetivo: 3     # penalización suave por serie doble por encima (o de un músculo sin meta)
