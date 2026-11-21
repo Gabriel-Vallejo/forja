@@ -3,16 +3,20 @@ name: CI
 on:
   push:
     branches: [main]
+    # Cambios solo de documentación no gastan minutos (el plan gratis de repos privados tiene 2000 al mes).
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
   pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# Una sola ejecución por rama: la nueva cancela la anterior.
+# Una sola ejecución por rama: la nueva cancela la anterior (también en main, para ahorrar minutos).
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  cancel-in-progress: true
 
 jobs:
   compose:

@@ -3,6 +3,10 @@ name: Seguridad
 on:
   push:
     branches: [main]
+    # Cambios solo de documentación no gastan minutos (el plan gratis de repos privados tiene 2000 al mes).
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
   pull_request:
   schedule:
     - cron: '0 6 * * 1' # lunes 06:00 UTC
@@ -10,6 +14,11 @@ on:
 
 permissions:
   contents: read
+
+# Una sola ejecución por rama: la nueva cancela la anterior (ahorra minutos).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   gitleaks:

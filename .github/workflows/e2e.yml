@@ -1,14 +1,11 @@
 name: E2E
 
 # Los caminos críticos de Maestro sobre la app de verdad: backend y MySQL en el runner, build release del APK
-# (el JS va dentro, sin Metro) y un emulador de Android. Va aparte del CI porque tarda bastante más.
+# (el JS va dentro, sin Metro) y un emulador de Android. Va aparte del CI porque tarda bastante más (~23 min):
+# corre al etiquetar una versión y a mano, no en cada push. Antes de etiquetar, en local: scripts/verificar.sh --e2e.
 on:
   push:
-    branches: [main]
-    paths:
-      - 'frontend/**'
-      - 'backend/**'
-      - '.github/workflows/e2e.yml'
+    tags: ['v*']
   workflow_dispatch:
 
 permissions:

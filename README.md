@@ -67,7 +67,7 @@ Backend y app (Java 21 y Node 22):
 cd backend && ./mvnw spring-boot:run     # API en :8080 (necesita el .env y MySQL)
 cd frontend && npm ci && npx expo start  # «a» abre Android con la build de desarrollo
 ```
-Tests: `./mvnw verify` (backend), `npm test` (app). Los caminos críticos de Maestro corren en un emulador en el CI (`.github/workflows/e2e.yml`); en local, ver [frontend/README.md](frontend/README.md).
+Tests: `scripts/verificar.sh` pasa en local lo mismo que el CI (backend, app, catálogo, compose y workflows; con `--e2e`, también Maestro). Los caminos críticos de Maestro corren en un emulador en el CI al etiquetar una versión (`.github/workflows/e2e.yml`); en local, ver [frontend/README.md](frontend/README.md).
 
 ## ◆ Desplegar
 El backend corre en Azure (Container Apps, MySQL Flexible y Communication Services para el correo):
