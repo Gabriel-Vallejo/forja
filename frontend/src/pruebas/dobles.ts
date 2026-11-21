@@ -73,6 +73,7 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
   return {
     haySesionGuardada: jest.fn().mockResolvedValue(true),
     registrar: jest.fn().mockResolvedValue('ok'),
+    recuperar: jest.fn().mockResolvedValue('ok'),
     entrar: jest.fn().mockResolvedValue(undefined),
     cerrarSesion: jest.fn().mockResolvedValue(undefined),
     planActual: jest.fn().mockResolvedValue(null),

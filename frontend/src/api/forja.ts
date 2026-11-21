@@ -79,6 +79,8 @@ export interface Credenciales {
 export interface ApiForja {
   haySesionGuardada(): Promise<boolean>;
   registrar(datos: SolicitudRegistro): Promise<string>;
+  /** Pide el enlace para cambiar la contraseña. La respuesta es la misma exista o no la cuenta. */
+  recuperar(correo: string): Promise<string>;
   entrar(credenciales: Credenciales): Promise<void>;
   cerrarSesion(): Promise<void>;
   planActual(): Promise<PlanActual | null>;
@@ -172,6 +174,16 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
         metodo: 'POST',
         ruta: '/api/v1/auth/registro',
         cuerpo: datos,
+        esquema: esquemaMensaje,
+        autenticada: false,
+      });
+      return mensaje;
+    },
+    async recuperar(correo) {
+      const { mensaje } = await cliente.pedir({
+        metodo: 'POST',
+        ruta: '/api/v1/auth/recuperar',
+        cuerpo: { correo },
         esquema: esquemaMensaje,
         autenticada: false,
       });

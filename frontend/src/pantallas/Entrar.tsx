@@ -46,6 +46,7 @@ export function Entrar() {
         deshabilitado={correo.trim() === '' || contrasena === ''}
         onPress={() => envio.mutate()}
       />
+      <Boton variante="texto" etiqueta="He olvidado la contraseña" onPress={() => router.push('/recuperar')} />
       <Boton variante="texto" etiqueta="Crear una cuenta" onPress={() => router.push('/registro')} />
     </Pantalla>
   );

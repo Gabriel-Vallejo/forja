@@ -5,6 +5,7 @@ import { apiFalsa } from '../pruebas/dobles';
 import { renderizar } from '../pruebas/renderizar';
 import { AVISO_CUENTA_BORRADA } from '../sesion/sesion';
 import { Entrar } from './Entrar';
+import { Recuperar } from './Recuperar';
 import { Registro } from './Registro';
 import { RevisaTuCorreo } from './RevisaTuCorreo';
 
@@ -133,5 +134,36 @@ describe('Revisa tu correo', () => {
     expect(screen.getByRole('header', { name: 'Revisa tu correo' })).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Ir a entrar' }));
     expect(router.replace).toHaveBeenCalledWith('/entrar');
+  });
+});
+
+describe('Recuperar la contraseña', () => {
+  test('desde entrar se llega a recuperar', async () => {
+    await renderizar(<Entrar />, apiFalsa());
+
+    await fireEvent.press(screen.getByRole('button', { name: 'He olvidado la contraseña' }));
+    expect(router.push).toHaveBeenCalledWith('/recuperar');
+  });
+
+  test('pide el enlace con el correo sin espacios y explica el siguiente paso', async () => {
+    const api = apiFalsa();
+    await renderizar(<Recuperar />, api);
+
+    expect(screen.getByRole('button', { name: 'Mandar el enlace' })).toBeDisabled();
+    await fireEvent.changeText(screen.getByLabelText('Correo'), ' ana@forja.test ');
+    await fireEvent.press(screen.getByRole('button', { name: 'Mandar el enlace' }));
+
+    expect(await screen.findByText(/te hemos mandado un enlace/)).toBeOnTheScreen();
+    expect(api.recuperar).toHaveBeenCalledWith('ana@forja.test');
+  });
+
+  test('si el backend lo frena, enseña su mensaje', async () => {
+    const api = apiFalsa({ recuperar: jest.fn().mockRejectedValue(new ErrorApi(429, 'Demasiados intentos.')) });
+    await renderizar(<Recuperar />, api);
+
+    await fireEvent.changeText(screen.getByLabelText('Correo'), 'ana@forja.test');
+    await fireEvent.press(screen.getByRole('button', { name: 'Mandar el enlace' }));
+
+    expect(await screen.findByText('Demasiados intentos.')).toBeOnTheScreen();
   });
 });
