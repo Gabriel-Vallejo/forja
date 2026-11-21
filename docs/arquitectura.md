@@ -485,7 +485,7 @@ erDiagram
     }
 ```
 
-Atributos que aún no tienen sitio fijado: el dolor 0-10, el RPE y la profundidad de [0007](adr/0007-motor-de-seleccion-de-ejercicios.md) (por serie o por ejercicio de la sesión) y la marca de reloj desfasado de [0008](adr/0008-sincronizacion-sin-conexion.md). Que la traza se guarde en `plan_version` y que `plan_version` agrupe al `mesociclo` es **[propuesta]**. La «última versión válida» de cada serie se calcula con una vista de MySQL. Faltan en el diagrama `estandar_fuerza` y `marca_usuario`.
+El dolor 0-10 (cifrado) y el RPE de [0007](adr/0007-motor-de-seleccion-de-ejercicios.md) van por serie en `serie_realizada`, y la marca de reloj desfasado de [0008](adr/0008-sincronizacion-sin-conexion.md), en `sesion`. La profundidad se sacó de la v0.1. Que la traza se guarde en `plan_version` y que `plan_version` agrupe al `mesociclo` es **[propuesta]**. La «última versión válida» de cada serie se calcula con una vista de MySQL. Faltan en el diagrama `estandar_fuerza` y `marca_usuario`.
 
 **Dieta y suplementos (resumen)**
 

@@ -30,7 +30,7 @@ El informe completo con fuentes y nivel de evidencia es interno. Las citas clave
 
    Cada test da un resultado en tres tramos que decide variantes concretas: talonera o sentadilla goblet frente a barra baja, apertura de pies, press por encima de la cabeza o en banco inclinado.
 3. **Reglas universales con evidencia:** carga en posición estirada, volumen y frecuencia ([referencias](../referencias.md)) y variación con criterio.
-4. **Respuesta registrada:** dolor de 0 a 10 por ejercicio, RPE y profundidad. Si un ejercicio duele de forma repetida, el solver lo baja por la escalera de sustitución; nunca lo prohíbe sin preguntar.
+4. **Respuesta registrada:** dolor de 0 a 10 por serie y RPE (la profundidad se aplazó fuera de la v0.1 el 2026-11-21). Si un ejercicio duele de forma repetida, el solver lo baja por la escalera de sustitución; nunca lo prohíbe sin preguntar.
 5. **Prioridades** que elige el usuario o que salen de su rendimiento: percentiles de OpenPowerlifting y estancamientos. **No son asimetrías ni atrofias detectadas.**
 6. **Palancas (desempate, peso bajo):**
    - **Medida:** foto o cinta, en **tres tramos** (corto, medio y largo), nunca un ratio exacto. El peso en el objetivo escala con la confianza de la medida.

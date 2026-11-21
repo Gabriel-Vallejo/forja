@@ -140,7 +140,7 @@ Horas de [CONTEXT](../CONTEXT.md) §1.8 **[estimación]**. Cada versión es publ
 ### Registro sin conexión y progresión
 | ID | Requisito | Versión | Respaldo |
 |---|---|---|---|
-| RF-21 | Series con peso, repes, RIR, temporizador de descanso, dolor 0-10, RPE y profundidad; el calentamiento no cuenta para el volumen | v0.1 | [0007](adr/0007-motor-de-seleccion-de-ejercicios.md), [competencia](competencia.md) |
+| RF-21 | Series con peso, repes, RIR, temporizador de descanso, dolor 0-10 y RPE; el calentamiento no cuenta para el volumen. La profundidad se sacó de la v0.1 el 2026-11-21: nada la usaba y estorbaba en una fila que se usa con una mano | v0.1 | [0007](adr/0007-motor-de-seleccion-de-ejercicios.md), [competencia](competencia.md) |
 | RF-22 | UUID v7 en el cliente y `PUT /api/v1/sesiones/{uuid}` idempotente | v0.1 | [0008](adr/0008-sincronizacion-sin-conexion.md) |
 | RF-23 | Las series solo se añaden: corrección con `corrige_a`, anulación con `anulada` | v0.1 | [0008](adr/0008-sincronizacion-sin-conexion.md) |
 | RF-24 | Outbox en `expo-sqlite`; una sesión `rechazada` se enseña y nunca se borra sola | v0.1 | [0008](adr/0008-sincronizacion-sin-conexion.md) |
