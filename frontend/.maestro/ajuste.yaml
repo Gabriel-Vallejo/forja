@@ -1,4 +1,5 @@
-# Camino crítico 2: Mi plan → ejercicio → «Una serie menos» → vista previa. Se descarta: no cambia la cuenta.
+# Camino crítico 2: Mi plan → ejercicio → «Una serie más» → vista previa. Se descarta: no cambia la cuenta.
+# «Una serie más» y no «menos»: el primer ejercicio puede estar ya en el mínimo de 2 series (y eso da un aviso).
 appId: com.anonymous.forja
 name: Vista previa de un ajuste
 ---
@@ -13,9 +14,9 @@ name: Vista previa de un ajuste
     visible: Por qué este ejercicio
     timeout: 20000
 - scrollUntilVisible:
-    element: Una serie menos
+    element: Una serie más
     direction: DOWN
-- tapOn: Una serie menos
+- tapOn: Una serie más
 - extendedWaitUntil:
     visible: .*Aún no se ha guardado nada.*
     timeout: 30000

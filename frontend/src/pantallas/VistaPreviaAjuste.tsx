@@ -1,7 +1,9 @@
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { mensajeDeError } from '../api/errores';
+import { ErrorApi, mensajeDeError } from '../api/errores';
+
+const NO_PROCESABLE = 422;
 import type { Ajuste, VistaPrevia } from '../api/esquemas';
 import { Aviso } from '../componentes/Aviso';
 import { Boton } from '../componentes/Boton';
@@ -68,10 +70,12 @@ function Contenido({ ajuste }: { ajuste: Ajuste }) {
     );
   }
   if (vista.isError) {
+    // 422: el ajuste choca con una regla (mínimo o tope de series): se explica y no se ofrece reintentar.
+    const limite = vista.error instanceof ErrorApi && vista.error.estado === NO_PROCESABLE;
     return (
       <>
-        <Aviso tipo="error" mensaje={mensajeDeError(vista.error)} />
-        <Boton variante="secundario" etiqueta="Reintentar" onPress={() => vista.refetch()} />
+        <Aviso tipo={limite ? 'aviso' : 'error'} mensaje={mensajeDeError(vista.error)} />
+        {limite ? null : <Boton variante="secundario" etiqueta="Reintentar" onPress={() => vista.refetch()} />}
       </>
     );
   }

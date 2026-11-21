@@ -100,6 +100,9 @@ describe('vista previa', () => {
     await renderizar(<VistaPreviaAjuste ajuste={{ tipo: 'mas', idExterno: 'remo' }} />, api);
 
     expect(await screen.findByText(porQue)).toBeOnTheScreen();
+    // Es un límite de las reglas, no un fallo: «Aviso» y sin «Reintentar», que nunca funcionaría.
+    expect(screen.getByLabelText(`Aviso: ${porQue}`)).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Reintentar' })).toBeNull();
     await fireEvent.press(boton('Volver'));
     expect(mockRouter.back).toHaveBeenCalled();
   });
