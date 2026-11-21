@@ -2,8 +2,6 @@ import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { ErrorApi, mensajeDeError } from '../api/errores';
-
-const NO_PROCESABLE = 422;
 import type { Ajuste, VistaPrevia } from '../api/esquemas';
 import { Aviso } from '../componentes/Aviso';
 import { Boton } from '../componentes/Boton';
@@ -12,6 +10,9 @@ import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
 import { numeroSeries, TITULO_AJUSTE, useAplicarAjuste, useVistaPrevia } from '../plan/preferencias';
 import { type Theme, useTheme } from '../theme';
+
+/** El ajuste choca con una regla (mínimo o tope de series): no es un fallo, reintentar no sirve. */
+const NO_PROCESABLE = 422;
 
 export const CARGANDO_VISTA_PREVIA = 'Resolviendo tu plan con el ajuste. Tarda unos segundos…';
 export const SIN_CAMBIOS = 'Con este ajuste el plan sale igual que el que tienes.';
