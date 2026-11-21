@@ -400,7 +400,7 @@ describe('Cuestionario de dolor', () => {
     '¿Te duele aunque estés en reposo, sin moverte?',
     '¿Te despierta el dolor por la noche?',
     '¿Notas hormigueo o la zona dormida?',
-    '¿Has notado que pierdes fuerza en un brazo o una pierna?',
+    '¿Has notado una pérdida de fuerza nueva, o que va a más, en un brazo o una pierna?',
     '¿Has perdido el control de la vejiga o el intestino, o notas dormida la zona genital o anal?',
     '¿Tienes fiebre y, a la vez, dolor de espalda?',
     '¿Has tenido un golpe o una caída fuerte hace poco?',

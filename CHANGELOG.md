@@ -2,6 +2,10 @@
 
 ## [Sin publicar]
 
+## [0.1.1] - 2026-11-22
+- La pregunta de pérdida de fuerza del cuestionario de dolor pregunta por la debilidad nueva o que va a más: quien tiene una crónica ya valorada por un profesional puede contestar que no sin saltarse nada.
+- CI con menos minutos (E2E al etiquetar o a mano) y `scripts/verificar.sh` para pasar lo mismo en local.
+
 ## [0.1.0] - 2026-11-21
 Primera versión: el entreno. APK para Android en [Releases](https://github.com/Gabriel-Vallejo/forja/releases/tag/v0.1.0), backend en Azure.
 

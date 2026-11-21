@@ -53,14 +53,14 @@ public class BanderasRojas {
 
 	private static void agregarNeurologicas(RespuestasGuiadas r, List<BanderaRoja> banderas) {
 		if (r.perdidaDeFuerza() && r.hormigueoOEntumecimiento()) {
-			// Propuesta propia: el formulario no recoge si la debilidad va a más, así que
-			// la combinación con hormigueo se trata como déficit neurológico y va a urgencias.
+			// Propuesta propia: la pregunta solo recoge la debilidad nueva o que va a más (una crónica ya valorada,
+			// como una hipotonía conocida, no cuenta), y con hormigueo se trata como déficit neurológico: urgencias.
 			banderas.add(new BanderaRoja(URGENCIAS_HOY,
-					"Has perdido fuerza y notas hormigueo o falta de sensibilidad: no entrenes y acude hoy a urgencias.",
+					"Notas una pérdida de fuerza nueva o que va a más, y hormigueo o falta de sensibilidad: no entrenes y acude hoy a urgencias.",
 					IFOMPT_COLUMNA + " (propuesta propia para la combinación)"));
 		} else if (r.perdidaDeFuerza()) {
 			banderas.add(new BanderaRoja(PROFESIONAL_EN_DIAS,
-					"Has perdido fuerza en un brazo o una pierna: consulta con un profesional sanitario en los próximos días antes de entrenar.",
+					"Notas una pérdida de fuerza nueva o que va a más en un brazo o una pierna: consulta con un profesional sanitario en los próximos días antes de entrenar.",
 					IFOMPT_COLUMNA));
 		} else if (r.hormigueoOEntumecimiento()) {
 			banderas.add(new BanderaRoja(PROFESIONAL_EN_DIAS,

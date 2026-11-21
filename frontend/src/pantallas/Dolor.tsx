@@ -27,7 +27,7 @@ const SENALES: readonly { clave: ClaveSenal; texto: string }[] = [
   { clave: 'dolorEnReposo', texto: '¿Te duele aunque estés en reposo, sin moverte?' },
   { clave: 'dolorNocturnoQueDespierta', texto: '¿Te despierta el dolor por la noche?' },
   { clave: 'hormigueoOEntumecimiento', texto: '¿Notas hormigueo o la zona dormida?' },
-  { clave: 'perdidaDeFuerza', texto: '¿Has notado que pierdes fuerza en un brazo o una pierna?' },
+  { clave: 'perdidaDeFuerza', texto: '¿Has notado una pérdida de fuerza nueva, o que va a más, en un brazo o una pierna?' },
   {
     clave: 'perdidaControlEsfinteresOAnestesiaSillaDeMontar',
     texto: '¿Has perdido el control de la vejiga o el intestino, o notas dormida la zona genital o anal?',
