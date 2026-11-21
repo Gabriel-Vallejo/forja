@@ -210,19 +210,28 @@ public class SesionRepositorio implements HistorialSesiones {
 	public List<SesionEjercicio> sesionesDeTrabajo(long usuarioId, long ejercicioId) {
 		Map<UUID, List<SerieTrabajo>> series = new LinkedHashMap<>();
 		Map<UUID, Instant> fechas = new HashMap<>();
+		Map<UUID, Integer> previstas = new HashMap<>();
 		jdbc.sql("""
-				SELECT x.uuid, x.realizada_en, s.peso_kg, s.repeticiones, s.rir
+				SELECT x.uuid, x.realizada_en, s.peso_kg, s.repeticiones, s.rir,
+				       (SELECT MAX(ep.series) FROM ejercicio_plan ep WHERE ep.plan_version_id = x.plan_version_id
+				          AND ep.dia = x.dia_plan AND ep.ejercicio_id = s.ejercicio_id) AS previstas
 				FROM sesion x JOIN serie_vigente s ON s.sesion_uuid = x.uuid
 				WHERE x.usuario_id = :usuario AND s.ejercicio_id = :ejercicio AND s.calentamiento = FALSE
 				ORDER BY x.realizada_en, x.uuid, s.orden, s.uuid""").param("usuario", usuarioId)
 				.param("ejercicio", ejercicioId).query((rs, n) -> {
 					UUID sesion = Conversiones.uuid(rs, "uuid");
 					fechas.put(sesion, Conversiones.instante(rs, "realizada_en"));
+					Integer prevista = entero(rs, "previstas");
+					if (prevista != null) {
+						previstas.put(sesion, prevista);
+					}
 					series.computeIfAbsent(sesion, k -> new ArrayList<>()).add(new SerieTrabajo(
 							rs.getBigDecimal("peso_kg"), rs.getInt("repeticiones"), entero(rs, "rir")));
 					return 0;
 				}).list();
 		return series.entrySet().stream()
-				.map(e -> new SesionEjercicio(e.getKey(), fechas.get(e.getKey()), e.getValue())).toList();
+				.map(e -> new SesionEjercicio(e.getKey(), fechas.get(e.getKey()), e.getValue(),
+						previstas.get(e.getKey())))
+				.toList();
 	}
 }

@@ -459,13 +459,16 @@ describe('Cuestionario de dolor', () => {
     expect(screen.getByRole('button', { name: 'Ver resultado' })).toBeDisabled();
   });
 
-  test('sin banderas no bloquea y vuelve al hub', async () => {
+  test('sin banderas no bloquea, lo dice y «Volver a limitaciones» lleva al hub', async () => {
     await renderizar(<Dolor />, conConsentimiento());
     await screen.findByRole('button', { name: 'Ver resultado' });
     await contestarSenales();
     await fireEvent.press(screen.getByRole('button', { name: 'Ver resultado' }));
 
-    await waitFor(() => expect(mockRouter.back).toHaveBeenCalled());
+    expect(await screen.findByText('Sin señales de aviso')).toBeOnTheScreen();
+    expect(mockRouter.back).not.toHaveBeenCalled();
+    await fireEvent.press(screen.getByRole('button', { name: 'Volver a limitaciones' }));
+    expect(mockRouter.back).toHaveBeenCalled();
   });
 
   test('bloquea con urgencias_hoy: no entrenes hoy, motivo y guía, y ninguna salida hacia la rutina', async () => {
@@ -534,7 +537,7 @@ describe('Cuestionario de dolor', () => {
 
     expect(await screen.findByText('Sin red.')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Ver resultado' }));
-    await waitFor(() => expect(mockRouter.back).toHaveBeenCalled());
+    expect(await screen.findByText('Sin señales de aviso')).toBeOnTheScreen();
   });
 
   test('el texto de las preguntas es de fitness, sin palabras clínicas ni prohibidas', async () => {

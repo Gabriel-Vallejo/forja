@@ -72,10 +72,9 @@ function Cuestionario() {
   const [senales, setSenales] = useState<Senales>({});
   const envio = useMutation({
     mutationFn: (solicitud: SolicitudBanderas) => api.evaluarBanderas(solicitud),
-    onSuccess: async (resultado) => {
+    onSuccess: async () => {
       // El backend ha puesto o levantado el bloqueo: lo que enseñan Hoy y Mi plan tiene que reflejarlo.
       await consultas.invalidateQueries({ queryKey: CLAVE_BLOQUEO });
-      if (!resultado.bloquea) router.back();
     },
   });
 
@@ -97,6 +96,15 @@ function Cuestionario() {
   };
 
   if (envio.data?.bloquea) return <Bloqueo resultado={envio.data} alVolver={() => router.back()} alRepetir={repetir} />;
+  // Sin banderas también se dice: antes volvía atrás sin enseñar nada y parecía que no había pasado nada.
+  if (envio.data) {
+    return (
+      <>
+        <Veredicto tono="ok" titulo="Sin señales de aviso" texto="Con lo que has contestado, puedes seguir entrenando con tus limitaciones." />
+        <Boton etiqueta="Volver a limitaciones" onPress={() => router.back()} />
+      </>
+    );
+  }
   return (
     <>
       <Texto tono="secundario">Contesta con sinceridad. Tus respuestas no se guardan: solo sirven para darte el resultado.</Texto>

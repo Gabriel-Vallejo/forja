@@ -144,7 +144,7 @@ export interface ApiForja {
   usuarioActual(): Promise<string | null>;
   alCaducar(oyente: () => void): () => void;
   /** La cuenta se borró desde otro dispositivo (410 al refrescar): se avisa con su usuario antes de cerrar la sesión. */
-  alBorrarseLaCuenta(oyente: (usuario: string) => Promise<void>): () => void;
+  alBorrarseLaCuenta(oyente: (usuario: string | null) => Promise<void>): () => void;
 }
 
 export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispositivo: Dispositivo): ApiForja {

@@ -35,15 +35,17 @@ export interface ClienteApi {
   /** Avisa cuando la sesión no se puede renovar. Devuelve la función para dejar de escuchar. */
   alCaducar(oyente: () => void): () => void;
   /**
-   * Avisa, antes de cerrar la sesión, de que la cuenta se borró desde otro dispositivo, con su usuario, para borrar lo
-   * que este móvil guarda de ella. Devuelve la función para dejar de escuchar.
+   * Avisa, antes de cerrar la sesión, de que la cuenta se borró desde otro dispositivo, con su usuario (null si no se
+   * puede leer), para borrar lo que este móvil guarda de ella. Devuelve la función para dejar de escuchar.
    */
-  alBorrarseLaCuenta(oyente: (usuario: string) => Promise<void>): () => void;
+  alBorrarseLaCuenta(oyente: (usuario: string | null) => Promise<void>): () => void;
 }
 
 export function crearCliente({ urlBase, almacen, fetch: hacerFetch = fetch }: OpcionesCliente): ClienteApi {
   const oyentes = new Set<() => void>();
-  const oyentesBorrado = new Set<(usuario: string) => Promise<void>>();
+  const oyentesBorrado = new Set<(usuario: string | null) => Promise<void>>();
+  // Varias peticiones en 401 comparten el refresco fallido: la sesión se cierra (y se avisa) una sola vez.
+  let caducando: Promise<void> | null = null;
   // Promesa compartida: con varias peticiones en 401 a la vez, se renueva una sola vez. Dos refrescos con el
   // mismo token revocan el dispositivo (ADR 0009 §3).
   let renovando: Promise<void> | null = null;
@@ -110,16 +112,21 @@ export function crearCliente({ urlBase, almacen, fetch: hacerFetch = fetch }: Op
   /** Si borrar lo local falla, la sesión se cierra igual: la cuenta ya no existe. */
   async function avisarBorrado(): Promise<void> {
     const usuario = await almacen.leerUsuario().catch(() => null);
-    if (usuario) await Promise.allSettled([...oyentesBorrado].map((oyente) => oyente(usuario)));
+    await Promise.allSettled([...oyentesBorrado].map((oyente) => oyente(usuario)));
   }
 
-  async function caducar(cuentaBorrada = false): Promise<void> {
-    try {
-      if (cuentaBorrada) await avisarBorrado();
-      await almacen.borrar();
-    } finally {
-      oyentes.forEach((oyente) => oyente());
-    }
+  function caducar(cuentaBorrada = false): Promise<void> {
+    caducando ??= (async () => {
+      try {
+        if (cuentaBorrada) await avisarBorrado();
+        await almacen.borrar();
+      } finally {
+        oyentes.forEach((oyente) => oyente());
+      }
+    })().finally(() => {
+      caducando = null;
+    });
+    return caducando;
   }
 
   async function renovarTras401(accesoUsado: string | null): Promise<void> {

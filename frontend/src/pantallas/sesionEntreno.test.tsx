@@ -231,6 +231,19 @@ describe('Sesión en curso', () => {
     expect(screen.getByRole('button', { name: 'Guardar serie, Press de banca, serie 2' })).toBeOnTheScreen();
   });
 
+  test('deshacer la serie que provocó el aviso de dolor alto también lo cierra', async () => {
+    await abrir();
+    await fireEvent.press(screen.getByRole('checkbox', { name: '¿Te ha dolido?' }));
+    await fireEvent.press(screen.getByRole('radio', { name: '8' }));
+    await guardar();
+    expect(await screen.findByText('Para y consulta')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Deshacer serie 1 de Press de banca' }));
+
+    await waitFor(() => expect(screen.queryByText('Para y consulta')).toBeNull());
+    expect(await screen.findByRole('button', { name: `Guardar serie, ${PRESS}` })).toBeOnTheScreen();
+  });
+
   test('terminar con confirmación cierra la sesión, la envía y enseña el resumen', async () => {
     const api = conPlan();
     const almacen = await abrir(crearAlmacenMemoria(), api);

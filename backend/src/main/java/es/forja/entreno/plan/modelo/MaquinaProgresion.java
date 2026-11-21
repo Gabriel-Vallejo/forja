@@ -69,7 +69,9 @@ public final class MaquinaProgresion {
 			SesionEjercicio actual = hasta.getLast();
 			haHabidoSesiones = true;
 			enElTope = false;
-			boolean cumplida = ReglaProgresion.cumplida(actual.series(), regla.series(), repeticionesMax(),
+			// Cada sesión se juzga con las series que le pedía su plan: si luego cambió, no se reescribe el pasado.
+			int previstas = actual.seriesPrevistas() != null ? actual.seriesPrevistas() : regla.series();
+			boolean cumplida = ReglaProgresion.cumplida(actual.series(), previstas, repeticionesMax(),
 					regla.rirObjetivo());
 			boolean deload = estado == Estado.DELOAD
 					&& actual.cargaMaxima().compareTo(cargaDeload(cargaAntesDelDeload)) <= 0;

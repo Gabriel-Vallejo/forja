@@ -132,6 +132,35 @@ describe('cliente HTTP', () => {
     expect(almacen.estado.tokenRefresco).toBeUndefined();
   });
 
+  test('con varias peticiones a la vez y un 410, se avisa y se cierra la sesión una sola vez', async () => {
+    const almacen = almacenEnMemoria({ ...datosSesion(1), tokenAcceso: tokenDe(USUARIO_ID) });
+    const fetchFalso = jest.fn(async (url: string) => respuesta(url.endsWith(RUTA_REFRESCO) ? 410 : 401));
+    const cliente = crearCliente({ urlBase: URL_BASE, almacen, fetch: fetchFalso });
+    const borrado = jest.fn(async () => undefined);
+    const caducar = jest.fn();
+    cliente.alBorrarseLaCuenta(borrado);
+    cliente.alCaducar(caducar);
+
+    const todas = [cliente.pedir({ ruta: RUTA }), cliente.pedir({ ruta: RUTA }), cliente.pedir({ ruta: RUTA })];
+    await Promise.allSettled(todas);
+
+    expect(borrado).toHaveBeenCalledTimes(1);
+    expect(borrado).toHaveBeenCalledWith(USUARIO_ID);
+    expect(caducar).toHaveBeenCalledTimes(1);
+  });
+
+  test('tras un 410 sin usuario legible se avisa igual (con null) para que la app lo diga', async () => {
+    const almacen = almacenEnMemoria(datosSesion(1));
+    const fetchFalso = jest.fn(async (url: string) => respuesta(url.endsWith(RUTA_REFRESCO) ? 410 : 401));
+    const cliente = crearCliente({ urlBase: URL_BASE, almacen, fetch: fetchFalso });
+    const borrado = jest.fn(async () => undefined);
+    cliente.alBorrarseLaCuenta(borrado);
+
+    await expect(cliente.pedir({ ruta: RUTA })).rejects.toMatchObject({ estado: 410 });
+
+    expect(borrado).toHaveBeenCalledWith(null);
+  });
+
   test('si borrar lo local falla tras un 410, la sesión se cierra igual', async () => {
     const almacen = almacenEnMemoria({ ...datosSesion(1), tokenAcceso: tokenDe(USUARIO_ID) });
     const fetchFalso = jest.fn(async (url: string) => respuesta(url.endsWith(RUTA_REFRESCO) ? 410 : 401));

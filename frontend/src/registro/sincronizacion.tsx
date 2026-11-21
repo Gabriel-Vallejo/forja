@@ -98,7 +98,8 @@ export function ProveedorSincronizacion({ abrirAlmacen, escucharRed, children }:
   useEffect(() => {
     if (!outbox) return undefined;
     return api.alBorrarseLaCuenta(async (usuario) => {
-      await outbox.borrarDatosDe(usuario);
+      // Sin usuario no se sabe de quién es lo guardado: no se borra nada a ciegas.
+      if (usuario) await outbox.borrarDatosDe(usuario);
       setCuentaEliminada(true);
     });
   }, [api, outbox]);

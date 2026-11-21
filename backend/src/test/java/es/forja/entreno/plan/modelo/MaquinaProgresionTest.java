@@ -366,4 +366,15 @@ class MaquinaProgresionTest {
 		}
 		return sesiones;
 	}
+
+	@Test
+	void cadaSesionSeJuzgaConLasSeriesQueLePediaSuPlanNoConLasDelActual() {
+		// El plan pasó de 3 a 4 series; la sesión se hizo con el de 3 y las completó todas.
+		ReglaEjercicio ahoraCuatro = new ReglaEjercicio(4, 6, 10, 2, new BigDecimal("2.5"), null);
+		SesionEjercicio conSuPlan = sesion(0, "60", 10, 2).conSeriesPrevistas(3);
+		SesionEjercicio sinSaberlo = sesion(0, "60", 10, 2);
+
+		assertThat(evaluar(ahoraCuatro, conSuPlan).cargaKg()).isEqualByComparingTo("62.5");
+		assertThat(evaluar(ahoraCuatro, sinSaberlo).cargaKg()).isEqualByComparingTo("60");
+	}
 }

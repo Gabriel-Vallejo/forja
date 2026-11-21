@@ -124,8 +124,8 @@ interface PropsBloque {
   alAnular: (serie: SerieLocal) => Promise<void>;
   /** La serie recién guardada que aún se puede deshacer. */
   recien: string | null;
-  /** Avisa de que se deshace (cierra «Deshacer» y el descanso); la anulación la hace el bloque. */
-  alDeshacer: () => void;
+  /** Avisa de que se deshace (cierra «Deshacer», el descanso y su aviso de dolor); la anulación la hace el bloque. */
+  alDeshacer: (serie: string) => void;
 }
 
 function BloqueEjercicio(props: PropsBloque) {
@@ -186,7 +186,7 @@ function BloqueEjercicio(props: PropsBloque) {
               {/* Al final: cuando se va a los 5 s no desplaza «Corregir» ni «Anular» bajo el dedo. */}
               {recien === s.uuid ? (
                 <Boton variante="secundario" etiqueta="Deshacer" etiquetaAccesible={`Deshacer ${contexto}`} onPress={() => {
-                    alDeshacer();
+                    alDeshacer(s.uuid);
                     // Si falla, se abre la confirmación de anular con el error para reintentar.
                     alAnular(s).catch((err: unknown) => {
                       setErrorAnular(err instanceof Error ? err.message : undefined);
@@ -305,13 +305,14 @@ interface PropsSesionDelDia {
   outbox: Outbox;
   plan: PlanActual;
   alGuardarSerie: () => void;
-  /** Deshacer la serie recién guardada también para el descanso que arrancó. */
-  alDeshacerSerie: () => void;
+  /** Deshacer la serie recién guardada también para el descanso que arrancó y cierra el aviso que provocó. */
+  alDeshacerSerie: (serie: string) => void;
   /** Avisa de si hay una confirmación abierta abajo del todo, para bajar hasta ella. */
   alConfirmar: (abierta: boolean) => void;
   /** Con el aviso de dolor alto abierto (§5.5) no se registra nada hasta cerrarlo. */
   pausada: boolean;
-  alDolorAlto: () => void;
+  /** La serie (uuid) que ha provocado el aviso de dolor alto. */
+  alDolorAlto: (serie: string) => void;
 }
 
 function SesionDelDia({ outbox, plan, alGuardarSerie, alDeshacerSerie, alConfirmar, pausada, alDolorAlto }: PropsSesionDelDia) {
@@ -362,16 +363,18 @@ function SesionDelDia({ outbox, plan, alGuardarSerie, alDeshacerSerie, alConfirm
     })();
 
   const guardar = async (e: ObjetivoEjercicio, v: ValoresSerie, corrige?: SerieLocal) => {
+    const conDolorAlto = v.dolor !== undefined && v.dolor >= DOLOR_ALTO;
     if (corrige) {
       await conMensaje(outbox.corregirSerie(sesion.uuid, corrige.uuid, aDatos(e.idExterno, corrige.orden, v)));
+      if (conDolorAlto) alDolorAlto(corrige.uuid);
     } else {
       const orden = Math.max(0, ...series.map((s) => s.orden)) + 1;
       const nueva = await conMensaje(outbox.registrarSerie(sesion.uuid, aDatos(e.idExterno, orden, v)));
       Vibration.vibrate(VIBRACION_MS);
       alGuardarSerie();
       setRecien(nueva.uuid);
+      if (conDolorAlto) alDolorAlto(nueva.uuid);
     }
-    if (v.dolor !== undefined && v.dolor >= DOLOR_ALTO) alDolorAlto();
     await recargar();
     setElegido(null);
   };
@@ -380,9 +383,9 @@ function SesionDelDia({ outbox, plan, alGuardarSerie, alDeshacerSerie, alConfirm
     await recargar();
     setPorAnular(null);
   };
-  const deshacer = () => {
+  const deshacer = (serie: string) => {
     setRecien(null);
-    alDeshacerSerie();
+    alDeshacerSerie(serie);
   };
   const acabar = async () => {
     setCerrando(true);
@@ -477,11 +480,12 @@ export function SesionEntreno() {
   const descanso = useDescanso();
   const { restanteMs } = descanso;
   const [confirmando, setConfirmando] = useState(false);
-  const [dolorAlto, setDolorAlto] = useState(false);
+  // La serie que provocó el aviso de dolor alto (si se deshace, el aviso se va con ella).
+  const [dolorAlto, setDolorAlto] = useState<string | null>(null);
   const pie =
-    dolorAlto || restanteMs !== null ? (
+    dolorAlto !== null || restanteMs !== null ? (
       <>
-        {dolorAlto ? <AvisoDolorAlto alCerrar={() => setDolorAlto(false)} /> : null}
+        {dolorAlto !== null ? <AvisoDolorAlto alCerrar={() => setDolorAlto(null)} /> : null}
         {restanteMs === null ? null : <PanelDescanso descanso={descanso} restanteMs={restanteMs} />}
       </>
     ) : undefined;
@@ -489,7 +493,14 @@ export function SesionEntreno() {
     <Pantalla hueco="s4" seguirFinal={confirmando} pie={pie}>
       <EncabezadoAtras titulo="Sesión de hoy" />
       <ConOutbox>
-        {(outbox) => <ConPlanParaEntrenar>{(plan) => <SesionDelDia outbox={outbox} plan={plan} alGuardarSerie={descanso.empezar} alDeshacerSerie={descanso.saltar} alConfirmar={setConfirmando} pausada={dolorAlto} alDolorAlto={() => setDolorAlto(true)} />}</ConPlanParaEntrenar>}
+        {(outbox) => <ConPlanParaEntrenar>{(plan) => <SesionDelDia outbox={outbox} plan={plan} alGuardarSerie={descanso.empezar} alDeshacerSerie={(serie) => {
+                  descanso.saltar();
+                  setDolorAlto((actual) => (actual === serie ? null : actual));
+                }}
+                alConfirmar={setConfirmando}
+                pausada={dolorAlto !== null}
+                alDolorAlto={setDolorAlto}
+              />}</ConPlanParaEntrenar>}
       </ConOutbox>
     </Pantalla>
   );
