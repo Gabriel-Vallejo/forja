@@ -14,8 +14,10 @@ import java.util.stream.Collectors;
  * {@link #SESIONES_MIRADAS} últimas sesiones, alguna serie de trabajo pasó de {@link #DOLOR_ACEPTABLE}. La app lo dice
  * y propone cambiarlo; nunca se quita sin preguntar.
  *
- * <p>Los tres números son una [propuesta]: hasta 5 sobre 10 es el dolor que el modelo de monitorización del dolor da
- * por aceptable durante el ejercicio (heurística, no diagnóstico).
+ * <p>Los tres números son una [propuesta], heurística y no diagnóstico. El umbral sale del modelo de monitorización
+ * del dolor (Silbernagel y otros, Am J Sports Med 2007, doi:10.1177/0363546506298279), que deja seguir entrenando
+ * con dolor; el «hasta 5 sobre 10» lo citan resúmenes del estudio, pero no está en el abstract: falta comprobarlo en
+ * el texto completo.
  */
 public record DolorRepetido(String idExterno, int sesionesConDolor, int sesionesMiradas) {
 
