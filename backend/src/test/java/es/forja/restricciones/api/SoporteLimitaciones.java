@@ -19,7 +19,16 @@ public abstract class SoporteLimitaciones extends ApiCuentaSoporte {
 	protected static final String RUTA_RESTRICCIONES = "/api/v1/restricciones";
 
 	protected ResultActions darConsentimiento(Cliente cliente, String tipo) throws Exception {
-		return enviarAutenticado(RUTA_CONSENTIMIENTOS, cliente, Map.of("tipo", tipo, "versionTexto", VERSION_VIGENTE));
+		return enviarAutenticado(RUTA_CONSENTIMIENTOS, cliente, Map.of("tipo", tipo, "versionTexto", versionDe(tipo)));
+	}
+
+	/** La versión vigente del texto de ese tipo (la de un tipo inventado, la general). */
+	protected static String versionDe(String tipo) {
+		try {
+			return es.forja.consentimiento.modelo.TipoConsentimiento.desdeCodigo(tipo).versionVigente();
+		} catch (IllegalArgumentException e) {
+			return VERSION_VIGENTE;
+		}
 	}
 
 	/** Cuenta verificada, con sesión y con el consentimiento de limitaciones dado. */

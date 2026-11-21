@@ -16,23 +16,28 @@ import { type Theme, useTheme } from '../theme';
  * Versión del texto de abajo. El backend solo acepta la vigente (`TipoConsentimiento.versionVigente`): si el
  * texto cambia, se sube allí y aquí a la vez.
  */
-export const VERSION_TEXTO = 'v1';
+export const VERSION_TEXTO = 'v2';
 
-// PROVISIONAL: texto pendiente de revisión por asesoría legal antes de abrir el repo (RF-45, ADR 0004).
+// v2 (2026-11-21): revisión preliminar (docs/legal/revision-consentimiento.md), no de una asesoría; sigue pendiente de
+// que la revise una antes de abrir el repo (RF-45, ADR 0004).
 const PUNTOS = [
   {
     titulo: 'Qué se guarda',
     texto:
-      'La limitación funcional, por ejemplo «sin carga axial» en la rodilla izquierda. No guardamos la patología ni nada que te hayan dicho en consulta.',
+      'La limitación funcional, por ejemplo «sin carga axial» en la rodilla izquierda; el dolor de 0 a 10 que anotes en tus series; y, si el cuestionario de dolor da una señal de aviso, solo su nivel (no tus respuestas). No guardamos la patología ni nada que te hayan dicho en consulta.',
   },
-  { titulo: 'Cómo se guarda', texto: 'Cada limitación va cifrada y ligada a tu cuenta. No sale en registros ni se comparte.' },
+  {
+    titulo: 'Cómo se guarda',
+    texto:
+      'Cifrado y ligado a tu cuenta, hasta que lo retires o borres la cuenta. No sale en los registros técnicos (logs) ni se comparte con nadie.',
+  },
   {
     titulo: 'Si no lo das',
     texto: 'La app sigue funcionando sin que lo des: tu plan se arma sin tener en cuenta ninguna limitación.',
   },
   {
     titulo: 'Si te arrepientes',
-    texto: 'Retirarlo es igual de fácil: un toque en esta misma pantalla, y eso borra todo lo guardado.',
+    texto: 'Retirarlo es igual de fácil: un toque en esta misma pantalla, y eso borra todo lo guardado. Lo hecho antes de retirarlo sigue siendo válido.',
   },
 ] as const;
 

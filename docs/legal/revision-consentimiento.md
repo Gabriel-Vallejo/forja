@@ -1,0 +1,30 @@
+# Revisión del texto de consentimiento (preliminar)
+
+> **No es asesoría legal.** Es una revisión hecha al desarrollar Forja (2026-11-21) contra el RGPD y la LOPDGDD, para llegar a la asesoría con el trabajo hecho. Antes de abrir el repo o publicar la app, la revisa una asesoría ([ADR 0004](../adr/0004-privacidad-fotos-y-datos-de-salud.md), RF-45).
+
+## Qué se revisó
+- Consentimiento de **limitaciones** (`frontend/src/pantallas/ConsentimientoLimitaciones.tsx`), base del art. 9.2.a RGPD para datos de salud.
+- Consentimiento de **medidas de salud** (`frontend/src/pantallas/ConsentimientoMedidas.tsx`).
+- Registro: edad mínima (`ReglasCuenta.EDAD_MINIMA`).
+
+## Hallazgos y qué se hizo
+
+| # | Hallazgo | Norma | Estado |
+|---|---|---|---|
+| 1 | El texto de limitaciones solo nombraba «la limitación funcional», pero ese consentimiento cubre también el **dolor de cada serie** y el **nivel de aviso** del cuestionario de dolor (se borran al retirarlo). Un consentimiento no es informado si no dice todo lo que se guarda. | RGPD arts. 4.11, 7, 9.2.a y 13 | Arreglado en el texto **v2** |
+| 2 | No decía que retirar el consentimiento no afecta a lo tratado antes. | RGPD art. 7.3 | Arreglado en v2 |
+| 3 | «No sale en registros» era ambiguo (¿el registro de series?). | Transparencia, art. 12 | Arreglado: «registros técnicos (logs)» |
+| 4 | Faltaba cuánto tiempo se guarda. | art. 13.2.a | Arreglado: «hasta que lo retires o borres la cuenta» |
+| 5 | Falta la información del art. 13 que va fuera de la pantalla: responsable y contacto, base jurídica de cada tratamiento, encargados (hosting, correo), transferencias fuera de la UE, derechos y cómo ejercerlos, reclamación ante la AEPD. | art. 13 | **Pendiente**: política de privacidad (borrador abajo) |
+| 6 | Los consentimientos dados con la v1 siguen valiendo tras pasar a v2. Sin usuarios reales no importa; con ellos, un cambio sustancial obliga a pedirlo otra vez. | art. 7.1 (poder demostrarlo) | **Pendiente** antes de tener usuarios (shortcut en `TipoConsentimiento`) |
+| 7 | Edad mínima 18 años: por encima de los 14 de la LOPDGDD. | LOPDGDD art. 7 | Correcto |
+| 8 | Medidas de salud: dice qué, para qué, que es opcional y cómo retirarlo. Falta la conservación y el art. 7.3. | arts. 7.3 y 13 | **Pendiente** (versión v2 de medidas) |
+
+## Borrador de política de privacidad (lo que falta del art. 13)
+Rellenar lo marcado con `[…]` antes de publicar:
+- **Responsable:** `[nombre y NIF]`, `[correo de contacto]`.
+- **Qué y para qué:** cuenta (correo, año de nacimiento) para darte acceso; limitaciones, dolor y nivel de aviso, solo con tu consentimiento, para elegir ejercicios compatibles; movilidad y medidas, con su consentimiento, para elegir variantes y estimar el % de grasa; sesiones registradas para la progresión y tu racha.
+- **Base jurídica:** contrato (art. 6.1.b) para la cuenta y el registro de sesiones; consentimiento explícito (art. 9.2.a) para los datos de salud.
+- **Conservación:** mientras tengas cuenta; los datos de salud, hasta que retires su consentimiento. Al borrar la cuenta se borra todo (solo quedan, hasta que caducan, los hashes de los tokens de sesión, sin nada que te identifique).
+- **Encargados:** hosting `[proveedor y país]`, correo transaccional `[proveedor UE]`. Transferencias fuera de la UE: `[ninguna / cuáles y con qué garantía]`.
+- **Derechos:** acceso y portabilidad («Descargar mis datos»), rectificación (en la app), supresión (borrar cuenta), retirar cada consentimiento en su pantalla, oposición y limitación escribiendo a `[correo]`. Puedes reclamar ante la AEPD (aepd.es).

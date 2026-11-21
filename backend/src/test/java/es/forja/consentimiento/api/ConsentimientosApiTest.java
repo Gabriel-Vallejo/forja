@@ -41,6 +41,16 @@ class ConsentimientosApiTest extends SoporteLimitaciones {
 	}
 
 	@Test
+	void elDeLimitacionesVaPorLaV2YConElTextoViejoNoVale() throws Exception {
+		Cliente cliente = cuentaConSesion("Pixel");
+
+		enviarAutenticado(RUTA_CONSENTIMIENTOS, cliente, Map.of("tipo", "limitaciones", "versionTexto", "v1"))
+				.andExpect(status().isConflict());
+		darConsentimiento(cliente, "limitaciones").andExpect(status().isOk())
+				.andExpect(jsonPath("$.versionTexto").value("v2"));
+	}
+
+	@Test
 	void darloDosVecesEsIdempotente() throws Exception {
 		Cliente cliente = cuentaConSesion("Pixel");
 

@@ -76,7 +76,10 @@ describe('Consentimiento de limitaciones', () => {
     await renderizar(<Limitaciones />, api);
 
     expect(await screen.findByText(/limitación funcional/)).toBeOnTheScreen();
-    expect(screen.getByText(/cifrad/)).toBeOnTheScreen();
+    expect(screen.getByText(/Cifrado/)).toBeOnTheScreen();
+    // v2: dice también que cubre el dolor de las series y el nivel de aviso, y que retirarlo no anula lo anterior.
+    expect(screen.getByText(/dolor de 0 a 10 que anotes en tus series/)).toBeOnTheScreen();
+    expect(screen.getByText(/sigue siendo válido/)).toBeOnTheScreen();
     expect(screen.getByText(/sigue funcionando sin que lo des/)).toBeOnTheScreen();
     expect(screen.getByText(/borra todo lo guardado/)).toBeOnTheScreen();
     expect(api.restricciones).not.toHaveBeenCalled();
@@ -89,7 +92,7 @@ describe('Consentimiento de limitaciones', () => {
 
     await fireEvent.press(await screen.findByRole('button', { name: 'Acepto' }));
 
-    expect(api.darConsentimientoLimitaciones).toHaveBeenCalledWith('v1');
+    expect(api.darConsentimientoLimitaciones).toHaveBeenCalledWith('v2');
     expect(await screen.findByRole('button', { name: 'Añadir limitación' })).toBeOnTheScreen();
   });
 
