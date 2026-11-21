@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import type { PlanActual } from '../api/esquemas';
+import type { DolorRepetido, PlanActual } from '../api/esquemas';
 import { Aviso } from '../componentes/Aviso';
 import { FilaEjercicio } from '../componentes/FilaEjercicio';
 import { Icono } from '../componentes/Icono';
@@ -18,6 +18,7 @@ import {
   seriesDe,
 } from '../plan/plan';
 import { AjustarPlan } from '../plan/AjustarPlan';
+import { textoDolorRepetido, useDolorRepetido } from '../plan/dolorRepetido';
 import { RegenerarPlan } from '../plan/RegenerarPlan';
 import { useCargasSiguientes } from '../registro/sincronizacion';
 import { type Theme, useTheme } from '../theme';
@@ -30,11 +31,16 @@ const DIAS_SIN_DESPLAZAR = 3;
 /** Algo menos que un tercio de la pantalla: la pestaña siguiente asoma por el borde y avisa de que la fila se desplaza. */
 const ANCHO_DIA_DESPLAZABLE = 112;
 
+/** La línea de abajo de la fila: el dolor repetido delante de qué toca, si lo hay. */
+const notaDe = (motivo: string | undefined, dolor: DolorRepetido | undefined) =>
+  [dolor ? textoDolorRepetido(dolor) : undefined, motivo].filter(Boolean).join('. ') || undefined;
+
 function Plan({ plan }: { plan: PlanActual }) {
   const router = useRouter();
   const tema = useTheme();
   const estilos = crearEstilos(tema);
   const cargas = useCargasSiguientes(plan);
+  const dolor = useDolorRepetido();
   const [elegido, setElegido] = useState(plan.diaDeHoy);
   const dia = plan.dias.find((d) => d.dia === elegido) ?? plan.dias[0];
   const optimo = plan.estado === 'optimo';
@@ -96,7 +102,7 @@ function Plan({ plan }: { plan: PlanActual }) {
                 numero={numeroDeOrden(i)}
                 nombre={e.nombre}
                 prescripcion={prescripcion(e, cargas.get(e.idExterno))}
-                nota={e.primeraSesion ? undefined : e.motivo}
+                nota={notaDe(e.primeraSesion ? undefined : e.motivo, dolor.get(e.idExterno))}
                 alPulsar={() => router.push({ pathname: '/ejercicio', params: { dia: String(dia.dia), id: e.idExterno } })}
               />
             ))}

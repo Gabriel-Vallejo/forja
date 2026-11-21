@@ -13,6 +13,7 @@ import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
 import { etiquetaMusculo } from '../plan/musculos';
 import { NOMBRE_ESTADO, numeroDeOrden, prescripcion } from '../plan/plan';
+import { textoDolorRepetido, useDolorRepetido } from '../plan/dolorRepetido';
 import { usePorQue } from '../plan/porQue';
 import { trozosFuente } from '../plan/referencias';
 import { useCargasSiguientes } from '../registro/sincronizacion';
@@ -32,6 +33,7 @@ function Detalle({ plan, dia, idExterno }: PropsEjercicio & { plan: PlanActual }
   const tema = useTheme();
   const estilos = crearEstilos(tema);
   const cargas = useCargasSiguientes(plan);
+  const dolor = useDolorRepetido().get(idExterno);
   const ejercicios = plan.dias.find((d) => d.dia === dia)?.ejercicios ?? [];
   const indice = ejercicios.findIndex((e) => e.idExterno === idExterno);
   const e = ejercicios[indice];
@@ -57,6 +59,19 @@ function Detalle({ plan, dia, idExterno }: PropsEjercicio & { plan: PlanActual }
         </View>
         <Texto estilo="texto">{e.motivo}</Texto>
       </View>
+      {dolor ? (
+        <View style={estilos.tarjeta} accessibilityLabel="Te ha dolido">
+          <Aviso
+            tipo="aviso"
+            mensaje={`${textoDolorRepetido(dolor)}. Puedes cambiarlo por otro de su mismo movimiento; antes verás cómo queda el plan.`}
+          />
+          <Boton
+            variante="secundario"
+            etiqueta="Ver con qué cambiarlo"
+            onPress={() => router.push({ pathname: '/vista-previa', params: { tipo: 'reemplazar', id: idExterno } })}
+          />
+        </View>
+      ) : null}
       <PorQue plan={plan.uuid} dia={dia} idExterno={idExterno} />
       <Boton etiqueta="Empezar" onPress={() => router.push('/sesion')} />
       <Ajustar idExterno={idExterno} />

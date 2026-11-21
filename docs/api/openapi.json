@@ -424,6 +424,23 @@
         "required" : [ "nombre", "plataforma", "revocadoEn", "ultimaActividad", "uuid" ],
         "type" : "object"
       },
+      "DolorRepetido" : {
+        "properties" : {
+          "idExterno" : {
+            "type" : "string"
+          },
+          "sesionesConDolor" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "sesionesMiradas" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "idExterno", "sesionesConDolor", "sesionesMiradas" ],
+        "type" : "object"
+      },
       "EjercicioPlan" : {
         "properties" : {
           "anotaciones" : {
@@ -2816,6 +2833,27 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/PaginaSesiones"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "sesiones-controlador" ]
+      }
+    },
+    "/api/v1/sesiones/dolor-repetido" : {
+      "get" : {
+        "operationId" : "dolorRepetido",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/DolorRepetido"
+                  },
+                  "type" : "array"
                 }
               }
             },

@@ -26,6 +26,8 @@ import es.forja.consentimiento.modelo.TipoConsentimiento;
 import es.forja.consentimiento.servicio.ServicioConsentimientos;
 import es.forja.cuenta.repositorio.UsuarioRepositorio;
 import es.forja.entreno.plan.servicio.ServicioPlan;
+import es.forja.sesiones.modelo.DolorRepetido;
+import es.forja.sesiones.modelo.DolorRepetido.SerieConDolor;
 import es.forja.sesiones.modelo.PaginaSesiones;
 import es.forja.sesiones.modelo.SerieEntrada;
 import es.forja.sesiones.modelo.SesionEntrada;
@@ -52,6 +54,8 @@ public class ServicioSesiones {
 
 	static final String TABLA_SERIE = "serie_realizada";
 	static final String COLUMNA_DOLOR = "dolor";
+	/** Hasta dónde se mira para el dolor repetido: lo de hace más de 8 semanas ya no dice nada [propuesta]. */
+	static final Duration VENTANA_DOLOR = Duration.ofDays(56);
 
 	private final SesionRepositorio sesiones;
 	private final ServicioPlan planes;
@@ -112,6 +116,29 @@ public class ServicioSesiones {
 	public List<SesionVista> historial(UUID usuario) {
 		long usuarioId = idDe(usuario);
 		return vistas(usuario, sesiones.cabeceras(usuarioId, Instant.EPOCH, Integer.MAX_VALUE, 0), true);
+	}
+
+	/**
+	 * Los ejercicios que han dolido de forma repetida en las últimas {@link #VENTANA_DOLOR} (RF-27). Sin el
+	 * consentimiento de limitaciones no se mira el dolor y la lista va vacía.
+	 */
+	public List<DolorRepetido> dolorRepetido(UUID usuario) {
+		if (!consentimientos.tiene(usuario, TipoConsentimiento.LIMITACIONES)) {
+			return List.of();
+		}
+		List<CabeceraVista> cabeceras = sesiones.cabeceras(idDe(usuario), reloj.instant().minus(VENTANA_DOLOR),
+				Integer.MAX_VALUE, 0);
+		if (cabeceras.isEmpty()) {
+			return List.of();
+		}
+		Map<UUID, Instant> fechas = cabeceras.stream()
+				.collect(Collectors.toMap(CabeceraVista::uuid, CabeceraVista::realizadaEn));
+		List<SerieConDolor> series = sesiones.vigentes(fechas.keySet()).stream()
+				.filter(s -> !s.calentamiento() && !s.anulada())
+				.map(s -> new SerieConDolor(s.sesionUuid(), fechas.get(s.sesionUuid()), s.ejercicio(),
+						s.dolor() == null ? null : descifrarDolor(s.uuid(), s.dolor())))
+				.toList();
+		return DolorRepetido.de(series);
 	}
 
 	/** Revocar el consentimiento de limitaciones borra el dolor guardado, en la misma transacción. */

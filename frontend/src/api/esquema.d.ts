@@ -532,6 +532,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/sesiones/dolor-repetido": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["dolorRepetido"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sesiones/{uuid}": {
         parameters: {
             query?: never;
@@ -691,6 +707,13 @@ export interface components {
             ultimaActividad: string;
             /** Format: uuid */
             uuid: string;
+        };
+        DolorRepetido: {
+            idExterno: string;
+            /** Format: int32 */
+            sesionesConDolor: number;
+            /** Format: int32 */
+            sesionesMiradas: number;
         };
         EjercicioPlan: {
             anotaciones: string[];
@@ -2061,6 +2084,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PaginaSesiones"];
+                };
+            };
+        };
+    };
+    dolorRepetido: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DolorRepetido"][];
                 };
             };
         };

@@ -1,6 +1,7 @@
 package es.forja.sesiones.api;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.forja.comun.seguridad.UsuarioAutenticado;
+import es.forja.sesiones.modelo.DolorRepetido;
 import es.forja.sesiones.modelo.PaginaSesiones;
 import es.forja.sesiones.modelo.SesionEntrada;
 import es.forja.sesiones.modelo.SesionVista;
@@ -39,6 +41,12 @@ public class SesionesControlador {
 	public SesionVista guardar(@AuthenticationPrincipal UsuarioAutenticado actual, @PathVariable UUID uuid,
 			@Valid @RequestBody SesionEntrada entrada) {
 		return sesiones.guardar(actual.usuario(), uuid, entrada);
+	}
+
+	/** RF-27: los ejercicios que te han dolido en 2 de sus 3 últimas sesiones; la app pregunta antes de cambiarlos. */
+	@GetMapping("/dolor-repetido")
+	public List<DolorRepetido> dolorRepetido(@AuthenticationPrincipal UsuarioAutenticado actual) {
+		return sesiones.dolorRepetido(actual.usuario());
 	}
 
 	@GetMapping

@@ -383,6 +383,28 @@ class SesionesApiTest extends SoporteSesiones {
 				cliente.correo())).isZero();
 	}
 
+	@Test
+	void unEjercicioQueDueleEnDosSesionesSaleEnDolorRepetidoYSinConsentimientoNada() throws Exception {
+		Cliente cliente = clienteConLimitaciones();
+		String plan = generarPlan(cliente);
+		Objetivo o = ejercicioConIncremento(cliente);
+		for (long horas : new long[] { 50, 26, 2 }) {
+			int dolor = horas == 26 ? 3 : 7;
+			guardarSesion(cliente, UUID.randomUUID(),
+					sesion(plan, haceHoras(horas), List.of(serieConDolor(o, UUID.randomUUID(), dolor))))
+							.andExpect(status().isOk());
+		}
+
+		consultar(RUTA_SESIONES + "/dolor-repetido", cliente).andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].idExterno").value(o.idExterno()))
+				.andExpect(jsonPath("$[0].sesionesConDolor").value(2))
+				.andExpect(jsonPath("$[0].sesionesMiradas").value(3));
+
+		borrarRecurso("/api/v1/consentimientos/limitaciones", cliente).andExpect(status().isNoContent());
+		consultar(RUTA_SESIONES + "/dolor-repetido", cliente).andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(0));
+	}
+
 	// ---- aislamiento entre usuarios ----
 
 	@Test

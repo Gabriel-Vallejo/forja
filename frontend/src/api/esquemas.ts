@@ -120,6 +120,12 @@ export const esquemaConsentimientos = z.array(
 ) satisfies z.ZodType<Lectura<Esquemas['RespuestaConsentimiento'][]>>;
 export type Consentimiento = z.infer<typeof esquemaConsentimientos>[number];
 
+/** RF-27: un ejercicio que ha dolido en varias de sus últimas sesiones. Es dato de salud: solo en memoria. */
+export const esquemaDolorRepetido = z.array(
+  z.object({ idExterno: z.string(), sesionesConDolor: z.number().int(), sesionesMiradas: z.number().int() }),
+) satisfies z.ZodType<Lectura<Esquemas['DolorRepetido'][]>>;
+export type DolorRepetido = z.infer<typeof esquemaDolorRepetido>[number];
+
 export const esquemaDispositivos = z.array(
   z.object({
     id: z.uuid(),

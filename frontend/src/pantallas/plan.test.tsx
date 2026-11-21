@@ -129,6 +129,16 @@ describe('Plan', () => {
     expect(screen.queryByText(AVISO_PRIMERA_SESION)).toBeNull();
   });
 
+  test('una fila que ha dolido de forma repetida lo dice', async () => {
+    const api = apiFalsa({
+      planActual: jest.fn().mockResolvedValue(planDePrueba()),
+      dolorRepetido: jest.fn().mockResolvedValue([{ idExterno: 'remo', sesionesConDolor: 3, sesionesMiradas: 3 }]),
+    });
+    await renderizar(<MiPlan />, api);
+
+    expect(await screen.findByRole('button', { name: /^02\. Remo en máquina.*Te ha dolido en 3 de tus 3 últimas sesiones/ })).toBeOnTheScreen();
+  });
+
   test('los días son pestañas y una fila abre su detalle', async () => {
     await renderizar(<MiPlan />, conPlan());
 
@@ -160,6 +170,30 @@ describe('Detalle de ejercicio', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Empezar' }));
 
     expect(mockRouter.push).toHaveBeenCalledWith('/sesion');
+  });
+
+  test('si le ha dolido de forma repetida lo dice y ofrece ver un cambio, sin cambiar nada sin preguntar', async () => {
+    const api = apiFalsa({
+      planActual: jest.fn().mockResolvedValue(planDePrueba()),
+      dolorRepetido: jest.fn().mockResolvedValue([{ idExterno: 'remo', sesionesConDolor: 2, sesionesMiradas: 3 }]),
+    });
+    await renderizar(<Ejercicio dia={1} idExterno="remo" />, api);
+
+    expect(await screen.findByText(/Te ha dolido en 2 de tus 3 últimas sesiones/)).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Ver con qué cambiarlo' }));
+
+    expect(mockRouter.push).toHaveBeenCalledWith({ pathname: '/vista-previa', params: { tipo: 'reemplazar', id: 'remo' } });
+  });
+
+  test('sin dolor repetido (o si no se puede saber) no avisa', async () => {
+    const api = apiFalsa({
+      planActual: jest.fn().mockResolvedValue(planDePrueba()),
+      dolorRepetido: jest.fn().mockRejectedValue(new ErrorApi(0, 'sin red')),
+    });
+    await renderizar(<Ejercicio dia={1} idExterno="remo" />, api);
+
+    expect(await screen.findByRole('header', { name: 'REMO EN MÁQUINA' })).toBeOnTheScreen();
+    expect(screen.queryByText(/Te ha dolido/)).toBeNull();
   });
 
   test('si el ejercicio ya no está, lo dice', async () => {
