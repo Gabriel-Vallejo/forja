@@ -15,11 +15,12 @@ import es.forja.entreno.plan.modelo.ParametrosProgresion;
  * @param incrementoPorDefectoKg para el material que no está en el mapa
  * @param deload, {@code e1rmRepeticionesMaximas} y {@code pesoCorporalTopeRepeticiones}: la máquina de estados (RF-26)
  * @param seriesPorDefecto para evaluar un ejercicio que no está en el plan
+ * @param porEjercicio {@code idExterno} → su propio rango (p. ej. el face pull, de 12 a 20); opcional
  */
 @ConfigurationProperties("forja.progresion")
 public record PropiedadesProgresion(Objetivo compuestos, Objetivo aislados, Map<String, BigDecimal> incrementosKg,
 		BigDecimal incrementoPorDefectoKg, ParametrosProgresion.Deload deload, int e1rmRepeticionesMaximas,
-		int pesoCorporalTopeRepeticiones, int seriesPorDefecto) {
+		int pesoCorporalTopeRepeticiones, int seriesPorDefecto, Map<String, Objetivo> porEjercicio) {
 
 	/** Rango de repeticiones y RIR objetivo de un tipo de ejercicio. */
 	public record Objetivo(int repeticionesMin, int repeticionesMax, int rir) {
@@ -32,6 +33,12 @@ public record PropiedadesProgresion(Objetivo compuestos, Objetivo aislados, Map<
 
 	public PropiedadesProgresion {
 		incrementosKg = Map.copyOf(incrementosKg);
+		porEjercicio = porEjercicio == null ? Map.of() : Map.copyOf(porEjercicio);
+	}
+
+	/** El rango propio del ejercicio si lo tiene; si no, el de los compuestos o el de los aislados. */
+	public Objetivo objetivo(String idExterno, boolean compuesto) {
+		return porEjercicio.getOrDefault(idExterno, compuesto ? compuestos : aislados);
 	}
 
 	public ParametrosProgresion parametros() {

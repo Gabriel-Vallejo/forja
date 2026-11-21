@@ -25,7 +25,7 @@ public class PlanRepositorio {
 	private static final String COMPUESTO = "compuesto";
 
 	/** Lo que se necesita del catálogo para fijar el objetivo de un ejercicio. */
-	public record FichaEjercicio(long id, boolean compuesto, String material) {
+	public record FichaEjercicio(long id, String idExterno, boolean compuesto, String material) {
 	}
 
 	public record CabeceraPlan(long id, UUID uuid, Instant creadoEn, String estado) {
@@ -55,7 +55,7 @@ public class PlanRepositorio {
 				SELECT e.id, e.id_externo, e.mecanica, m.codigo AS material FROM ejercicio e
 				JOIN material m ON m.id = e.implemento_id WHERE e.id_externo IN (:ids)""")
 				.param("ids", idsExternos).query((rs, n) -> {
-					fichas.put(rs.getString("id_externo"), new FichaEjercicio(rs.getLong("id"),
+					fichas.put(rs.getString("id_externo"), new FichaEjercicio(rs.getLong("id"), rs.getString("id_externo"),
 							COMPUESTO.equals(rs.getString("mecanica")), rs.getString("material")));
 					return 0;
 				}).list();

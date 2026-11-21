@@ -63,6 +63,10 @@ forja:
   progresion:
     compuestos: {repeticiones-min: 6, repeticiones-max: 10, rir: 2}
     aislados: {repeticiones-min: 10, repeticiones-max: 15, rir: 1}
+    # Ejercicios con su propio rango. El face pull (deltoide posterior, carga ligera) se trabaja alto, como un aislamiento,
+    # aunque el catálogo lo tenga como compuesto: cambiar su mecánica mueve el óptimo del solver [propuesta].
+    por-ejercicio:
+      Face_Pull: {repeticiones-min: 12, repeticiones-max: 20, rir: 1}
     # kg que sube la carga si se completa el rango alto al RIR objetivo en todas las series de trabajo.
     # Con peso corporal es 0: se progresa por repeticiones. Barra EZ y polea, como barra y máquina; el resto, 0.
     incrementos-kg:

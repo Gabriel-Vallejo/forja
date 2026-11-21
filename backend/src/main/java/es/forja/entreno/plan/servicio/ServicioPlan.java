@@ -193,8 +193,7 @@ public class ServicioPlan {
 
 	/** La carga inicial es la de la última sesión del ejercicio (por {@code realizada_en}); nula si no hay. */
 	private FilaEjercicio filaDe(int dia, int orden, int series, FichaEjercicio ficha, BigDecimal cargaInicial) {
-		PropiedadesProgresion.Objetivo objetivo = ficha.compuesto() ? progresion.compuestos()
-				: progresion.aislados();
+		PropiedadesProgresion.Objetivo objetivo = progresion.objetivo(ficha.idExterno(), ficha.compuesto());
 		return new FilaEjercicio(dia, orden, ficha.id(), series, objetivo.repeticionesMin(),
 				objetivo.repeticionesMax(), objetivo.rir(), cargaInicial, progresion.incremento(ficha.material()));
 	}
