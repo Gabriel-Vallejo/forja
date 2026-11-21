@@ -26,9 +26,11 @@ name: Registrar una serie
 - extendedWaitUntil:
     visible: .*hecha.*
     timeout: 15000
+# Un día con 7 ejercicios en una pantalla pequeña es largo: más margen que los 20 s por defecto.
 - scrollUntilVisible:
     element: Terminar sesión
     direction: DOWN
+    timeout: 90000
 - tapOn: Terminar sesión
 - tapOn: Sí, terminar
 - extendedWaitUntil:
