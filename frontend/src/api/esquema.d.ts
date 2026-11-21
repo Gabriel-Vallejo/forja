@@ -567,60 +567,60 @@ export interface components {
             minutosPorSesion: number;
         };
         Alternativa: {
-            alternativa?: string;
+            alternativa: string;
             /** Format: int64 */
-            diferencia?: number;
-            elegido?: string;
-            mensaje?: string;
-            nombreAlternativa?: string;
+            diferencia: number | null;
+            elegido: string;
+            mensaje: string;
+            nombreAlternativa: string;
         };
         BloqueoActivo: {
             /** Format: date-time */
-            evaluadoEn?: string;
-            nivel?: string;
-            origen?: string;
+            evaluadoEn: string;
+            nivel: string;
+            origen: string;
         };
         BorrarCuenta: {
             contrasena: string;
         };
         CambioEjercicio: {
             /** Format: int32 */
-            antes?: number;
+            antes: number;
             /** Format: int32 */
-            despues?: number;
-            idExterno?: string;
-            nombre?: string;
+            despues: number;
+            idExterno: string;
+            nombre: string;
         };
         CambioMusculo: {
             /** Format: double */
-            antes?: number;
+            antes: number;
             /** Format: double */
-            despues?: number;
-            musculo?: string;
-            nombre?: string;
+            despues: number;
+            musculo: string;
+            nombre: string;
         };
         ConsentimientoExportado: {
             /** Format: date-time */
-            dadoEn?: string;
+            dadoEn: string;
             /** Format: date-time */
-            revocadoEn?: string;
-            tipo?: string;
-            versionTexto?: string;
+            revocadoEn: string | null;
+            tipo: string;
+            versionTexto: string;
         };
         ContribucionEjercicio: {
-            idExterno?: string;
-            nombre?: string;
-            terminos?: {
+            idExterno: string;
+            nombre: string;
+            terminos: {
                 [key: string]: number;
             };
         };
         DatosCuenta: {
             /** Format: int32 */
-            anioNacimiento?: number;
-            correo?: string;
+            anioNacimiento: number;
+            correo: string;
             /** Format: date-time */
-            creadoEn?: string;
-            verificado?: boolean;
+            creadoEn: string;
+            verificado: boolean;
         };
         DatosDispositivo: {
             actual?: boolean;
@@ -633,22 +633,22 @@ export interface components {
             ultimaActividad?: string;
         };
         DatosExportados: {
-            bloqueos?: components["schemas"]["BloqueoActivo"][];
-            consentimientos?: components["schemas"]["ConsentimientoExportado"][];
-            cuenta?: components["schemas"]["DatosCuenta"];
-            dispositivos?: components["schemas"]["DispositivoExportado"][];
+            bloqueos: components["schemas"]["BloqueoActivo"][];
+            consentimientos: components["schemas"]["ConsentimientoExportado"][];
+            cuenta: components["schemas"]["DatosCuenta"];
+            dispositivos: components["schemas"]["DispositivoExportado"][];
             /** Format: int32 */
-            formato?: number;
+            formato: number;
             /** Format: date-time */
-            generadoEn?: string;
-            limitaciones?: components["schemas"]["RespuestaRestriccion"][];
-            medidas?: components["schemas"]["MedidasPerfil"];
-            movilidad?: components["schemas"]["Movilidad"];
-            perfilDatos?: components["schemas"]["DatosPerfil"];
-            perfilEntreno?: components["schemas"]["PerfilEntreno"];
-            planes?: components["schemas"]["VersionPlan"][];
-            preferenciasPlan?: components["schemas"]["PreferenciasGuardadas"];
-            sesiones?: components["schemas"]["SesionVista"][];
+            generadoEn: string;
+            limitaciones: components["schemas"]["RespuestaRestriccion"][];
+            medidas: components["schemas"]["MedidasPerfil"] | null;
+            movilidad: components["schemas"]["Movilidad"] | null;
+            perfilDatos: components["schemas"]["DatosPerfil"];
+            perfilEntreno: components["schemas"]["PerfilEntreno"];
+            planes: components["schemas"]["VersionPlan"][];
+            preferenciasPlan: components["schemas"]["PreferenciasGuardadas"];
+            sesiones: components["schemas"]["SesionVista"][];
         };
         DatosPerfil: {
             experiencia?: string;
@@ -657,88 +657,88 @@ export interface components {
         };
         DatosSesion: {
             /** Format: uuid */
-            dispositivoId?: string;
+            dispositivoId: string;
             /** Format: date-time */
-            expiraEn?: string;
-            tokenAcceso?: string;
-            tokenRefresco?: string;
+            expiraEn: string;
+            tokenAcceso: string;
+            tokenRefresco: string;
         };
         Descarte: {
-            idExterno?: string;
-            motivo?: string;
-            nombre?: string;
-            tipo?: string;
+            idExterno: string;
+            motivo: string;
+            nombre: string;
+            tipo: string;
         };
         DiaEntreno: {
             /** Format: int32 */
-            dia?: number;
-            ejercicios?: components["schemas"]["ObjetivoEjercicio"][];
-            nombre?: string;
+            dia: number;
+            ejercicios: components["schemas"]["ObjetivoEjercicio"][];
+            nombre: string;
         };
         DiaPlan: {
             /** Format: int32 */
-            dia?: number;
-            ejercicios?: components["schemas"]["EjercicioPlan"][];
+            dia: number;
+            ejercicios: components["schemas"]["EjercicioPlan"][];
             /** Format: int32 */
-            segundos?: number;
+            segundos: number;
         };
         DispositivoExportado: {
-            nombre?: string;
-            plataforma?: string;
+            nombre: string;
+            plataforma: string;
             /** Format: date-time */
-            revocadoEn?: string;
+            revocadoEn: string | null;
             /** Format: date-time */
-            ultimaActividad?: string;
+            ultimaActividad: string;
             /** Format: uuid */
-            uuid?: string;
+            uuid: string;
         };
         EjercicioPlan: {
-            anotaciones?: string[];
-            idExterno?: string;
-            nombre?: string;
-            patron?: string;
-            posicionEstirada?: boolean;
+            anotaciones: string[];
+            idExterno: string;
+            nombre: string;
+            patron: string;
+            posicionEstirada: boolean;
             /** Format: int32 */
-            series?: number;
+            series: number;
         };
         EjercicioVersion: {
-            cargaKg?: number;
+            cargaKg: number | null;
             /** Format: int32 */
-            dia?: number;
-            idExterno?: string;
-            incrementoKg?: number;
-            nombre?: string;
+            dia: number;
+            idExterno: string;
+            incrementoKg: number;
+            nombre: string;
             /** Format: int32 */
-            orden?: number;
+            orden: number;
             /** Format: int32 */
-            repeticionesMax?: number;
+            repeticionesMax: number;
             /** Format: int32 */
-            repeticionesMin?: number;
+            repeticionesMin: number;
             /** Format: int32 */
-            rirObjetivo?: number;
+            rirObjetivo: number;
             /** Format: int32 */
-            series?: number;
+            series: number;
         };
         Elemento: {
-            codigo?: string;
-            nombre?: string;
+            codigo: string;
+            nombre: string;
         };
         EstadoBloqueo: {
-            bloquea?: boolean;
-            nivel?: string;
+            bloquea: boolean;
+            nivel: string | null;
         };
         GrasaEstimada: {
             /** Format: double */
-            margen?: number;
+            margen: number;
             /** Format: double */
-            porcentaje?: number;
+            porcentaje: number;
         };
         Holgura: {
-            codigo?: string;
+            codigo: string;
             /** Format: double */
-            faltan?: number;
-            mensaje?: string;
-            tipo?: string;
+            faltan: number;
+            mensaje: string;
+            tipo: string;
         };
         Login: {
             contrasena: string;
@@ -763,82 +763,82 @@ export interface components {
         };
         MedidasPerfil: {
             /** Format: double */
-            alturaCm?: number;
+            alturaCm: number | null;
             /** Format: double */
-            caderaCm?: number;
+            caderaCm: number | null;
             /** Format: double */
-            cinturaCm?: number;
+            cinturaCm: number | null;
             /** Format: double */
-            cuelloCm?: number;
-            grasaEstimada?: components["schemas"]["GrasaEstimada"];
+            cuelloCm: number | null;
+            grasaEstimada: components["schemas"]["GrasaEstimada"] | null;
             /** Format: double */
-            pesoKg?: number;
+            pesoKg: number | null;
         };
         Mensaje: {
             mensaje?: string;
         };
         Movilidad: {
-            cadera?: components["schemas"]["ResultadoMovilidad"];
-            hombro?: components["schemas"]["ResultadoMovilidad"];
-            tobillo?: components["schemas"]["ResultadoMovilidad"];
+            cadera: components["schemas"]["ResultadoMovilidad"] | null;
+            hombro: components["schemas"]["ResultadoMovilidad"] | null;
+            tobillo: components["schemas"]["ResultadoMovilidad"] | null;
         };
         MusculoEjercicio: {
             /** @enum {string} */
-            grupo?: "pecho" | "hombros" | "brazos" | "triceps" | "antebrazos" | "abdomen" | "cuadriceps" | "aductores" | "gemelos" | "trapecio" | "dorsal" | "lumbar" | "gluteos" | "isquios";
+            grupo: "pecho" | "hombros" | "brazos" | "triceps" | "antebrazos" | "abdomen" | "cuadriceps" | "aductores" | "gemelos" | "trapecio" | "dorsal" | "lumbar" | "gluteos" | "isquios";
             /** @enum {string} */
-            rol?: "primario" | "secundario";
+            rol: "primario" | "secundario";
         };
         ObjetivoEjercicio: {
-            cargaKg?: number;
+            cargaKg: number | null;
             /** @enum {string} */
-            estado?: "acumulando" | "subir_carga" | "estancado" | "deload";
-            idExterno?: string;
-            incrementoKg?: number;
-            motivo?: string;
-            musculos?: components["schemas"]["MusculoEjercicio"][];
-            nombre?: string;
+            estado: "acumulando" | "subir_carga" | "estancado" | "deload";
+            idExterno: string;
+            incrementoKg: number;
+            motivo: string;
+            musculos: components["schemas"]["MusculoEjercicio"][];
+            nombre: string;
             /** Format: int32 */
-            orden?: number;
-            primeraSesion?: boolean;
+            orden: number;
+            primeraSesion: boolean;
             /** Format: int32 */
-            repeticionesMax?: number;
+            repeticionesMax: number;
             /** Format: int32 */
-            repeticionesMin?: number;
+            repeticionesMin: number;
             /** Format: int32 */
-            rirObjetivo?: number;
+            rirObjetivo: number;
             /** Format: int32 */
-            series?: number;
+            series: number;
         };
         Opcion: {
-            codigo?: string;
-            nombre?: string;
+            codigo: string;
+            nombre: string;
         };
         PaginaSesiones: {
             /** Format: int32 */
-            pagina?: number;
-            sesiones?: components["schemas"]["SesionVista"][];
+            pagina: number;
+            sesiones: components["schemas"]["SesionVista"][];
             /** Format: int32 */
-            tamano?: number;
+            tamano: number;
             /** Format: int64 */
-            total?: number;
+            total: number;
         };
         PerfilEntreno: {
             /** Format: int32 */
-            diasPorSemana?: number;
-            material?: string[];
+            diasPorSemana: number;
+            material: string[];
             /** Format: int32 */
-            minutosPorSesion?: number;
-            porDefecto?: boolean;
+            minutosPorSesion: number;
+            porDefecto: boolean;
         };
         PlanActual: {
             /** Format: date-time */
-            creadoEn?: string;
+            creadoEn: string;
             /** Format: int32 */
-            diaDeHoy?: number;
-            dias?: components["schemas"]["DiaEntreno"][];
-            estado?: string;
+            diaDeHoy: number;
+            dias: components["schemas"]["DiaEntreno"][];
+            estado: string;
             /** Format: uuid */
-            uuid?: string;
+            uuid: string;
         };
         PlanGenerado: {
             alternativas?: components["schemas"]["Alternativa"][];
@@ -852,33 +852,33 @@ export interface components {
             objetivo?: number;
             resumen?: string;
             /** Format: uuid */
-            uuid?: string;
+            uuid: string;
             volumen?: components["schemas"]["VolumenMusculo"][];
         };
         PlanRutina: {
-            alternativas?: components["schemas"]["Alternativa"][];
-            contribuciones?: components["schemas"]["ContribucionEjercicio"][];
-            descartes?: components["schemas"]["Descarte"][];
-            dias?: components["schemas"]["DiaPlan"][];
-            estado?: string;
-            holguras?: components["schemas"]["Holgura"][];
-            notas?: string[];
+            alternativas: components["schemas"]["Alternativa"][];
+            contribuciones: components["schemas"]["ContribucionEjercicio"][];
+            descartes: components["schemas"]["Descarte"][];
+            dias: components["schemas"]["DiaPlan"][];
+            estado: string;
+            holguras: components["schemas"]["Holgura"][];
+            notas: string[];
             /** Format: int64 */
-            objetivo?: number;
-            resumen?: string;
-            volumen?: components["schemas"]["VolumenMusculo"][];
+            objetivo: number;
+            resumen: string;
+            volumen: components["schemas"]["VolumenMusculo"][];
         };
         PorQueEjercicio: {
             /** Format: int32 */
-            dia?: number;
-            idExterno?: string;
-            porQue?: components["schemas"]["Razon"][];
+            dia: number;
+            idExterno: string;
+            porQue: components["schemas"]["Razon"][];
         };
         PreferenciasGuardadas: {
-            exclusiones?: components["schemas"]["Elemento"][];
-            prioritarios?: components["schemas"]["Elemento"][];
-            series?: components["schemas"]["SeriesFijadas"][];
-            variedad?: boolean;
+            exclusiones: components["schemas"]["Elemento"][];
+            prioritarios: components["schemas"]["Elemento"][];
+            series: components["schemas"]["SeriesFijadas"][];
+            variedad: boolean;
         };
         PreferenciasPlan: {
             exclusiones: string[];
@@ -889,31 +889,31 @@ export interface components {
             variedad?: boolean;
         };
         ProgresionEjercicio: {
-            cargaSiguienteKg?: number;
+            cargaSiguienteKg: number | null;
             /** @enum {string} */
-            estado?: "acumulando" | "subir_carga" | "estancado" | "deload";
-            historial?: components["schemas"]["PuntoE1rm"][];
-            idExterno?: string;
-            motivo?: string;
+            estado: "acumulando" | "subir_carga" | "estancado" | "deload";
+            historial: components["schemas"]["PuntoE1rm"][];
+            idExterno: string;
+            motivo: string;
             /** Format: int32 */
-            repeticionesMax?: number;
+            repeticionesMax: number;
             /** Format: int32 */
-            repeticionesMin?: number;
+            repeticionesMin: number;
             /** Format: int32 */
-            series?: number;
+            series: number;
         };
         PuntoE1rm: {
-            e1rm?: number;
+            e1rm: number;
             /** Format: date-time */
-            realizadaEn?: string;
+            realizadaEn: string;
             /** Format: uuid */
-            sesion?: string;
+            sesion: string;
         };
         Razon: {
-            codigo?: string;
-            fuente?: string;
-            nivel?: string;
-            texto?: string;
+            codigo: string;
+            fuente: string;
+            nivel: string;
+            texto: string;
         };
         Recuperar: {
             correo: string;
@@ -929,53 +929,53 @@ export interface components {
             fechaNacimiento: string;
         };
         RespuestaBandera: {
-            guia?: string;
-            motivo?: string;
-            nivel?: string;
+            guia: string;
+            motivo: string;
+            nivel: string;
         };
         RespuestaBanderas: {
-            banderas?: components["schemas"]["RespuestaBandera"][];
-            bloquea?: boolean;
+            banderas: components["schemas"]["RespuestaBandera"][];
+            bloquea: boolean;
         };
         RespuestaConsentimiento: {
             /** Format: date-time */
-            dadoEn?: string;
-            tipo?: string;
-            versionTexto?: string;
+            dadoEn: string;
+            tipo: string;
+            versionTexto: string;
         };
         RespuestaCribado: {
-            motivos?: string[];
-            nivel?: string;
+            motivos: string[];
+            nivel: string;
         };
         RespuestaEfecto: {
-            anotaciones?: string[];
-            decision?: string;
-            idExterno?: string;
-            motivo?: string;
-            nombre?: string;
-            sustituto?: components["schemas"]["Sustituto"];
+            anotaciones: string[];
+            decision: string;
+            idExterno: string;
+            motivo: string | null;
+            nombre: string;
+            sustituto: components["schemas"]["Sustituto"] | null;
         };
         RespuestaPregunta: {
-            admiteReciente?: boolean;
-            codigo?: string;
-            texto?: string;
+            admiteReciente: boolean;
+            codigo: string;
+            texto: string;
         };
         RespuestaPreguntas: {
-            preguntas?: components["schemas"]["RespuestaPregunta"][];
+            preguntas: components["schemas"]["RespuestaPregunta"][];
             /** Format: int32 */
-            semanasReciente?: number;
+            semanasReciente: number;
         };
         RespuestaRestriccion: {
-            estado?: string;
-            lado?: string;
-            origen?: string;
-            parametro?: string;
-            patron?: string;
-            region?: string;
-            textoOriginal?: string;
-            tipo?: string;
+            estado: string;
+            lado: string;
+            origen: string;
+            parametro: string | null;
+            patron: string | null;
+            region: string | null;
+            textoOriginal: string | null;
+            tipo: string;
             /** Format: uuid */
-            uuid?: string;
+            uuid: string;
         };
         Restablecer: {
             contrasenaNueva: string;
@@ -993,8 +993,8 @@ export interface components {
         };
         ResultadoMovilidad: {
             /** Format: date-time */
-            hechoEn?: string;
-            tramo?: string;
+            hechoEn: string;
+            tramo: string;
         };
         SerieEntrada: {
             anulada?: boolean;
@@ -1018,31 +1018,31 @@ export interface components {
             uuid: string;
         };
         SerieVista: {
-            anulada?: boolean;
-            calentamiento?: boolean;
+            anulada: boolean;
+            calentamiento: boolean;
             /** Format: uuid */
-            corrigeA?: string;
+            corrigeA: string | null;
             /** Format: int32 */
-            dolor?: number;
-            ejercicio?: string;
+            dolor: number | null;
+            ejercicio: string;
             /** Format: int32 */
-            orden?: number;
-            pesoKg?: number;
+            orden: number;
+            pesoKg: number;
             /** Format: date-time */
-            realizadaEn?: string;
+            realizadaEn: string;
             /** Format: int32 */
-            repeticiones?: number;
+            repeticiones: number;
             /** Format: int32 */
-            rir?: number;
-            rpe?: number;
+            rir: number | null;
+            rpe: number | null;
             /** Format: uuid */
-            uuid?: string;
+            uuid: string;
         };
         SeriesFijadas: {
-            idExterno?: string;
-            nombre?: string;
+            idExterno: string;
+            nombre: string;
             /** Format: int32 */
-            series?: number;
+            series: number;
         };
         SesionEntrada: {
             /** Format: int32 */
@@ -1055,17 +1055,17 @@ export interface components {
         };
         SesionVista: {
             /** Format: int32 */
-            diaPlan?: number;
+            diaPlan: number | null;
             /** Format: uuid */
-            planVersion?: string;
+            planVersion: string | null;
             /** Format: date-time */
-            realizadaEn?: string;
+            realizadaEn: string;
             /** Format: date-time */
-            recibidaEn?: string;
-            relojDesfasado?: boolean;
-            series?: components["schemas"]["SerieVista"][];
+            recibidaEn: string;
+            relojDesfasado: boolean;
+            series: components["schemas"]["SerieVista"][];
             /** Format: uuid */
-            uuid?: string;
+            uuid: string;
         };
         SolicitudBanderas: {
             dolorEnReposo?: boolean;
@@ -1104,8 +1104,8 @@ export interface components {
             prioritarios?: string[];
         };
         Sustituto: {
-            idExterno?: string;
-            nombre?: string;
+            idExterno: string;
+            nombre: string;
         };
         Token: {
             token: string;
@@ -1116,42 +1116,42 @@ export interface components {
             tobillo?: string;
         };
         TrazaGuardada: {
-            contribuciones?: components["schemas"]["ContribucionEjercicio"][];
-            descartes?: components["schemas"]["Descarte"][];
+            contribuciones: components["schemas"]["ContribucionEjercicio"][];
+            descartes: components["schemas"]["Descarte"][];
             /** Format: int64 */
-            objetivo?: number;
-            volumen?: components["schemas"]["VolumenMusculo"][];
+            objetivo: number;
+            volumen: components["schemas"]["VolumenMusculo"][];
         };
         VersionPlan: {
-            actual?: boolean;
+            actual: boolean;
             /** Format: date-time */
-            creadoEn?: string;
-            ejercicios?: components["schemas"]["EjercicioVersion"][];
-            estado?: string;
-            traza?: components["schemas"]["TrazaGuardada"];
+            creadoEn: string;
+            ejercicios: components["schemas"]["EjercicioVersion"][];
+            estado: string;
+            traza: components["schemas"]["TrazaGuardada"];
             /** Format: uuid */
-            uuid?: string;
+            uuid: string;
         };
         VistaPrevia: {
-            ejercicios?: components["schemas"]["CambioEjercicio"][];
-            musculos?: components["schemas"]["CambioMusculo"][];
-            plan?: components["schemas"]["PlanRutina"];
-            preferencias?: components["schemas"]["PreferenciasPlan"];
+            ejercicios: components["schemas"]["CambioEjercicio"][];
+            musculos: components["schemas"]["CambioMusculo"][];
+            plan: components["schemas"]["PlanRutina"];
+            preferencias: components["schemas"]["PreferenciasPlan"];
             /** Format: uuid */
-            version?: string;
+            version: string;
         };
         VolumenMusculo: {
-            fuente?: string;
+            fuente: string;
             /** Format: int32 */
-            maximo?: number;
+            maximo: number;
             /** Format: int32 */
-            minimo?: number;
-            musculo?: string;
-            nombre?: string;
+            minimo: number | null;
+            musculo: string;
+            nombre: string;
             /** Format: int32 */
-            objetivo?: number;
+            objetivo: number | null;
             /** Format: double */
-            series?: number;
+            series: number;
         };
     };
     responses: never;
@@ -1171,8 +1171,8 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
+            /** @description No Content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1217,8 +1217,8 @@ export interface operations {
             };
         };
         responses: {
-            /** @description OK */
-            200: {
+            /** @description Accepted */
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1265,8 +1265,8 @@ export interface operations {
             };
         };
         responses: {
-            /** @description OK */
-            200: {
+            /** @description Accepted */
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1289,8 +1289,8 @@ export interface operations {
             };
         };
         responses: {
-            /** @description OK */
-            200: {
+            /** @description No Content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1311,8 +1311,8 @@ export interface operations {
             };
         };
         responses: {
-            /** @description OK */
-            200: {
+            /** @description No Content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1439,8 +1439,8 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
+            /** @description No Content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1505,8 +1505,8 @@ export interface operations {
             };
         };
         responses: {
-            /** @description OK */
-            200: {
+            /** @description No Content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1565,8 +1565,8 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
+            /** @description No Content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1940,8 +1940,8 @@ export interface operations {
             };
         };
         responses: {
-            /** @description OK */
-            200: {
+            /** @description Created */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -2008,8 +2008,8 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
+            /** @description No Content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };

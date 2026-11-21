@@ -5,6 +5,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Plan semanal y su traza (ADR 0002 §5 y enmiendas). Se guarda como versión inmutable (ADR 0008), sin la parte de la
  * traza que cita las limitaciones del usuario.
@@ -50,8 +52,8 @@ public record PlanRutina(String estado, String resumen, long objetivo, List<DiaP
 	 *
 	 * @param minimo y {@code objetivo}: nulos si el músculo no tiene meta de volumen
 	 */
-	public record VolumenMusculo(String musculo, String nombre, double series, Integer minimo, Integer objetivo,
-			int maximo, String fuente) {
+	public record VolumenMusculo(String musculo, String nombre, double series, @Nullable Integer minimo,
+			@Nullable Integer objetivo, int maximo, String fuente) {
 	}
 
 	/**
@@ -74,7 +76,7 @@ public record PlanRutina(String estado, String resumen, long objetivo, List<DiaP
 	 *
 	 * @param diferencia puntos que pierde el plan con la alternativa; nula si no cabe o no hubo respuesta
 	 */
-	public record Alternativa(String elegido, String alternativa, String nombreAlternativa, Long diferencia,
+	public record Alternativa(String elegido, String alternativa, String nombreAlternativa, @Nullable Long diferencia,
 			String mensaje) {
 	}
 

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -124,7 +125,7 @@ public class EvaluacionControlador {
 	}
 
 	/** {@code nivel} nulo cuando no bloquea. */
-	public record EstadoBloqueo(boolean bloquea, String nivel) {
+	public record EstadoBloqueo(boolean bloquea, @Nullable String nivel) {
 	}
 
 	private final ServicioConsentimientos consentimientos;

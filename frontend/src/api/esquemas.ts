@@ -1,6 +1,5 @@
 // Esquemas Zod de las respuestas que usa la app. El `satisfies` ata cada uno a los tipos generados desde el
-// OpenAPI (esquema.d.ts): si el backend cambia un campo, `tsc` falla aquí.
-// Son más estrictos que el OpenAPI, que no marca obligatorios los campos de las respuestas.
+// OpenAPI (esquema.d.ts): si el backend cambia o quita un campo que la app lee, `tsc` falla aquí.
 import { z } from 'zod';
 
 import {
@@ -22,14 +21,27 @@ import type { components } from './esquema';
 
 type Esquemas = components['schemas'];
 
-export const esquemaMensaje = z.object({ mensaje: z.string() }) satisfies z.ZodType<Esquemas['Mensaje']>;
+/**
+ * Lo que la app lee de una respuesta: un subconjunto de sus campos, con sus tipos. Lo que el backend puede mandar a
+ * `null` puede leerse como `undefined` (ver `opcional`).
+ *
+ * shortcut: no comprueba la otra dirección (un campo que el backend puede mandar a `null` y aquí no lo admite);
+ * eso lo cazan los tests de cada pantalla. Si se cuela alguno, comprobarlo con un tipo condicional por esquema.
+ */
+type Lectura<T> = T extends readonly (infer U)[]
+  ? Lectura<U>[]
+  : T extends object
+    ? { [K in keyof T]?: Lectura<NonNullable<T[K]>> | (null extends T[K] ? null | undefined : never) }
+    : T;
+
+export const esquemaMensaje = z.object({ mensaje: z.string() }) satisfies z.ZodType<Lectura<Esquemas['Mensaje']>>;
 
 export const esquemaDatosSesion = z.object({
   tokenAcceso: z.string().min(1),
   tokenRefresco: z.string().min(1),
   expiraEn: z.iso.datetime(),
   dispositivoId: z.uuid(),
-}) satisfies z.ZodType<Esquemas['DatosSesion']>;
+}) satisfies z.ZodType<Lectura<Esquemas['DatosSesion']>>;
 export type DatosSesion = z.infer<typeof esquemaDatosSesion>;
 
 const esquemaMusculo = z.object({
@@ -59,7 +71,7 @@ const esquemaObjetivoEjercicio = z.object({
   motivo: z.string(),
   musculos: z.array(esquemaMusculo),
   primeraSesion: z.boolean(),
-}) satisfies z.ZodType<Esquemas['ObjetivoEjercicio']>;
+}) satisfies z.ZodType<Lectura<Esquemas['ObjetivoEjercicio']>>;
 export type ObjetivoEjercicio = z.infer<typeof esquemaObjetivoEjercicio>;
 
 export const esquemaPlanActual = z.object({
@@ -74,7 +86,7 @@ export const esquemaPlanActual = z.object({
       ejercicios: z.array(esquemaObjetivoEjercicio),
     }),
   ),
-}) satisfies z.ZodType<Esquemas['PlanActual']>;
+}) satisfies z.ZodType<Lectura<Esquemas['PlanActual']>>;
 export type PlanActual = z.infer<typeof esquemaPlanActual>;
 
 /** Niveles de una regla (ADR 0007): A-D, evidencia de la fuente; H, heurística de entrenadores; P, propuesta propia. */
@@ -85,11 +97,11 @@ export const esquemaPorQue = z.object({
   idExterno: z.string(),
   dia: z.number().int().positive(),
   porQue: z.array(z.object({ codigo: z.string(), texto: z.string(), fuente: z.string(), nivel: z.enum(NIVELES) })),
-}) satisfies z.ZodType<Esquemas['PorQueEjercicio']>;
+}) satisfies z.ZodType<Lectura<Esquemas['PorQueEjercicio']>>;
 export type Razon = z.infer<typeof esquemaPorQue>['porQue'][number];
 
 // De la respuesta de generar solo hace falta saber que se guardó: el plan se vuelve a leer de /planes/actual.
-export const esquemaPlanGenerado = z.object({ uuid: z.uuid() }) satisfies z.ZodType<Esquemas['PlanGenerado']>;
+export const esquemaPlanGenerado = z.object({ uuid: z.uuid() }) satisfies z.ZodType<Lectura<Esquemas['PlanGenerado']>>;
 
 // El backend manda `null` (o nada) en lo que no aplica; en la app es `undefined`.
 const opcional = <T extends z.ZodType>(esquema: T) =>
@@ -105,7 +117,7 @@ export type TipoConsentimiento = (typeof TIPOS_CONSENTIMIENTO)[number];
 // `tipo` queda como texto: un tipo nuevo del backend no debe romper la lista (la pantalla solo enseña los conocidos).
 export const esquemaConsentimientos = z.array(
   z.object({ tipo: z.string(), versionTexto: z.string(), dadoEn: z.iso.datetime() }),
-) satisfies z.ZodType<Esquemas['RespuestaConsentimiento'][]>;
+) satisfies z.ZodType<Lectura<Esquemas['RespuestaConsentimiento'][]>>;
 export type Consentimiento = z.infer<typeof esquemaConsentimientos>[number];
 
 export const esquemaDispositivos = z.array(
@@ -116,7 +128,7 @@ export const esquemaDispositivos = z.array(
     ultimaActividad: opcional(z.iso.datetime()),
     actual: z.boolean(),
   }),
-) satisfies z.ZodType<Esquemas['DatosDispositivo'][]>;
+) satisfies z.ZodType<Lectura<Esquemas['DatosDispositivo'][]>>;
 /** Un dispositivo de la cuenta tal como lo lista el backend (distinto de `Dispositivo`, que es el de este móvil al entrar). */
 export type DispositivoCuenta = z.infer<typeof esquemaDispositivos>[number];
 
@@ -154,7 +166,7 @@ export const esquemaRestriccion = z.object({
   estado: z.enum(codigos(ESTADOS)),
   origen: z.enum(codigos(ORIGENES)),
   textoOriginal: opcional(z.string()),
-}) satisfies z.ZodType<Esquemas['RespuestaRestriccion']>;
+}) satisfies z.ZodType<Lectura<Esquemas['RespuestaRestriccion']>>;
 export type Restriccion = z.infer<typeof esquemaRestriccion>;
 export const esquemaRestricciones = z.array(esquemaRestriccion);
 
@@ -171,7 +183,7 @@ export interface DatosRestriccion {
 }
 
 const esquemaPreguntaCribado = z.object({ codigo: z.string(), texto: z.string(), admiteReciente: z.boolean() }) satisfies z.ZodType<
-  Esquemas['RespuestaPregunta']
+  Lectura<Esquemas['RespuestaPregunta']>
 >;
 export type PreguntaCribado = z.infer<typeof esquemaPreguntaCribado>;
 
@@ -179,13 +191,13 @@ export type PreguntaCribado = z.infer<typeof esquemaPreguntaCribado>;
 export const esquemaCuestionarioCribado = z.object({
   semanasReciente: z.number().int(),
   preguntas: z.array(esquemaPreguntaCribado),
-}) satisfies z.ZodType<Esquemas['RespuestaPreguntas']>;
+}) satisfies z.ZodType<Lectura<Esquemas['RespuestaPreguntas']>>;
 export type CuestionarioCribado = z.infer<typeof esquemaCuestionarioCribado>;
 
 export const esquemaResultadoCribado = z.object({
   nivel: z.enum(['seguir', 'consultar_profesional', 'parar_urgencias']),
   motivos: z.array(z.string()),
-}) satisfies z.ZodType<Esquemas['RespuestaCribado']>;
+}) satisfies z.ZodType<Lectura<Esquemas['RespuestaCribado']>>;
 export type ResultadoCribado = z.infer<typeof esquemaResultadoCribado>;
 
 /** Las siete respuestas por código de pregunta y, aparte, cuáles de los síntomas fueron recientes. */
@@ -199,15 +211,14 @@ export const esquemaResultadoBanderas = z.object({
   banderas: z.array(
     z.object({ nivel: z.enum(['urgencias_hoy', 'profesional_en_dias']), motivo: z.string(), guia: z.string() }),
   ),
-}) satisfies z.ZodType<Esquemas['RespuestaBanderas']>;
+}) satisfies z.ZodType<Lectura<Esquemas['RespuestaBanderas']>>;
 export type ResultadoBanderas = z.infer<typeof esquemaResultadoBanderas>;
 
 /** Qué nivel de bloqueo recuerda el backend tras un cribado urgente o una bandera roja (`GET /banderas/estado`). */
 export const esquemaEstadoBloqueo = z.object({
   bloquea: z.boolean(),
-  // Sin `satisfies` contra el OpenAPI generado: ahí `nivel` es `string` sin nulo y el backend manda `null`.
   nivel: z.enum(['urgencias_hoy', 'profesional_en_dias', 'parar_urgencias']).nullish(),
-});
+}) satisfies z.ZodType<Lectura<Esquemas['EstadoBloqueo']>>;
 export type EstadoBloqueo = z.infer<typeof esquemaEstadoBloqueo>;
 export type NivelBloqueo = NonNullable<EstadoBloqueo['nivel']>;
 
@@ -223,7 +234,7 @@ export const esquemaEfecto = z.array(
     sustituto: opcional(z.object({ idExterno: z.string(), nombre: z.string() })),
     anotaciones: z.array(z.string()),
   }),
-) satisfies z.ZodType<Esquemas['RespuestaEfecto'][]>;
+) satisfies z.ZodType<Lectura<Esquemas['RespuestaEfecto'][]>>;
 export type EfectoEjercicio = z.infer<typeof esquemaEfecto>[number];
 
 /** Cuerpo de error RFC 9457 del backend, con la lista `errores` de los fallos de validación. */
@@ -245,12 +256,12 @@ export const esquemaPerfilEntreno = z.object({
   material: z.array(z.string()),
   // True mientras el usuario no ha guardado los suyos: son los valores por defecto del backend.
   porDefecto: z.boolean(),
-}) satisfies z.ZodType<Esquemas['PerfilEntreno']>;
+}) satisfies z.ZodType<Lectura<Esquemas['PerfilEntreno']>>;
 export type PerfilEntreno = z.infer<typeof esquemaPerfilEntreno>;
 
 /** Material que el backend deja elegir (`GET /catalogo/materiales`). */
 export const esquemaMateriales = z.array(z.object({ codigo: z.string(), nombre: z.string() })) satisfies z.ZodType<
-  Esquemas['Opcion'][]
+  Lectura<Esquemas['Opcion'][]>
 >;
 export type Material = z.infer<typeof esquemaMateriales>[number];
 
@@ -263,7 +274,7 @@ export type SesionEntrada = Esquemas['SesionEntrada'];
 export type SerieEntrada = Esquemas['SerieEntrada'];
 
 /** De la respuesta solo hace falta saber que el servidor guardó esa sesión: lo demás ya está en el móvil. */
-export const esquemaSesionGuardada = z.object({ uuid: z.uuid() }) satisfies z.ZodType<Esquemas['SesionVista']>;
+export const esquemaSesionGuardada = z.object({ uuid: z.uuid() }) satisfies z.ZodType<Lectura<Esquemas['SesionVista']>>;
 
 /** Los tres tests de movilidad (RF-08) y sus tramos, con los mismos códigos que el backend. */
 export const TESTS_MOVILIDAD = ['tobillo', 'cadera', 'hombro'] as const;
@@ -272,7 +283,7 @@ export const TRAMOS = ['limitado', 'medio', 'bueno'] as const;
 export type Tramo = (typeof TRAMOS)[number];
 
 const esquemaResultadoMovilidad = z.object({ tramo: z.enum(TRAMOS), hechoEn: z.iso.datetime() }) satisfies z.ZodType<
-  Esquemas['ResultadoMovilidad']
+  Lectura<Esquemas['ResultadoMovilidad']>
 >;
 
 /** `GET` y `PUT /movilidad`: un resultado por test; sin hacer, `undefined`. */
@@ -280,7 +291,7 @@ export const esquemaMovilidad = z.object({
   tobillo: opcional(esquemaResultadoMovilidad),
   cadera: opcional(esquemaResultadoMovilidad),
   hombro: opcional(esquemaResultadoMovilidad),
-}) satisfies z.ZodType<Esquemas['Movilidad']>;
+}) satisfies z.ZodType<Lectura<Esquemas['Movilidad']>>;
 export type Movilidad = z.infer<typeof esquemaMovilidad>;
 
 /** Cuerpo de `PUT /movilidad`: reemplaza los tres; `null` deja ese test sin hacer. */
@@ -299,7 +310,7 @@ export const esquemaDatosPerfil = z.object({
   sexo: z.enum(SEXOS),
   experiencia: opcional(z.enum(EXPERIENCIAS)),
   objetivo: opcional(z.enum(OBJETIVOS)),
-}) satisfies z.ZodType<Esquemas['DatosPerfil']>;
+}) satisfies z.ZodType<Lectura<Esquemas['DatosPerfil']>>;
 export type DatosPerfil = z.infer<typeof esquemaDatosPerfil>;
 
 /** Cuerpo de `PUT /perfil/datos`: `null` deja experiencia u objetivo sin definir. */
@@ -311,7 +322,7 @@ export interface CuerpoDatosPerfil {
 
 /** % de grasa estimado con la fórmula de la US Navy, con su margen de error en puntos porcentuales. */
 const esquemaGrasaEstimada = z.object({ porcentaje: z.number(), margen: z.number() }) satisfies z.ZodType<
-  Esquemas['GrasaEstimada']
+  Lectura<Esquemas['GrasaEstimada']>
 >;
 
 /** `GET` y `PUT /perfil/medidas` (cm y kg): lo que falta es `undefined`. La estimación la calcula el backend. */
@@ -322,7 +333,7 @@ export const esquemaMedidas = z.object({
   cinturaCm: opcional(z.number()),
   caderaCm: opcional(z.number()),
   grasaEstimada: opcional(esquemaGrasaEstimada),
-}) satisfies z.ZodType<Esquemas['MedidasPerfil']>;
+}) satisfies z.ZodType<Lectura<Esquemas['MedidasPerfil']>>;
 export type Medidas = z.infer<typeof esquemaMedidas>;
 
 export const CAMPOS_MEDIDAS = ['alturaCm', 'pesoKg', 'cuelloCm', 'cinturaCm', 'caderaCm'] as const;
@@ -359,7 +370,7 @@ export const esquemaVistaPrevia = z.object({
   ejercicios: z.array(z.object({ idExterno: z.string(), nombre: z.string(), antes: z.number().int(), despues: z.number().int() })),
   musculos: z.array(z.object({ musculo: z.string(), nombre: z.string(), antes: z.number(), despues: z.number() })),
   preferencias: esquemaPreferenciasPlan,
-}) satisfies z.ZodType<Esquemas['VistaPrevia']>;
+}) satisfies z.ZodType<Lectura<Esquemas['VistaPrevia']>>;
 export type VistaPrevia = z.infer<typeof esquemaVistaPrevia>;
 
 const esquemaElemento = z.object({ codigo: z.string(), nombre: z.string() });
@@ -368,5 +379,5 @@ export const esquemaPreferencias = z.object({
   prioritarios: z.array(esquemaElemento),
   series: z.array(z.object({ idExterno: z.string(), nombre: z.string(), series: z.number().int() })),
   variedad: z.boolean(),
-}) satisfies z.ZodType<Esquemas['PreferenciasGuardadas']>;
+}) satisfies z.ZodType<Lectura<Esquemas['PreferenciasGuardadas']>>;
 export type PreferenciasGuardadas = z.infer<typeof esquemaPreferencias>;

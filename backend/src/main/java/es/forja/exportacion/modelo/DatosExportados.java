@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import es.forja.cuenta.servicio.ServicioCuenta.DatosCuenta;
 import es.forja.entreno.movilidad.modelo.Movilidad;
 import es.forja.entreno.perfil.modelo.DatosPerfil;
@@ -27,9 +28,9 @@ import es.forja.sesiones.modelo.SesionVista;
  */
 public record DatosExportados(int formato, Instant generadoEn, DatosCuenta cuenta,
 		List<DispositivoExportado> dispositivos, List<ConsentimientoExportado> consentimientos, DatosPerfil perfilDatos,
-		MedidasPerfil medidas, PerfilEntreno perfilEntreno, Movilidad movilidad, List<RespuestaRestriccion> limitaciones,
-		List<BloqueoActivo> bloqueos, PreferenciasGuardadas preferenciasPlan, List<VersionPlan> planes,
-		List<SesionVista> sesiones) {
+		@Nullable MedidasPerfil medidas, PerfilEntreno perfilEntreno, @Nullable Movilidad movilidad,
+		List<RespuestaRestriccion> limitaciones, List<BloqueoActivo> bloqueos, PreferenciasGuardadas preferenciasPlan,
+		List<VersionPlan> planes, List<SesionVista> sesiones) {
 
 	public DatosExportados {
 		dispositivos = List.copyOf(dispositivos);
@@ -42,10 +43,11 @@ public record DatosExportados(int formato, Instant generadoEn, DatosCuenta cuent
 
 	/** @param revocadoEn nulo si la sesión del dispositivo sigue abierta */
 	public record DispositivoExportado(UUID uuid, String nombre, String plataforma, Instant ultimaActividad,
-			Instant revocadoEn) {
+			@Nullable Instant revocadoEn) {
 	}
 
 	/** @param revocadoEn nulo si el consentimiento sigue dado */
-	public record ConsentimientoExportado(String tipo, String versionTexto, Instant dadoEn, Instant revocadoEn) {
+	public record ConsentimientoExportado(String tipo, String versionTexto, Instant dadoEn,
+			@Nullable Instant revocadoEn) {
 	}
 }

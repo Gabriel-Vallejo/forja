@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Una versión guardada del plan tal cual está en la base, para la exportación: sus ejercicios con el objetivo que se
  * guardó (no el que calcula la progresión) y la traza sin datos de salud.
@@ -18,7 +20,7 @@ public record VersionPlan(UUID uuid, Instant creadoEn, String estado, boolean ac
 		ejercicios = List.copyOf(ejercicios);
 	}
 
-	public record EjercicioVersion(int dia, int orden, String idExterno, String nombre, int series,
-			int repeticionesMin, int repeticionesMax, int rirObjetivo, BigDecimal cargaKg, BigDecimal incrementoKg) {
+	public record EjercicioVersion(int dia, int orden, String idExterno, String nombre, int series, int repeticionesMin,
+			int repeticionesMax, int rirObjetivo, @Nullable BigDecimal cargaKg, BigDecimal incrementoKg) {
 	}
 }

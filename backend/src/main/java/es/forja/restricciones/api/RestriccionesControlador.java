@@ -3,6 +3,7 @@ package es.forja.restricciones.api;
 import java.util.List;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.forja.comun.seguridad.UsuarioAutenticado;
@@ -31,8 +33,8 @@ import es.forja.restricciones.servicio.ServicioRestricciones;
 @RequestMapping("/api/v1/restricciones")
 public class RestriccionesControlador {
 
-	public record RespuestaRestriccion(UUID uuid, String region, String lado, String patron, String tipo,
-			String parametro, String estado, String origen, String textoOriginal) {
+	public record RespuestaRestriccion(UUID uuid, @Nullable String region, String lado, @Nullable String patron,
+			String tipo, @Nullable String parametro, String estado, String origen, @Nullable String textoOriginal) {
 
 		public static RespuestaRestriccion de(RestriccionGuardada guardada) {
 			RestriccionCodificada c = RestriccionCodificada.de(guardada.restriccion());
@@ -45,8 +47,8 @@ public class RestriccionesControlador {
 	}
 
 	/** {@code decision}: {@code excluido}, {@code sustituido} o {@code con_anotaciones}. */
-	public record RespuestaEfecto(String idExterno, String nombre, String decision, String motivo,
-			Sustituto sustituto, List<String> anotaciones) {
+	public record RespuestaEfecto(String idExterno, String nombre, String decision, @Nullable String motivo,
+			@Nullable Sustituto sustituto, List<String> anotaciones) {
 
 		static RespuestaEfecto de(EfectoEjercicio efecto) {
 			String id = efecto.ejercicio().idExterno();
@@ -75,6 +77,7 @@ public class RestriccionesControlador {
 	}
 
 	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<RespuestaRestriccion> crear(@AuthenticationPrincipal UsuarioAutenticado actual,
 			@RequestBody RestriccionCodificada cuerpo) {
 		return ResponseEntity.status(HttpStatus.CREATED)
@@ -88,6 +91,7 @@ public class RestriccionesControlador {
 	}
 
 	@DeleteMapping("/{uuid}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public ResponseEntity<Void> borrar(@AuthenticationPrincipal UsuarioAutenticado actual, @PathVariable UUID uuid) {
 		restricciones.borrar(actual.usuario(), uuid);
 		return ResponseEntity.noContent().build();

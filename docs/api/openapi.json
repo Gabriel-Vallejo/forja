@@ -65,7 +65,7 @@
           },
           "diferencia" : {
             "format" : "int64",
-            "type" : "integer"
+            "type" : [ "integer", "null" ]
           },
           "elegido" : {
             "type" : "string"
@@ -77,6 +77,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "alternativa", "diferencia", "elegido", "mensaje", "nombreAlternativa" ],
         "type" : "object"
       },
       "BloqueoActivo" : {
@@ -92,6 +93,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "evaluadoEn", "nivel", "origen" ],
         "type" : "object"
       },
       "BorrarCuenta" : {
@@ -122,6 +124,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "antes", "despues", "idExterno", "nombre" ],
         "type" : "object"
       },
       "CambioMusculo" : {
@@ -141,6 +144,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "antes", "despues", "musculo", "nombre" ],
         "type" : "object"
       },
       "ConsentimientoExportado" : {
@@ -151,7 +155,7 @@
           },
           "revocadoEn" : {
             "format" : "date-time",
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "tipo" : {
             "type" : "string"
@@ -160,6 +164,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "dadoEn", "revocadoEn", "tipo", "versionTexto" ],
         "type" : "object"
       },
       "ContribucionEjercicio" : {
@@ -178,6 +183,7 @@
             "type" : "object"
           }
         },
+        "required" : [ "idExterno", "nombre", "terminos" ],
         "type" : "object"
       },
       "DatosCuenta" : {
@@ -197,6 +203,7 @@
             "type" : "boolean"
           }
         },
+        "required" : [ "anioNacimiento", "correo", "creadoEn", "verificado" ],
         "type" : "object"
       },
       "DatosDispositivo" : {
@@ -260,10 +267,18 @@
             "type" : "array"
           },
           "medidas" : {
-            "$ref" : "#/components/schemas/MedidasPerfil"
+            "anyOf" : [ {
+              "$ref" : "#/components/schemas/MedidasPerfil"
+            }, {
+              "type" : "null"
+            } ]
           },
           "movilidad" : {
-            "$ref" : "#/components/schemas/Movilidad"
+            "anyOf" : [ {
+              "$ref" : "#/components/schemas/Movilidad"
+            }, {
+              "type" : "null"
+            } ]
           },
           "perfilDatos" : {
             "$ref" : "#/components/schemas/DatosPerfil"
@@ -287,6 +302,7 @@
             "type" : "array"
           }
         },
+        "required" : [ "bloqueos", "consentimientos", "cuenta", "dispositivos", "formato", "generadoEn", "limitaciones", "medidas", "movilidad", "perfilDatos", "perfilEntreno", "planes", "preferenciasPlan", "sesiones" ],
         "type" : "object"
       },
       "DatosPerfil" : {
@@ -324,6 +340,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "dispositivoId", "expiraEn", "tokenAcceso", "tokenRefresco" ],
         "type" : "object"
       },
       "Descarte" : {
@@ -341,6 +358,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "idExterno", "motivo", "nombre", "tipo" ],
         "type" : "object"
       },
       "DiaEntreno" : {
@@ -359,6 +377,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "dia", "ejercicios", "nombre" ],
         "type" : "object"
       },
       "DiaPlan" : {
@@ -378,6 +397,7 @@
             "type" : "integer"
           }
         },
+        "required" : [ "dia", "ejercicios", "segundos" ],
         "type" : "object"
       },
       "DispositivoExportado" : {
@@ -390,7 +410,7 @@
           },
           "revocadoEn" : {
             "format" : "date-time",
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "ultimaActividad" : {
             "format" : "date-time",
@@ -401,6 +421,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "nombre", "plataforma", "revocadoEn", "ultimaActividad", "uuid" ],
         "type" : "object"
       },
       "EjercicioPlan" : {
@@ -428,12 +449,13 @@
             "type" : "integer"
           }
         },
+        "required" : [ "anotaciones", "idExterno", "nombre", "patron", "posicionEstirada", "series" ],
         "type" : "object"
       },
       "EjercicioVersion" : {
         "properties" : {
           "cargaKg" : {
-            "type" : "number"
+            "type" : [ "number", "null" ]
           },
           "dia" : {
             "format" : "int32",
@@ -469,6 +491,7 @@
             "type" : "integer"
           }
         },
+        "required" : [ "cargaKg", "dia", "idExterno", "incrementoKg", "nombre", "orden", "repeticionesMax", "repeticionesMin", "rirObjetivo", "series" ],
         "type" : "object"
       },
       "Elemento" : {
@@ -480,6 +503,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "codigo", "nombre" ],
         "type" : "object"
       },
       "EstadoBloqueo" : {
@@ -488,9 +512,10 @@
             "type" : "boolean"
           },
           "nivel" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           }
         },
+        "required" : [ "bloquea", "nivel" ],
         "type" : "object"
       },
       "GrasaEstimada" : {
@@ -504,6 +529,7 @@
             "type" : "number"
           }
         },
+        "required" : [ "margen", "porcentaje" ],
         "type" : "object"
       },
       "Holgura" : {
@@ -522,6 +548,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "codigo", "faltan", "mensaje", "tipo" ],
         "type" : "object"
       },
       "Login" : {
@@ -592,28 +619,33 @@
         "properties" : {
           "alturaCm" : {
             "format" : "double",
-            "type" : "number"
+            "type" : [ "number", "null" ]
           },
           "caderaCm" : {
             "format" : "double",
-            "type" : "number"
+            "type" : [ "number", "null" ]
           },
           "cinturaCm" : {
             "format" : "double",
-            "type" : "number"
+            "type" : [ "number", "null" ]
           },
           "cuelloCm" : {
             "format" : "double",
-            "type" : "number"
+            "type" : [ "number", "null" ]
           },
           "grasaEstimada" : {
-            "$ref" : "#/components/schemas/GrasaEstimada"
+            "anyOf" : [ {
+              "$ref" : "#/components/schemas/GrasaEstimada"
+            }, {
+              "type" : "null"
+            } ]
           },
           "pesoKg" : {
             "format" : "double",
-            "type" : "number"
+            "type" : [ "number", "null" ]
           }
         },
+        "required" : [ "alturaCm", "caderaCm", "cinturaCm", "cuelloCm", "grasaEstimada", "pesoKg" ],
         "type" : "object"
       },
       "Mensaje" : {
@@ -627,15 +659,28 @@
       "Movilidad" : {
         "properties" : {
           "cadera" : {
-            "$ref" : "#/components/schemas/ResultadoMovilidad"
+            "anyOf" : [ {
+              "$ref" : "#/components/schemas/ResultadoMovilidad"
+            }, {
+              "type" : "null"
+            } ]
           },
           "hombro" : {
-            "$ref" : "#/components/schemas/ResultadoMovilidad"
+            "anyOf" : [ {
+              "$ref" : "#/components/schemas/ResultadoMovilidad"
+            }, {
+              "type" : "null"
+            } ]
           },
           "tobillo" : {
-            "$ref" : "#/components/schemas/ResultadoMovilidad"
+            "anyOf" : [ {
+              "$ref" : "#/components/schemas/ResultadoMovilidad"
+            }, {
+              "type" : "null"
+            } ]
           }
         },
+        "required" : [ "cadera", "hombro", "tobillo" ],
         "type" : "object"
       },
       "MusculoEjercicio" : {
@@ -649,12 +694,13 @@
             "type" : "string"
           }
         },
+        "required" : [ "grupo", "rol" ],
         "type" : "object"
       },
       "ObjetivoEjercicio" : {
         "properties" : {
           "cargaKg" : {
-            "type" : "number"
+            "type" : [ "number", "null" ]
           },
           "estado" : {
             "enum" : [ "acumulando", "subir_carga", "estancado", "deload" ],
@@ -702,6 +748,7 @@
             "type" : "integer"
           }
         },
+        "required" : [ "cargaKg", "estado", "idExterno", "incrementoKg", "motivo", "musculos", "nombre", "orden", "primeraSesion", "repeticionesMax", "repeticionesMin", "rirObjetivo", "series" ],
         "type" : "object"
       },
       "Opcion" : {
@@ -713,6 +760,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "codigo", "nombre" ],
         "type" : "object"
       },
       "PaginaSesiones" : {
@@ -736,6 +784,7 @@
             "type" : "integer"
           }
         },
+        "required" : [ "pagina", "sesiones", "tamano", "total" ],
         "type" : "object"
       },
       "PerfilEntreno" : {
@@ -758,6 +807,7 @@
             "type" : "boolean"
           }
         },
+        "required" : [ "diasPorSemana", "material", "minutosPorSesion", "porDefecto" ],
         "type" : "object"
       },
       "PlanActual" : {
@@ -784,6 +834,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "creadoEn", "diaDeHoy", "dias", "estado", "uuid" ],
         "type" : "object"
       },
       "PlanGenerado" : {
@@ -845,6 +896,7 @@
             "type" : "array"
           }
         },
+        "required" : [ "uuid" ],
         "type" : "object"
       },
       "PlanRutina" : {
@@ -902,6 +954,7 @@
             "type" : "array"
           }
         },
+        "required" : [ "alternativas", "contribuciones", "descartes", "dias", "estado", "holguras", "notas", "objetivo", "resumen", "volumen" ],
         "type" : "object"
       },
       "PorQueEjercicio" : {
@@ -920,6 +973,7 @@
             "type" : "array"
           }
         },
+        "required" : [ "dia", "idExterno", "porQue" ],
         "type" : "object"
       },
       "PreferenciasGuardadas" : {
@@ -946,6 +1000,7 @@
             "type" : "boolean"
           }
         },
+        "required" : [ "exclusiones", "prioritarios", "series", "variedad" ],
         "type" : "object"
       },
       "PreferenciasPlan" : {
@@ -987,7 +1042,7 @@
       "ProgresionEjercicio" : {
         "properties" : {
           "cargaSiguienteKg" : {
-            "type" : "number"
+            "type" : [ "number", "null" ]
           },
           "estado" : {
             "enum" : [ "acumulando", "subir_carga", "estancado", "deload" ],
@@ -1018,6 +1073,7 @@
             "type" : "integer"
           }
         },
+        "required" : [ "cargaSiguienteKg", "estado", "historial", "idExterno", "motivo", "repeticionesMax", "repeticionesMin", "series" ],
         "type" : "object"
       },
       "PuntoE1rm" : {
@@ -1034,6 +1090,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "e1rm", "realizadaEn", "sesion" ],
         "type" : "object"
       },
       "Razon" : {
@@ -1051,6 +1108,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "codigo", "fuente", "nivel", "texto" ],
         "type" : "object"
       },
       "Recuperar" : {
@@ -1108,6 +1166,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "guia", "motivo", "nivel" ],
         "type" : "object"
       },
       "RespuestaBanderas" : {
@@ -1122,6 +1181,7 @@
             "type" : "boolean"
           }
         },
+        "required" : [ "banderas", "bloquea" ],
         "type" : "object"
       },
       "RespuestaConsentimiento" : {
@@ -1137,6 +1197,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "dadoEn", "tipo", "versionTexto" ],
         "type" : "object"
       },
       "RespuestaCribado" : {
@@ -1151,6 +1212,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "motivos", "nivel" ],
         "type" : "object"
       },
       "RespuestaEfecto" : {
@@ -1168,15 +1230,20 @@
             "type" : "string"
           },
           "motivo" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "nombre" : {
             "type" : "string"
           },
           "sustituto" : {
-            "$ref" : "#/components/schemas/Sustituto"
+            "anyOf" : [ {
+              "$ref" : "#/components/schemas/Sustituto"
+            }, {
+              "type" : "null"
+            } ]
           }
         },
+        "required" : [ "anotaciones", "decision", "idExterno", "motivo", "nombre", "sustituto" ],
         "type" : "object"
       },
       "RespuestaPregunta" : {
@@ -1191,6 +1258,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "admiteReciente", "codigo", "texto" ],
         "type" : "object"
       },
       "RespuestaPreguntas" : {
@@ -1206,6 +1274,7 @@
             "type" : "integer"
           }
         },
+        "required" : [ "preguntas", "semanasReciente" ],
         "type" : "object"
       },
       "RespuestaRestriccion" : {
@@ -1220,16 +1289,16 @@
             "type" : "string"
           },
           "parametro" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "patron" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "region" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "textoOriginal" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "tipo" : {
             "type" : "string"
@@ -1239,6 +1308,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "estado", "lado", "origen", "parametro", "patron", "region", "textoOriginal", "tipo", "uuid" ],
         "type" : "object"
       },
       "Restablecer" : {
@@ -1296,6 +1366,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "hechoEn", "tramo" ],
         "type" : "object"
       },
       "SerieEntrada" : {
@@ -1371,11 +1442,11 @@
           },
           "corrigeA" : {
             "format" : "uuid",
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "dolor" : {
             "format" : "int32",
-            "type" : "integer"
+            "type" : [ "integer", "null" ]
           },
           "ejercicio" : {
             "type" : "string"
@@ -1397,16 +1468,17 @@
           },
           "rir" : {
             "format" : "int32",
-            "type" : "integer"
+            "type" : [ "integer", "null" ]
           },
           "rpe" : {
-            "type" : "number"
+            "type" : [ "number", "null" ]
           },
           "uuid" : {
             "format" : "uuid",
             "type" : "string"
           }
         },
+        "required" : [ "anulada", "calentamiento", "corrigeA", "dolor", "ejercicio", "orden", "pesoKg", "realizadaEn", "repeticiones", "rir", "rpe", "uuid" ],
         "type" : "object"
       },
       "SeriesFijadas" : {
@@ -1422,6 +1494,7 @@
             "type" : "integer"
           }
         },
+        "required" : [ "idExterno", "nombre", "series" ],
         "type" : "object"
       },
       "SesionEntrada" : {
@@ -1456,11 +1529,11 @@
         "properties" : {
           "diaPlan" : {
             "format" : "int32",
-            "type" : "integer"
+            "type" : [ "integer", "null" ]
           },
           "planVersion" : {
             "format" : "uuid",
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "realizadaEn" : {
             "format" : "date-time",
@@ -1484,6 +1557,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "diaPlan", "planVersion", "realizadaEn", "recibidaEn", "relojDesfasado", "series", "uuid" ],
         "type" : "object"
       },
       "SolicitudBanderas" : {
@@ -1622,6 +1696,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "idExterno", "nombre" ],
         "type" : "object"
       },
       "Token" : {
@@ -1674,6 +1749,7 @@
             "type" : "array"
           }
         },
+        "required" : [ "contribuciones", "descartes", "objetivo", "volumen" ],
         "type" : "object"
       },
       "VersionPlan" : {
@@ -1702,6 +1778,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "actual", "creadoEn", "ejercicios", "estado", "traza", "uuid" ],
         "type" : "object"
       },
       "VistaPrevia" : {
@@ -1729,6 +1806,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "ejercicios", "musculos", "plan", "preferencias", "version" ],
         "type" : "object"
       },
       "VolumenMusculo" : {
@@ -1742,7 +1820,7 @@
           },
           "minimo" : {
             "format" : "int32",
-            "type" : "integer"
+            "type" : [ "integer", "null" ]
           },
           "musculo" : {
             "type" : "string"
@@ -1752,20 +1830,22 @@
           },
           "objetivo" : {
             "format" : "int32",
-            "type" : "integer"
+            "type" : [ "integer", "null" ]
           },
           "series" : {
             "format" : "double",
             "type" : "number"
           }
         },
+        "required" : [ "fuente", "maximo", "minimo", "musculo", "nombre", "objetivo", "series" ],
         "type" : "object"
       }
     }
   },
   "info" : {
-    "title" : "OpenAPI definition",
-    "version" : "v0"
+    "description" : "API de Forja: cuenta, limitaciones, plan, sesiones y privacidad.",
+    "title" : "Forja API",
+    "version" : "v1"
   },
   "openapi" : "3.1.0",
   "paths" : {
@@ -1773,8 +1853,8 @@
       "post" : {
         "operationId" : "cerrarSesion",
         "responses" : {
-          "200" : {
-            "description" : "OK"
+          "204" : {
+            "description" : "No Content"
           }
         },
         "tags" : [ "auth-controlador" ]
@@ -1822,7 +1902,7 @@
           "required" : true
         },
         "responses" : {
-          "200" : {
+          "202" : {
             "content" : {
               "*/*" : {
                 "schema" : {
@@ -1830,7 +1910,7 @@
                 }
               }
             },
-            "description" : "OK"
+            "description" : "Accepted"
           }
         },
         "tags" : [ "auth-controlador" ]
@@ -1878,7 +1958,7 @@
           "required" : true
         },
         "responses" : {
-          "200" : {
+          "202" : {
             "content" : {
               "*/*" : {
                 "schema" : {
@@ -1886,7 +1966,7 @@
                 }
               }
             },
-            "description" : "OK"
+            "description" : "Accepted"
           }
         },
         "tags" : [ "auth-controlador" ]
@@ -1906,8 +1986,8 @@
           "required" : true
         },
         "responses" : {
-          "200" : {
-            "description" : "OK"
+          "204" : {
+            "description" : "No Content"
           }
         },
         "tags" : [ "auth-controlador" ]
@@ -1927,8 +2007,8 @@
           "required" : true
         },
         "responses" : {
-          "200" : {
-            "description" : "OK"
+          "204" : {
+            "description" : "No Content"
           }
         },
         "tags" : [ "auth-controlador" ]
@@ -2059,8 +2139,8 @@
           }
         } ],
         "responses" : {
-          "200" : {
-            "description" : "OK"
+          "204" : {
+            "description" : "No Content"
           }
         },
         "tags" : [ "consentimientos-controlador" ]
@@ -2125,8 +2205,8 @@
           "required" : true
         },
         "responses" : {
-          "200" : {
-            "description" : "OK"
+          "204" : {
+            "description" : "No Content"
           }
         },
         "tags" : [ "cuenta-controlador" ]
@@ -2184,8 +2264,8 @@
           }
         } ],
         "responses" : {
-          "200" : {
-            "description" : "OK"
+          "204" : {
+            "description" : "No Content"
           }
         },
         "tags" : [ "cuenta-controlador" ]
@@ -2578,7 +2658,7 @@
           "required" : true
         },
         "responses" : {
-          "200" : {
+          "201" : {
             "content" : {
               "*/*" : {
                 "schema" : {
@@ -2586,7 +2666,7 @@
                 }
               }
             },
-            "description" : "OK"
+            "description" : "Created"
           }
         },
         "tags" : [ "restricciones-controlador" ]
@@ -2626,8 +2706,8 @@
           }
         } ],
         "responses" : {
-          "200" : {
-            "description" : "OK"
+          "204" : {
+            "description" : "No Content"
           }
         },
         "tags" : [ "restricciones-controlador" ]

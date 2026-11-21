@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import es.forja.PruebaConMysql;
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -51,5 +54,59 @@ class EspecificacionOpenApiTest {
 				"/api/v1/auth/login",
 				"/api/v1/auth/refresco", "/api/v1/planes/actual", "/api/v1/rutinas/generar");
 		Files.writeString(DESTINO, ORDENADO.writeValueAsString(especificacion) + "\n", StandardCharsets.UTF_8);
+	}
+
+	@Test
+	void tituloYCodigosDeRespuestaReales() throws Exception {
+		JsonNode api = especificacion();
+
+		assertThat(api.at("/info/title").asString()).isEqualTo("Forja API");
+		assertThat(codigos(api, "/api/v1/auth/registro", "post")).containsExactly("202");
+		assertThat(codigos(api, "/api/v1/auth/recuperar", "post")).containsExactly("202");
+		assertThat(codigos(api, "/api/v1/auth/cerrar-sesion", "post")).containsExactly("204");
+		assertThat(codigos(api, "/api/v1/restricciones", "post")).containsExactly("201");
+		assertThat(codigos(api, "/api/v1/restricciones/{uuid}", "delete")).containsExactly("204");
+		assertThat(codigos(api, "/api/v1/cuenta", "delete")).containsExactly("204");
+	}
+
+	@Test
+	void enLasRespuestasLosCamposSonObligatoriosYLosQuePuedenFaltarAdmitenNull() throws Exception {
+		JsonNode efecto = especificacion().at("/components/schemas/RespuestaEfecto");
+
+		assertThat(nombres(efecto.get("required"))).containsExactlyInAnyOrder("idExterno", "nombre", "decision",
+				"motivo", "sustituto", "anotaciones");
+		assertThat(nombres(efecto.at("/properties/motivo/type"))).containsExactlyInAnyOrder("string", "null");
+		assertThat(nombres(efecto.at("/properties/nombre/type"))).containsExactly("string");
+		assertThat(efecto.at("/properties/sustituto/anyOf/0/$ref").asString())
+				.isEqualTo("#/components/schemas/Sustituto");
+		assertThat(efecto.at("/properties/sustituto/anyOf/1/type").asString()).isEqualTo("null");
+	}
+
+	@Test
+	void lasPeticionesSoloExigenLoQueValida() throws Exception {
+		JsonNode login = especificacion().at("/components/schemas/Login");
+
+		assertThat(nombres(login.get("required"))).contains("correo", "contrasena").doesNotContain("dispositivoId");
+	}
+
+	private JsonNode especificacion() throws Exception {
+		return ORDENADO.readTree(mvc.perform(get("/v3/api-docs")).andExpect(status().isOk()).andReturn()
+				.getResponse().getContentAsString(StandardCharsets.UTF_8));
+	}
+
+	private static List<String> codigos(JsonNode api, String ruta, String metodo) {
+		List<String> codigos = new ArrayList<>();
+		api.get("paths").get(ruta).get(metodo).get("responses").propertyNames().forEach(codigos::add);
+		return codigos;
+	}
+
+	private static List<String> nombres(JsonNode nodo) {
+		List<String> nombres = new ArrayList<>();
+		if (nodo.isArray()) {
+			nodo.forEach(n -> nombres.add(n.asString()));
+		} else if (nodo.isString()) {
+			nombres.add(nodo.asString());
+		}
+		return nombres;
 	}
 }

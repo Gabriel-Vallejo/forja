@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.forja.comun.seguridad.UsuarioAutenticado;
@@ -37,6 +38,7 @@ public class AuthControlador {
 	}
 
 	@PostMapping("/registro")
+	@ResponseStatus(HttpStatus.ACCEPTED)
 	public ResponseEntity<Respuestas.Mensaje> registrar(@Valid @RequestBody Solicitudes.Registro cuerpo,
 			HttpServletRequest peticion) {
 		// shortcut: la IP sale de getRemoteAddr(); detrás de Caddy habrá que configurar las cabeceras
@@ -47,6 +49,7 @@ public class AuthControlador {
 	}
 
 	@PostMapping("/verificar")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public ResponseEntity<Void> verificar(@Valid @RequestBody Solicitudes.Token cuerpo) {
 		registro.verificar(cuerpo.token());
 		return ResponseEntity.noContent().build();
@@ -66,6 +69,7 @@ public class AuthControlador {
 	}
 
 	@PostMapping("/recuperar")
+	@ResponseStatus(HttpStatus.ACCEPTED)
 	public ResponseEntity<Respuestas.Mensaje> recuperar(@Valid @RequestBody Solicitudes.Recuperar cuerpo,
 			HttpServletRequest peticion) {
 		recuperacion.recuperar(cuerpo.correo(), peticion.getRemoteAddr());
@@ -73,12 +77,14 @@ public class AuthControlador {
 	}
 
 	@PostMapping("/restablecer")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public ResponseEntity<Void> restablecer(@Valid @RequestBody Solicitudes.Restablecer cuerpo) {
 		recuperacion.restablecer(cuerpo.token(), cuerpo.contrasenaNueva());
 		return ResponseEntity.noContent().build();
 	}
 
 	@PostMapping("/cerrar-sesion")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public ResponseEntity<Void> cerrarSesion(@AuthenticationPrincipal UsuarioAutenticado actual) {
 		sesiones.cerrar(actual.usuario(), actual.dispositivo());
 		return ResponseEntity.noContent().build();

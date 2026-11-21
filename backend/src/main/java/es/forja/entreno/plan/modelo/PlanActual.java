@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import es.forja.entreno.plan.modelo.GrupoMuscular.MusculoEjercicio;
 
 /**
@@ -37,7 +38,7 @@ public record PlanActual(UUID uuid, Instant creadoEn, String estado, int diaDeHo
 	 * @param primeraSesion no hay ninguna sesión de trabajo de este ejercicio
 	 */
 	public record ObjetivoEjercicio(String idExterno, String nombre, int orden, int series, int repeticionesMin,
-			int repeticionesMax, int rirObjetivo, BigDecimal cargaKg, BigDecimal incrementoKg, Estado estado,
+			int repeticionesMax, int rirObjetivo, @Nullable BigDecimal cargaKg, BigDecimal incrementoKg, Estado estado,
 			String motivo, List<MusculoEjercicio> musculos, boolean primeraSesion) {
 
 		public ObjetivoEjercicio {
