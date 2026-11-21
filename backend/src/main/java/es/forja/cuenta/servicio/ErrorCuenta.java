@@ -11,6 +11,8 @@ public class ErrorCuenta extends RuntimeException {
 
 	/** Código estable de los 429, para que el cliente lo reconozca sin leer el mensaje. */
 	public static final String CODIGO_DEMASIADAS_PETICIONES = "demasiadas_peticiones";
+	/** El refresco era de una cuenta que se borró desde otro dispositivo: el cliente borra lo que guarda de ella. */
+	public static final String CODIGO_CUENTA_BORRADA = "cuenta_borrada";
 
 	private final HttpStatus estado;
 	private final transient Duration esperar;
@@ -33,6 +35,10 @@ public class ErrorCuenta extends RuntimeException {
 
 	public static ErrorCuenta noAutenticado(String mensaje) {
 		return new ErrorCuenta(HttpStatus.UNAUTHORIZED, mensaje, null);
+	}
+
+	public static ErrorCuenta cuentaBorrada() {
+		return new ErrorCuenta(HttpStatus.GONE, "Tu cuenta se ha borrado.", null, CODIGO_CUENTA_BORRADA);
 	}
 
 	public static ErrorCuenta prohibido(String mensaje) {

@@ -94,6 +94,15 @@ export function ProveedorSincronizacion({ abrirAlmacen, escucharRed, children }:
   const outbox = servicios?.outbox ?? null;
   const sincronizador = servicios?.sincronizador ?? null;
 
+  // Cuenta borrada desde otro dispositivo: lo que este móvil guarda de ella (pendiente, plan, cargas) también se va.
+  useEffect(() => {
+    if (!outbox) return undefined;
+    return api.alBorrarseLaCuenta(async (usuario) => {
+      await outbox.borrarDatosDe(usuario);
+      setCuentaEliminada(true);
+    });
+  }, [api, outbox]);
+
   const lanzar = useCallback(
     async (forzar = false) => {
       if (!outbox || !sincronizador) return;

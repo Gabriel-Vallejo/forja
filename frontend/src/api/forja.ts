@@ -139,6 +139,8 @@ export interface ApiForja {
   /** `sub` del token guardado: de quién son las sesiones que se envían. Null sin sesión iniciada. */
   usuarioActual(): Promise<string | null>;
   alCaducar(oyente: () => void): () => void;
+  /** La cuenta se borró desde otro dispositivo (410 al refrescar): se avisa con su usuario antes de cerrar la sesión. */
+  alBorrarseLaCuenta(oyente: (usuario: string) => Promise<void>): () => void;
 }
 
 export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispositivo: Dispositivo): ApiForja {
@@ -285,5 +287,6 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
     },
     usuarioActual: () => almacen.leerUsuario(),
     alCaducar: (oyente) => cliente.alCaducar(oyente),
+    alBorrarseLaCuenta: (oyente) => cliente.alBorrarseLaCuenta(oyente),
   };
 }

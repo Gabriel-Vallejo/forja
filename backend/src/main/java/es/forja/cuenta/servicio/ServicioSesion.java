@@ -135,6 +135,9 @@ public class ServicioSesion {
 		Instant ahora = reloj.instant();
 		Sesion nueva = transaccion.execute(estado -> rotar(tokenRefresco, ahora));
 		if (nueva == null) {
+			if (refrescos.esDeCuentaBorrada(Tokens.hash(tokenRefresco), ahora)) {
+				throw ErrorCuenta.cuentaBorrada();
+			}
 			throw ErrorCuenta.noAutenticado(SESION_NO_VALIDA);
 		}
 		return nueva;

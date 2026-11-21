@@ -2,6 +2,7 @@ package es.forja.cuenta.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Map;
@@ -58,6 +59,22 @@ class BorradoCuentaApiTest extends ApiCuentaSoporte {
 		assertThat(filasDe("token_un_uso", correo)).isZero();
 		consultar("/api/v1/dispositivos", movil).andExpect(status().isUnauthorized());
 		enviar("/api/v1/auth/login", cuerpoLogin(correo, CONTRASENA, "Móvil", null))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void trasBorrarLaCuentaElRefrescoDeOtroDispositivoDa410ParaQueBorreLoSuyo() throws Exception {
+		String correo = crearCuenta();
+		Cliente movil = iniciarSesion(correo, "Móvil", null);
+		Cliente pc = iniciarSesion(correo, "PC", null);
+
+		borrarCuenta(pc, CONTRASENA).andExpect(status().isNoContent());
+
+		enviar("/api/v1/auth/refresco", Map.of("tokenRefresco", movil.tokenRefresco())).andExpect(status().isGone())
+				.andExpect(jsonPath("$.codigo").value("cuenta_borrada"));
+		// Solo los hashes de los refrescos vivos, hasta que caducan: nada que identifique a la persona.
+		assertThat(contar("SELECT COUNT(*) FROM refresco_cuenta_borrada")).isPositive();
+		enviar("/api/v1/auth/refresco", Map.of("tokenRefresco", "no-existe-" + correo))
 				.andExpect(status().isUnauthorized());
 	}
 

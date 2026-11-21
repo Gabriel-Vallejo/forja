@@ -126,6 +126,7 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
     guardarSesion: jest.fn().mockResolvedValue(undefined),
     usuarioActual: jest.fn().mockResolvedValue(USUARIO_ID),
     alCaducar: jest.fn().mockReturnValue(() => undefined),
+    alBorrarseLaCuenta: jest.fn().mockReturnValue(() => undefined),
     ...cambios,
   } as jest.Mocked<ApiForja>;
 }

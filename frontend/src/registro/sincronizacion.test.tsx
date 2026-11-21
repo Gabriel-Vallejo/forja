@@ -174,6 +174,27 @@ describe('sincronización en la app', () => {
     expect(await almacen.listarSesiones()).toEqual([]);
   });
 
+  test('si la cuenta se borró desde otro dispositivo (410 al refrescar), borra lo que este móvil guarda de ella', async () => {
+    const almacen = crearAlmacenMemoria();
+    await sesionPendiente(almacen);
+    let avisar: (usuario: string) => Promise<void> = async () => undefined;
+    const api = apiFalsa({
+      guardarSesion: jest.fn().mockRejectedValue(new ErrorApi(0, 'sin red')),
+      alBorrarseLaCuenta: jest.fn((oyente: (usuario: string) => Promise<void>) => {
+        avisar = oyente;
+        return () => undefined;
+      }),
+    });
+    const { envoltorio } = montar({ almacen, api });
+    const { result } = await renderHook(() => useSincronizacion(), { wrapper: envoltorio });
+    await waitFor(() => expect(result.current.disponible).toBe(true));
+
+    await act(async () => avisar(USUARIO_ID));
+
+    expect(await almacen.listarSesiones()).toEqual([]);
+    expect(result.current.cuentaEliminada).toBe(true);
+  });
+
   test('si la base local no abre, la app sigue sin registro y lo dice', async () => {
     const { envoltorio } = montar();
     const abrirAlmacen = jest.fn().mockRejectedValue(new Error('disco lleno'));

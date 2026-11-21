@@ -11,7 +11,7 @@ import { useSesion } from '../sesion/sesion';
 
 export function Entrar() {
   const router = useRouter();
-  const { entrar } = useSesion();
+  const { entrar, aviso } = useSesion();
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const envio = useMutation({
@@ -21,6 +21,7 @@ export function Entrar() {
 
   return (
     <Pantalla titulo="Entra en Forja">
+      {aviso ? <Aviso tipo="info" mensaje={aviso} /> : null}
       <CampoTexto
         etiqueta="Correo"
         valor={correo}

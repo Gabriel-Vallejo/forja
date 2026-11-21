@@ -32,6 +32,24 @@ public class TokenRefrescoRepositorio {
 				.param("caduca", Conversiones.aSql(caducaEn)).update();
 	}
 
+	/** Guarda los hashes de los refrescos vivos de un usuario que se va a borrar, y purga los ya caducados. */
+	public void apartarDeCuentaBorrada(long usuarioId, Instant ahora) {
+		jdbc.sql("DELETE FROM refresco_cuenta_borrada WHERE caduca_en <= :ahora")
+				.param("ahora", Conversiones.aSql(ahora)).update();
+		jdbc.sql("""
+				INSERT IGNORE INTO refresco_cuenta_borrada (hash, caduca_en)
+				SELECT t.hash, t.caduca_en FROM token_refresco t JOIN dispositivo d ON d.id = t.dispositivo_id
+				WHERE d.usuario_id = :usuario AND t.usado_en IS NULL AND t.revocado_en IS NULL
+				  AND t.caduca_en > :ahora""").param("usuario", usuarioId).param("ahora", Conversiones.aSql(ahora))
+				.update();
+	}
+
+	/** El refresco era de una cuenta borrada y aún no ha caducado. */
+	public boolean esDeCuentaBorrada(byte[] hash, Instant ahora) {
+		return jdbc.sql("SELECT COUNT(*) FROM refresco_cuenta_borrada WHERE hash = :hash AND caduca_en > :ahora")
+				.param("hash", hash).param("ahora", Conversiones.aSql(ahora)).query(Long.class).single() > 0;
+	}
+
 	public Optional<TokenRefresco> porHash(byte[] hash) {
 		return jdbc.sql("""
 				SELECT id, dispositivo_id, familia, caduca_en, usado_en, revocado_en

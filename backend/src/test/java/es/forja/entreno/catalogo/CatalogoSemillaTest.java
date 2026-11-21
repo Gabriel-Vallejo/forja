@@ -58,7 +58,7 @@ class CatalogoSemillaTest {
 				.containsExactlyInAnyOrder("V1__catalogo_ejercicios.sql", "V2__cuenta.sql",
 						"V3__consentimiento_y_restricciones.sql", "V4__plan_y_sesiones.sql", "V5__bloqueo_por_bandera.sql",
 						"V6__perfil_entreno.sql", "V7__test_movilidad.sql", "V8__perfil_datos_y_medidas.sql",
-						"V9__preferencias_plan.sql",
+						"V9__preferencias_plan.sql", "V10__refresco_cuenta_borrada.sql",
 						"R__catalogo_semilla.sql");
 		assertThat(flyway.info().pending()).isEmpty();
 	}

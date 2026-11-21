@@ -5,8 +5,13 @@ import type { ApiForja, Credenciales } from '../api/forja';
 
 export type EstadoSesion = 'cargando' | 'fuera' | 'dentro';
 
+export const AVISO_CUENTA_BORRADA =
+  'Tu cuenta se ha borrado desde otro dispositivo. Lo que quedaba de ella en este móvil también se ha borrado.';
+
 interface ValorSesion {
   estado: EstadoSesion;
+  /** Por qué se cerró la sesión sin que la cerraras tú, para decirlo en «Entrar»; se olvida al entrar. */
+  aviso: string | null;
   api: ApiForja;
   entrar(credenciales: Credenciales): Promise<void>;
   salir(): Promise<void>;
@@ -27,6 +32,7 @@ interface PropsProveedorSesion {
 export function ProveedorSesion({ api, children }: PropsProveedorSesion) {
   const consultas = useQueryClient();
   const [estado, setEstado] = useState<EstadoSesion>('cargando');
+  const [aviso, setAviso] = useState<string | null>(null);
 
   useEffect(() => {
     let vigente = true;
@@ -41,15 +47,18 @@ export function ProveedorSesion({ api, children }: PropsProveedorSesion) {
       consultas.clear();
       setEstado('fuera');
     });
+    const dejarDeEscucharBorrado = api.alBorrarseLaCuenta(async () => setAviso(AVISO_CUENTA_BORRADA));
     return () => {
       vigente = false;
       dejarDeEscuchar();
+      dejarDeEscucharBorrado();
     };
   }, [api, consultas]);
 
   const entrar = useCallback(
     async (credenciales: Credenciales) => {
       await api.entrar(credenciales);
+      setAviso(null);
       setEstado('dentro');
     },
     [api],
@@ -78,7 +87,7 @@ export function ProveedorSesion({ api, children }: PropsProveedorSesion) {
     [api, consultas],
   );
 
-  const valor = useMemo(() => ({ estado, api, entrar, salir, borrarCuenta }), [estado, api, entrar, salir, borrarCuenta]);
+  const valor = useMemo(() => ({ estado, aviso, api, entrar, salir, borrarCuenta }), [estado, aviso, api, entrar, salir, borrarCuenta]);
   return <ContextoSesion.Provider value={valor}>{children}</ContextoSesion.Provider>;
 }
 

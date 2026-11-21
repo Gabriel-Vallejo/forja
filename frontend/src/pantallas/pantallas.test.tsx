@@ -1,8 +1,9 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 
 import { ErrorApi } from '../api/errores';
 import { apiFalsa } from '../pruebas/dobles';
 import { renderizar } from '../pruebas/renderizar';
+import { AVISO_CUENTA_BORRADA } from '../sesion/sesion';
 import { Entrar } from './Entrar';
 import { Registro } from './Registro';
 import { RevisaTuCorreo } from './RevisaTuCorreo';
@@ -98,6 +99,24 @@ describe('Entrar', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Entrar' }));
 
     expect(await screen.findByText('Correo o contraseña incorrectos.')).toBeOnTheScreen();
+  });
+
+  test('si la sesión se cerró porque la cuenta se borró en otro dispositivo, lo dice', async () => {
+    const oyentes: ((usuario: string) => Promise<void>)[] = [];
+    const api = apiFalsa({
+      alBorrarseLaCuenta: jest.fn((oyente: (usuario: string) => Promise<void>) => {
+        oyentes.push(oyente);
+        return () => undefined;
+      }),
+    });
+    await renderizar(<Entrar />, api);
+    expect(screen.queryByText(AVISO_CUENTA_BORRADA)).toBeNull();
+
+    await act(async () => {
+      await Promise.all(oyentes.map((o) => o('usuario')));
+    });
+
+    expect(screen.getByText(AVISO_CUENTA_BORRADA)).toBeOnTheScreen();
   });
 
   test('sin datos, el botón está deshabilitado', async () => {

@@ -24,7 +24,7 @@ Forja guarda datos de salud ([0004](0004-privacidad-fotos-y-datos-de-salud.md)) 
    - CORS permite solo el dominio de la web y los orígenes de Tauri (`tauri://localhost` y `http://tauri.localhost`). Al ir el token en cabecera y no en cookies, no hace falta protección CSRF.
    - La CSP de Tauri limita `connect-src` al dominio de la API.
 8. **Worker de GPU:** no usa cuentas de usuario. Lleva su propio token largo y revocable, guardado como hash, que solo abre `/worker/**` ([0003](0003-cola-de-trabajos-gpu.md)).
-9. **Borrar la cuenta:** `DELETE /api/v1/cuenta`, con la contraseña otra vez. Revoca todo y borra en cascada ([0004](0004-privacidad-fotos-y-datos-de-salud.md)).
+9. **Borrar la cuenta:** `DELETE /api/v1/cuenta`, con la contraseña otra vez. Revoca todo y borra en cascada ([0004](0004-privacidad-fotos-y-datos-de-salud.md)). Antes aparta solo los hashes de los refrescos vivos (tabla `refresco_cuenta_borrada`, sin usuario ni dispositivo, se purgan al caducar): si otro dispositivo refresca con uno recibe **410** (`codigo: cuenta_borrada`) y borra lo que guarda de esa cuenta. Añadido el 2026-11-21.
 10. **Tests:** la rotación detecta un refresco reutilizado; cerrar un dispositivo invalida su refresco; la recuperación no revela si existe la cuenta; los límites de intentos saltan; un token con `kid` desconocido se rechaza.
 
 ## Alternativas

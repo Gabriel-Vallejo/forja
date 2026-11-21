@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { almacenEnMemoria, datosSesion, respuesta } from '../pruebas/dobles';
+import { almacenEnMemoria, datosSesion, respuesta, tokenDe, USUARIO_ID } from '../pruebas/dobles';
 import { crearCliente, RUTA_REFRESCO } from './cliente';
 import { ErrorApi, RESPUESTA_INESPERADA, SESION_CADUCADA, SIN_CONEXION } from './errores';
 
@@ -110,6 +110,42 @@ describe('cliente HTTP', () => {
     expect(oyente).toHaveBeenCalledTimes(1);
     expect(almacen.estado.tokenRefresco).toBeUndefined();
     expect(almacen.estado.dispositivoId).toBe(datosSesion(1).dispositivoId);
+  });
+
+  test('si el refresco da 410 (cuenta borrada en otro dispositivo), avisa con el usuario antes de cerrar la sesión', async () => {
+    const almacen = almacenEnMemoria({ ...datosSesion(1), tokenAcceso: tokenDe(USUARIO_ID) });
+    const fetchFalso = jest.fn(async (url: string) =>
+      url.endsWith(RUTA_REFRESCO)
+        ? respuesta(410, { status: 410, detail: 'Tu cuenta se ha borrado.', codigo: 'cuenta_borrada' })
+        : respuesta(401, { status: 401, detail: 'Hace falta iniciar sesión.' }),
+    );
+    const cliente = crearCliente({ urlBase: URL_BASE, almacen, fetch: fetchFalso });
+    const orden: string[] = [];
+    cliente.alBorrarseLaCuenta(async (usuario) => {
+      orden.push(`borrar ${usuario} con sesión ${almacen.estado.tokenRefresco ?? 'ninguna'}`);
+    });
+    cliente.alCaducar(() => orden.push('caducar'));
+
+    await expect(cliente.pedir({ ruta: RUTA })).rejects.toMatchObject({ estado: 410 });
+
+    expect(orden).toEqual([`borrar ${USUARIO_ID} con sesión refresco-1`, 'caducar']);
+    expect(almacen.estado.tokenRefresco).toBeUndefined();
+  });
+
+  test('si borrar lo local falla tras un 410, la sesión se cierra igual', async () => {
+    const almacen = almacenEnMemoria({ ...datosSesion(1), tokenAcceso: tokenDe(USUARIO_ID) });
+    const fetchFalso = jest.fn(async (url: string) => respuesta(url.endsWith(RUTA_REFRESCO) ? 410 : 401));
+    const cliente = crearCliente({ urlBase: URL_BASE, almacen, fetch: fetchFalso });
+    const caducar = jest.fn();
+    cliente.alBorrarseLaCuenta(async () => {
+      throw new Error('base local rota');
+    });
+    cliente.alCaducar(caducar);
+
+    await expect(cliente.pedir({ ruta: RUTA })).rejects.toMatchObject({ estado: 410 });
+
+    expect(caducar).toHaveBeenCalledTimes(1);
+    expect(almacen.estado.tokenRefresco).toBeUndefined();
   });
 
   test('sin refresco guardado, un 401 caduca la sesión sin llamar a /refresco', async () => {
