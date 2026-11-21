@@ -48,6 +48,9 @@ public class PlanRepositorio {
 	/** Ficha de cada {@code idExterno} que exista en el catálogo. */
 	public Map<String, FichaEjercicio> fichas(Collection<String> idsExternos) {
 		Map<String, FichaEjercicio> fichas = new LinkedHashMap<>();
+		if (idsExternos.isEmpty()) {
+			return fichas; // MySQL no acepta «IN ()»
+		}
 		jdbc.sql("""
 				SELECT e.id, e.id_externo, e.mecanica, m.codigo AS material FROM ejercicio e
 				JOIN material m ON m.id = e.implemento_id WHERE e.id_externo IN (:ids)""")

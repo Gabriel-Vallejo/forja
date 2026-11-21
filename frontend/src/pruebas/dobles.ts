@@ -174,7 +174,7 @@ export function objetivo(cambios: Partial<ObjetivoEjercicio> = {}): ObjetivoEjer
     cargaKg: 80,
     incrementoKg: 2.5,
     estado: 'acumulando',
-    motivo: 'Repite 80 kg: te falta completar 10 repeticiones con 2 en reserva o menos en todas las series de trabajo.',
+    motivo: 'Repite 80 kg: te falta completar 10 repeticiones con 2 en reserva o menos en las 4 series de trabajo.',
     musculos: [
       { grupo: 'pecho', rol: 'primario' },
       { grupo: 'triceps', rol: 'secundario' },

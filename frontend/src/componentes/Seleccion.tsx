@@ -24,16 +24,18 @@ interface PropsFichaOpcion {
   rol: 'radio' | 'checkbox';
   marcada: boolean;
   alPulsar: () => void;
+  /** Para lectores de pantalla, si la etiqueta visible no basta («8,5» → «RPE 8,5»). */
+  etiquetaAccesible?: string;
 }
 
 /** Ficha pulsable de una opción: objetivo táctil mínimo del tema y estado con borde y peso, no solo con color. */
-export function FichaOpcion({ etiqueta, rol, marcada, alPulsar }: PropsFichaOpcion) {
+export function FichaOpcion({ etiqueta, rol, marcada, alPulsar, etiquetaAccesible = etiqueta }: PropsFichaOpcion) {
   const tema = useTheme();
   const estilos = crearEstilos(tema);
   return (
     <Pressable
       accessibilityRole={rol}
-      accessibilityLabel={etiqueta}
+      accessibilityLabel={etiquetaAccesible}
       accessibilityState={{ selected: marcada, checked: marcada }}
       onPress={alPulsar}
       style={[estilos.opcion, marcada && estilos.elegida]}

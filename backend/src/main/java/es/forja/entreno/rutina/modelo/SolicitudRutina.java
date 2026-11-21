@@ -12,6 +12,7 @@ import es.forja.restricciones.modelo.Restriccion;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -29,7 +30,7 @@ public record SolicitudRutina(
 		@Min(value = EntradaRutina.MINUTOS_MINIMOS, message = "Los minutos por sesión van de 30 a 120.")
 		@Max(value = EntradaRutina.MINUTOS_MAXIMOS, message = "Los minutos por sesión van de 30 a 120.")
 		Integer minutosPorSesion,
-		@NotNull(message = "Falta el material.")
+		@NotNull(message = "Falta el material.") @NotEmpty(message = "Elige al menos un material.")
 		@Size(max = MAXIMO_MATERIAL, message = "Demasiado material.")
 		List<@NotBlank @Size(max = LARGO_MAXIMO_CODIGO) String> material,
 		@Size(max = MAXIMO_EXCLUSIONES, message = "Demasiadas exclusiones.")

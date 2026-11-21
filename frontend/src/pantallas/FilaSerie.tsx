@@ -18,6 +18,12 @@ const MAX_REPETICIONES = 100;
 const MAX_RIR = 10;
 const MAX_DOLOR = 10;
 const NIVELES_DOLOR = Array.from({ length: MAX_DOLOR + 1 }, (_, i) => i);
+/** RPE de 6 a 10 en medios puntos: por debajo de 6 no es una serie de trabajo. */
+const NIVELES_RPE = Array.from({ length: 9 }, (_, i) => 6 + i / 2);
+/** Desde aquí la fila avisa y, al guardar, la sesión se para (§5.3, umbral [propuesta]). */
+export const DOLOR_ALTO = 7;
+export const MENSAJE_DOLOR_ALTO =
+  'Dolor alto: para este ejercicio. Si el dolor sigue o es agudo, habla con un profesional sanitario; Forja no puede valorarlo.';
 
 export interface ValoresSerie {
   pesoKg: number;
@@ -25,6 +31,7 @@ export interface ValoresSerie {
   rir: number;
   calentamiento: boolean;
   dolor?: number;
+  rpe?: number;
 }
 
 /** Lo que se precarga: sin carga conocida (primera semana) el peso va vacío. */
@@ -50,6 +57,8 @@ export function FilaSerie({ objetivo, titulo, inicial, etiquetaGuardar, alGuarda
   const [calentamiento, setCalentamiento] = useState(inicial.calentamiento);
   const [dolor, setDolor] = useState(inicial.dolor);
   const [conDolor, setConDolor] = useState(inicial.dolor !== undefined);
+  const [rpe, setRpe] = useState(inicial.rpe);
+  const [conRpe, setConRpe] = useState(inicial.rpe !== undefined);
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
   const contexto = `${objetivo.nombre}, ${titulo.toLowerCase()}`;
@@ -69,7 +78,7 @@ export function FilaSerie({ objetivo, titulo, inicial, etiquetaGuardar, alGuarda
     setError(null);
     setGuardando(true);
     try {
-      await alGuardar({ ...valores, calentamiento, dolor: conDolor ? dolor : undefined });
+      await alGuardar({ ...valores, calentamiento, dolor: conDolor ? dolor : undefined, rpe: conRpe ? rpe : undefined });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se ha podido guardar.');
     } finally {
@@ -126,6 +135,15 @@ export function FilaSerie({ objetivo, titulo, inicial, etiquetaGuardar, alGuarda
             setDolor(undefined);
           }}
         />
+        <FichaOpcion
+          etiqueta="Anotar RPE"
+          rol="checkbox"
+          marcada={conRpe}
+          alPulsar={() => {
+            setConRpe((c) => !c);
+            setRpe(undefined);
+          }}
+        />
       </View>
       {calentamiento ? <Texto estilo="nota" tono="secundario">El calentamiento no cuenta para el volumen ni para subir la carga.</Texto> : null}
       {conDolor ? (
@@ -139,6 +157,24 @@ export function FilaSerie({ objetivo, titulo, inicial, etiquetaGuardar, alGuarda
                 rol="radio"
                 marcada={dolor === n}
                 alPulsar={() => setDolor((d) => (d === n ? undefined : n))}
+              />
+            ))}
+          </View>
+        </View>
+      ) : null}
+      {conDolor && dolor !== undefined && dolor >= DOLOR_ALTO ? <Aviso tipo="aviso" mensaje={MENSAJE_DOLOR_ALTO} /> : null}
+      {conRpe ? (
+        <View accessibilityRole="radiogroup" accessibilityLabel={`RPE de 6 a 10, ${contexto}`} style={estilos.dolor}>
+          <Texto estilo="nota" tono="secundario">Esfuerzo percibido: 10 es que no podías hacer ni una más. Opcional.</Texto>
+          <View style={estilos.opciones}>
+            {NIVELES_RPE.map((n) => (
+              <FichaOpcion
+                key={n}
+                etiqueta={aTexto(n)}
+                etiquetaAccesible={`RPE ${aTexto(n)}`}
+                rol="radio"
+                marcada={rpe === n}
+                alPulsar={() => setRpe((r) => (r === n ? undefined : n))}
               />
             ))}
           </View>

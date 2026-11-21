@@ -293,14 +293,19 @@ class SesionesApiTest extends SoporteSesiones {
 		Instant cuando = haceHoras(1);
 		Objetivo o = e.objetivo();
 		UUID sesion = UUID.randomUUID();
+		// Las series previstas, todas buenas menos la primera, que se apuntó mal (1 repetición).
+		List<Map<String, Object>> series = new java.util.ArrayList<>(
+				seriesDeTrabajo(o, "50", o.repeticionesMax(), o.rirObjetivo()));
 		Map<String, Object> mala = serie(UUID.randomUUID(), o.idExterno(), 0, "50", 1, 2);
-		guardarSesion(e.cliente(), sesion, sesion(e.plan(), cuando, List.of(mala))).andExpect(status().isOk());
+		series.set(0, mala);
+		guardarSesion(e.cliente(), sesion, sesion(e.plan(), cuando, series)).andExpect(status().isOk());
 		assertThat(cargaDe(e.cliente(), o.idExterno()).decimalValue()).isEqualByComparingTo("50");
 
-		Map<String, Object> buena = con(serie(UUID.randomUUID(), o.idExterno(), 1, "50", o.repeticionesMax(), o.rirObjetivo()),
+		Map<String, Object> buena = con(
+				serie(UUID.randomUUID(), o.idExterno(), o.series(), "50", o.repeticionesMax(), o.rirObjetivo()),
 				"corrigeA", mala.get("uuid"));
-		guardarSesion(e.cliente(), sesion, sesion(e.plan(), cuando, List.of(mala, buena)))
-				.andExpect(status().isOk());
+		series.add(buena);
+		guardarSesion(e.cliente(), sesion, sesion(e.plan(), cuando, series)).andExpect(status().isOk());
 
 		assertThat(cargaDe(e.cliente(), o.idExterno()).decimalValue())
 				.isEqualByComparingTo(BigDecimal.valueOf(50 + o.incrementoKg()));

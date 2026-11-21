@@ -102,6 +102,9 @@ public class SesionRepositorio implements HistorialSesiones {
 	/** Las series que ya existen con esos uuid, sean de la sesión y del usuario que sean. */
 	public Map<UUID, FilaSerie> series(Collection<UUID> uuids) {
 		Map<UUID, FilaSerie> series = new HashMap<>();
+		if (uuids.isEmpty()) {
+			return series; // MySQL no acepta «IN ()»
+		}
 		jdbc.sql("SELECT " + COLUMNAS_SERIE + " FROM serie_realizada s JOIN sesion x ON x.uuid = s.sesion_uuid "
 				+ "WHERE s.uuid IN (:uuids)").param("uuids", uuids.stream().map(Conversiones::aBytes).toList())
 				.query(SERIE).list().forEach(s -> series.put(s.uuid(), s));
@@ -132,6 +135,9 @@ public class SesionRepositorio implements HistorialSesiones {
 	/** Código externo → id interno de cada ejercicio del catálogo que exista. */
 	public Map<String, Long> idsDeEjercicios(Collection<String> idsExternos) {
 		Map<String, Long> ids = new HashMap<>();
+		if (idsExternos.isEmpty()) {
+			return ids;
+		}
 		jdbc.sql("SELECT id, id_externo FROM ejercicio WHERE id_externo IN (:ids)").param("ids", idsExternos)
 				.query((rs, n) -> ids.put(rs.getString("id_externo"), rs.getLong("id"))).list();
 		return ids;
@@ -166,6 +172,9 @@ public class SesionRepositorio implements HistorialSesiones {
 
 	/** {@code origen} es la tabla o la vista, fija en el código: nunca llega de fuera. */
 	private List<SerieVigente> seriesDe(String origen, Collection<UUID> sesiones) {
+		if (sesiones.isEmpty()) {
+			return List.of();
+		}
 		return jdbc.sql("""
 				SELECT v.sesion_uuid, v.uuid, e.id_externo, v.orden, v.peso_kg, v.repeticiones, v.rir, v.rpe,
 				       v.calentamiento, v.dolor, v.corrige_a, v.anulada, v.realizada_en

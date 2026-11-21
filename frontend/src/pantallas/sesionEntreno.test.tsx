@@ -1,4 +1,4 @@
-import { ScrollView } from 'react-native';
+import { ScrollView, Vibration } from 'react-native';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 
 import { ErrorApi } from '../api/errores';
@@ -9,7 +9,7 @@ import { apiFalsa, objetivo, planDePrueba, USUARIO_ID } from '../pruebas/dobles'
 import { renderizar } from '../pruebas/renderizar';
 import { SIN_REGISTRO_LOCAL } from './ConOutbox';
 import { ESPERA_RED_MS, SIN_PLAN_SIN_RED } from './ConPlanParaEntrenar';
-import { SesionEntreno } from './SesionEntreno';
+import { DESHACER_MS, SesionEntreno } from './SesionEntreno';
 
 const mockRouter = { replace: jest.fn(), push: jest.fn(), back: jest.fn(), navigate: jest.fn(), dismissTo: jest.fn() };
 jest.mock('expo-router', () => ({ useRouter: () => mockRouter }));
@@ -174,6 +174,61 @@ describe('Sesión en curso', () => {
     await waitFor(() => expect(screen.queryByText('80 kg × 10 · RIR 2')).toBeNull());
     const [sesion] = await almacen.listarSesiones();
     expect(await almacen.listarSeries(sesion!.uuid)).toEqual([expect.anything(), expect.objectContaining({ anulada: true })]);
+  });
+
+  test('al guardar vibra y durante 5 s se puede deshacer sin confirmar; deshacer para el descanso', async () => {
+    const vibrar = jest.spyOn(Vibration, 'vibrate').mockImplementation(() => {});
+    const almacen = await abrir();
+    jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'], advanceTimers: true });
+    try {
+      await guardar();
+      await fireEvent.press(await screen.findByRole('button', { name: 'Deshacer serie 1 de Press de banca' }));
+
+      await waitFor(() => expect(screen.queryByText('80 kg × 10 · RIR 2')).toBeNull());
+      expect(vibrar).toHaveBeenCalledTimes(1);
+      expect(screen.queryByText('Descanso')).toBeNull();
+      const [sesion] = await almacen.listarSesiones();
+      expect(await almacen.listarSeries(sesion!.uuid)).toEqual([expect.anything(), expect.objectContaining({ anulada: true })]);
+
+      await guardar();
+      await screen.findByText('Serie 1 hecha');
+      await act(async () => jest.advanceTimersByTime(DESHACER_MS));
+      expect(screen.queryByRole('button', { name: 'Deshacer serie 1 de Press de banca' })).toBeNull();
+    } finally {
+      jest.useRealTimers();
+      vibrar.mockRestore();
+    }
+  });
+
+  test('el RPE es opcional y se guarda con la serie', async () => {
+    const almacen = await abrir();
+
+    await fireEvent.press(screen.getByRole('checkbox', { name: 'Anotar RPE' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'RPE 8,5' }));
+    await guardar();
+
+    expect(await screen.findByText('80 kg × 10 · RIR 2 · RPE 8,5')).toBeOnTheScreen();
+    const [sesion] = await almacen.listarSesiones();
+    expect(await almacen.listarSeries(sesion!.uuid)).toEqual([expect.objectContaining({ rpe: 8.5 })]);
+  });
+
+  test('con dolor 7 o más avisa antes de guardar y, al guardar, para el registro hasta pulsar «Entendido»', async () => {
+    await abrir();
+
+    await fireEvent.press(screen.getByRole('checkbox', { name: '¿Te ha dolido?' }));
+    await fireEvent.press(screen.getByRole('radio', { name: '6' }));
+    expect(screen.queryByText(/Dolor alto/)).toBeNull();
+    await fireEvent.press(screen.getByRole('radio', { name: '8' }));
+    expect(screen.getByText(/Dolor alto/)).toBeOnTheScreen();
+    await guardar();
+
+    expect(await screen.findByText('Para y consulta')).toBeOnTheScreen();
+    expect(screen.getByText('80 kg × 10 · RIR 2 · dolor 8')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Guardar serie, Press de banca, serie 2' })).toBeNull();
+    await fireEvent.press(screen.getByRole('button', { name: 'Entendido' }));
+
+    expect(screen.queryByText('Para y consulta')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Guardar serie, Press de banca, serie 2' })).toBeOnTheScreen();
   });
 
   test('terminar con confirmación cierra la sesión, la envía y enseña el resumen', async () => {

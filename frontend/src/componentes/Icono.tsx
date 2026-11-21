@@ -16,6 +16,7 @@ const ICONOS = {
   check: [{ d: 'M5 12l5 5 9-10' }],
   enviar: [{ d: 'M4 12l16-8-6 16-2-7z' }],
   info: [{ circulo: [12, 12, 9] }, { d: 'M12 11v5M12 8h.01' }],
+  alerta: [{ d: 'M12 3l10 18H2z' }, { d: 'M12 10v5M12 18h.01' }],
   ajustes: [
     { circulo: [12, 12, 3] },
     { d: 'M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1' },

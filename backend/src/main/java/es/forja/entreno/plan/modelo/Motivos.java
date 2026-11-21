@@ -48,13 +48,17 @@ final class Motivos {
 	private static String subir(ReglaEjercicio regla, BigDecimal carga, int minimo, int maximo, boolean enElTope) {
 		if (!regla.pesoCorporal()) {
 			return "Has completado " + maximo(regla) + " repeticiones con " + regla.rirObjetivo()
-					+ " en reserva o menos en todas las series: sube a " + kg(carga) + " kg (+"
+					+ " en reserva o menos " + enLasSeries(regla) + ": sube a " + kg(carga) + " kg (+"
 					+ kg(regla.incrementoKg()) + " kg).";
 		}
 		if (enElTope) {
 			return "Has llegado a " + maximo + " repeticiones: añade lastre para seguir progresando.";
 		}
 		return "Lo has cumplido con tu peso corporal: el objetivo pasa a " + minimo + "-" + maximo + " repeticiones.";
+	}
+
+	private static String enLasSeries(ReglaEjercicio regla) {
+		return regla.series() == 1 ? "en la serie" : "en las " + regla.series() + " series";
 	}
 
 	private static int maximo(ReglaEjercicio regla) {
@@ -64,12 +68,12 @@ final class Motivos {
 	private static String repetir(ReglaEjercicio regla, BigDecimal carga, int maximo, boolean trasDeload) {
 		if (regla.pesoCorporal()) {
 			return "Repite con tu peso corporal hasta completar " + maximo + " repeticiones con "
-					+ regla.rirObjetivo() + " en reserva o menos en todas las series.";
+					+ regla.rirObjetivo() + " en reserva o menos " + enLasSeries(regla) + ".";
 		}
 		if (trasDeload) {
 			return "Deload hecho: vuelves a " + kg(carga) + " kg.";
 		}
 		return "Repite " + kg(carga) + " kg: te falta completar " + maximo + " repeticiones con "
-				+ regla.rirObjetivo() + " en reserva o menos en todas las series de trabajo.";
+				+ regla.rirObjetivo() + " en reserva o menos " + enLasSeries(regla) + " de trabajo.";
 	}
 }

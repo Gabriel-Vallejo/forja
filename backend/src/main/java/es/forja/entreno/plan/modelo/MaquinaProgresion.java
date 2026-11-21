@@ -69,7 +69,8 @@ public final class MaquinaProgresion {
 			SesionEjercicio actual = hasta.getLast();
 			haHabidoSesiones = true;
 			enElTope = false;
-			boolean cumplida = ReglaProgresion.cumplida(actual.series(), repeticionesMax(), regla.rirObjetivo());
+			boolean cumplida = ReglaProgresion.cumplida(actual.series(), regla.series(), repeticionesMax(),
+					regla.rirObjetivo());
 			boolean deload = estado == Estado.DELOAD
 					&& actual.cargaMaxima().compareTo(cargaDeload(cargaAntesDelDeload)) <= 0;
 			boolean estancado = !deload && hayEstancamiento(hasta);

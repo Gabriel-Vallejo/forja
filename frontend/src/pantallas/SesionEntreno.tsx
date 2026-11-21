@@ -1,11 +1,12 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, Vibration, View } from 'react-native';
 
 import type { ObjetivoEjercicio, PlanActual } from '../api/esquemas';
 import { Aviso } from '../componentes/Aviso';
 import { Boton } from '../componentes/Boton';
 import { Confirmacion } from '../componentes/Confirmacion';
+import { aTexto } from '../componentes/Contador';
 import { EncabezadoAtras } from '../componentes/EncabezadoAtras';
 import { Icono } from '../componentes/Icono';
 import { Pantalla } from '../componentes/Pantalla';
@@ -18,16 +19,22 @@ import { useCargasSiguientes, useSincronizacion } from '../registro/sincronizaci
 import { type Theme, useTheme } from '../theme';
 import { ConOutbox } from './ConOutbox';
 import { ConPlanParaEntrenar } from './ConPlanParaEntrenar';
-import { FilaSerie, type ValoresIniciales, type ValoresSerie } from './FilaSerie';
+import { DOLOR_ALTO, FilaSerie, type ValoresIniciales, type ValoresSerie } from './FilaSerie';
 
 const ICONO_HECHA = 14;
+/** Lo que dura «Deshacer» tras guardar una serie (§5.3). */
+export const DESHACER_MS = 5000;
+const VIBRACION_MS = 40;
 
 const plural = (n: number, una: string, varias: string) => `${n} ${n === 1 ? una : varias}`;
 
-/** «80 kg × 8 · RIR 2» (o «tu peso × 8» sin lastre). */
+/** «80 kg × 8 · RIR 2» (o «tu peso × 8» sin lastre), con RPE y dolor si se anotaron. */
 export function resumenSerie(s: SerieLocal): string {
   const peso = s.pesoKg === 0 ? 'tu peso' : `${kilos(s.pesoKg)} kg`;
-  return `${peso} × ${s.repeticiones}${s.rir === null ? '' : ` · RIR ${s.rir}`}`;
+  const rir = s.rir === null ? '' : ` · RIR ${s.rir}`;
+  const rpe = s.rpe === null ? '' : ` · RPE ${aTexto(s.rpe)}`;
+  const dolor = s.dolor === null || s.dolor === undefined ? '' : ` · dolor ${s.dolor}`;
+  return `${peso} × ${s.repeticiones}${rir}${rpe}${dolor}`;
 }
 
 const pesoObjetivo = (e: ObjetivoEjercicio, pesoKg: number | undefined) =>
@@ -50,6 +57,7 @@ const aDatos = (ejercicio: string, orden: number, v: ValoresSerie) => ({
   rir: v.rir,
   calentamiento: v.calentamiento,
   ...(v.dolor !== undefined && { dolor: v.dolor }),
+  ...(v.rpe !== undefined && { rpe: v.rpe }),
 });
 
 /** Lo de la base local nunca llega tal cual a la interfaz (podría llevar datos de las series). */
@@ -114,9 +122,14 @@ interface PropsBloque {
   alGuardar: (e: ObjetivoEjercicio, v: ValoresSerie, corrige?: SerieLocal) => Promise<void>;
   alPedirAnular: (serie: string | null) => void;
   alAnular: (serie: SerieLocal) => Promise<void>;
+  /** La serie recién guardada que aún se puede deshacer. */
+  recien: string | null;
+  /** Avisa de que se deshace (cierra «Deshacer» y el descanso); la anulación la hace el bloque. */
+  alDeshacer: () => void;
 }
 
-function BloqueEjercicio({ e, carga, hechas, activo, porAnular, alActivar, alGuardar, alPedirAnular, alAnular }: PropsBloque) {
+function BloqueEjercicio(props: PropsBloque) {
+  const { e, carga, hechas, activo, porAnular, alActivar, alGuardar, alPedirAnular, alAnular, recien, alDeshacer } = props;
   const tema = useTheme();
   const estilos = crearEstilos(tema);
   const [anulando, setAnulando] = useState(false);
@@ -142,7 +155,7 @@ function BloqueEjercicio({ e, carga, hechas, activo, porAnular, alActivar, alGua
               key={s.uuid}
               objetivo={e}
               titulo={`${titulo} (corrección)`}
-              inicial={{ pesoKg: s.pesoKg, repeticiones: s.repeticiones, rir: s.rir ?? e.rirObjetivo, calentamiento: s.calentamiento, dolor: s.dolor ?? undefined }}
+              inicial={{ pesoKg: s.pesoKg, repeticiones: s.repeticiones, rir: s.rir ?? e.rirObjetivo, calentamiento: s.calentamiento, dolor: s.dolor ?? undefined, rpe: s.rpe ?? undefined }}
               etiquetaGuardar="Guardar corrección"
               alGuardar={(v) => alGuardar(e, v, s)}
               alCancelar={() => alActivar(null)}
@@ -170,6 +183,18 @@ function BloqueEjercicio({ e, carga, hechas, activo, porAnular, alActivar, alGua
                   alPedirAnular(s.uuid);
                 }}
               />
+              {/* Al final: cuando se va a los 5 s no desplaza «Corregir» ni «Anular» bajo el dedo. */}
+              {recien === s.uuid ? (
+                <Boton variante="secundario" etiqueta="Deshacer" etiquetaAccesible={`Deshacer ${contexto}`} onPress={() => {
+                    alDeshacer();
+                    // Si falla, se abre la confirmación de anular con el error para reintentar.
+                    alAnular(s).catch((err: unknown) => {
+                      setErrorAnular(err instanceof Error ? err.message : undefined);
+                      alPedirAnular(s.uuid);
+                    });
+                  }}
+                />
+              ) : null}
             </View>
             {porAnular === s.uuid ? (
               <Confirmacion
@@ -220,6 +245,28 @@ function BloqueEjercicio({ e, carga, hechas, activo, porAnular, alActivar, alGua
   );
 }
 
+/**
+ * Aviso de §5.5 tras una serie con dolor alto: para el registro hasta cerrarlo. Lo decide una regla, no el LLM. Va
+ * fijo abajo: al guardar, la fila de edición desaparece y un aviso dentro de la lista quedaba fuera de la pantalla.
+ */
+function AvisoDolorAlto({ alCerrar }: { alCerrar: () => void }) {
+  const tema = useTheme();
+  const estilos = crearEstilos(tema);
+  return (
+    <View style={estilos.alerta} accessibilityRole="alert">
+      <View style={estilos.marca}>
+        <Icono nombre="alerta" color={tema.color.error} />
+        <Texto estilo="etiquetaEstrecha" color={tema.color.error}>Aviso</Texto>
+      </View>
+      <Texto estilo="seccion" encabezado>Para y consulta</Texto>
+      <Texto>
+        Has marcado dolor alto en esta serie. Para este ejercicio y, si el dolor sigue o es agudo, habla con un profesional sanitario. Forja no puede valorarlo.
+      </Texto>
+      <Boton etiqueta="Entendido" onPress={alCerrar} />
+    </View>
+  );
+}
+
 function EstadoEnvio({ outbox, sesion }: { outbox: Outbox; sesion: string }) {
   const { revision } = useSincronizacion();
   const [estado, setEstado] = useState<SesionLocal['estado'] | 'confirmada' | null>(null);
@@ -258,11 +305,16 @@ interface PropsSesionDelDia {
   outbox: Outbox;
   plan: PlanActual;
   alGuardarSerie: () => void;
+  /** Deshacer la serie recién guardada también para el descanso que arrancó. */
+  alDeshacerSerie: () => void;
   /** Avisa de si hay una confirmación abierta abajo del todo, para bajar hasta ella. */
   alConfirmar: (abierta: boolean) => void;
+  /** Con el aviso de dolor alto abierto (§5.5) no se registra nada hasta cerrarlo. */
+  pausada: boolean;
+  alDolorAlto: () => void;
 }
 
-function SesionDelDia({ outbox, plan, alGuardarSerie, alConfirmar }: PropsSesionDelDia) {
+function SesionDelDia({ outbox, plan, alGuardarSerie, alDeshacerSerie, alConfirmar, pausada, alDolorAlto }: PropsSesionDelDia) {
   const router = useRouter();
   const tema = useTheme();
   const estilos = crearEstilos(tema);
@@ -278,6 +330,13 @@ function SesionDelDia({ outbox, plan, alGuardarSerie, alConfirmar }: PropsSesion
   const [cerrando, setCerrando] = useState(false);
   const [errorFinal, setErrorFinal] = useState<string>();
   const [terminada, setTerminada] = useState(false);
+  const [recien, setRecien] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!recien) return undefined;
+    const temporizador = setTimeout(() => setRecien(null), DESHACER_MS);
+    return () => clearTimeout(temporizador);
+  }, [recien]);
 
   if (error) {
     return (
@@ -294,8 +353,9 @@ function SesionDelDia({ outbox, plan, alGuardarSerie, alConfirmar }: PropsSesion
   const ejercicios = dia?.ejercicios ?? [];
   const deEjercicio = (id: string) => series.filter((s) => s.ejercicio === id);
   // Sin elección, la fila activa es la siguiente serie prevista: el primer ejercicio al que le faltan series.
-  const activo: Activo =
-    elegido ??
+  const activo: Activo = pausada
+    ? null
+    : elegido ??
     (() => {
       const siguiente = ejercicios.find((e) => deEjercicio(e.idExterno).filter((s) => !s.calentamiento).length < e.series);
       return siguiente ? { ejercicio: siguiente.idExterno } : null;
@@ -306,9 +366,12 @@ function SesionDelDia({ outbox, plan, alGuardarSerie, alConfirmar }: PropsSesion
       await conMensaje(outbox.corregirSerie(sesion.uuid, corrige.uuid, aDatos(e.idExterno, corrige.orden, v)));
     } else {
       const orden = Math.max(0, ...series.map((s) => s.orden)) + 1;
-      await conMensaje(outbox.registrarSerie(sesion.uuid, aDatos(e.idExterno, orden, v)));
+      const nueva = await conMensaje(outbox.registrarSerie(sesion.uuid, aDatos(e.idExterno, orden, v)));
+      Vibration.vibrate(VIBRACION_MS);
       alGuardarSerie();
+      setRecien(nueva.uuid);
     }
+    if (v.dolor !== undefined && v.dolor >= DOLOR_ALTO) alDolorAlto();
     await recargar();
     setElegido(null);
   };
@@ -316,6 +379,10 @@ function SesionDelDia({ outbox, plan, alGuardarSerie, alConfirmar }: PropsSesion
     await conMensaje(outbox.anularSerie(sesion.uuid, s.uuid));
     await recargar();
     setPorAnular(null);
+  };
+  const deshacer = () => {
+    setRecien(null);
+    alDeshacerSerie();
   };
   const acabar = async () => {
     setCerrando(true);
@@ -362,6 +429,8 @@ function SesionDelDia({ outbox, plan, alGuardarSerie, alConfirmar }: PropsSesion
           alGuardar={guardar}
           alPedirAnular={setPorAnular}
           alAnular={anular}
+          recien={recien}
+          alDeshacer={deshacer}
         />
       ))}
       <View style={estilos.final}>
@@ -408,11 +477,19 @@ export function SesionEntreno() {
   const descanso = useDescanso();
   const { restanteMs } = descanso;
   const [confirmando, setConfirmando] = useState(false);
+  const [dolorAlto, setDolorAlto] = useState(false);
+  const pie =
+    dolorAlto || restanteMs !== null ? (
+      <>
+        {dolorAlto ? <AvisoDolorAlto alCerrar={() => setDolorAlto(false)} /> : null}
+        {restanteMs === null ? null : <PanelDescanso descanso={descanso} restanteMs={restanteMs} />}
+      </>
+    ) : undefined;
   return (
-    <Pantalla hueco="s4" seguirFinal={confirmando} pie={restanteMs === null ? undefined : <PanelDescanso descanso={descanso} restanteMs={restanteMs} />}>
+    <Pantalla hueco="s4" seguirFinal={confirmando} pie={pie}>
       <EncabezadoAtras titulo="Sesión de hoy" />
       <ConOutbox>
-        {(outbox) => <ConPlanParaEntrenar>{(plan) => <SesionDelDia outbox={outbox} plan={plan} alGuardarSerie={descanso.empezar} alConfirmar={setConfirmando} />}</ConPlanParaEntrenar>}
+        {(outbox) => <ConPlanParaEntrenar>{(plan) => <SesionDelDia outbox={outbox} plan={plan} alGuardarSerie={descanso.empezar} alDeshacerSerie={descanso.saltar} alConfirmar={setConfirmando} pausada={dolorAlto} alDolorAlto={() => setDolorAlto(true)} />}</ConPlanParaEntrenar>}
       </ConOutbox>
     </Pantalla>
   );
@@ -430,5 +507,7 @@ function crearEstilos(tema: Theme) {
     final: { gap: tema.space.s2 },
     descanso: { flexDirection: 'row', alignItems: 'center', gap: tema.space.s2, paddingTop: tema.space.s2, borderTopWidth: tema.border.fino, borderTopColor: tema.color.outline },
     reloj: { flex: 1 },
+    // §5.5: borde completo de 2 px en `error`, nunca solo color (va con icono y la palabra «Aviso»).
+    alerta: { gap: tema.space.s2, padding: tema.space.s35, borderRadius: tema.radius.md, borderWidth: tema.border.foco, borderColor: tema.color.error, backgroundColor: tema.color.surfaceHigh },
   });
 }

@@ -30,4 +30,16 @@ class MotivosTest {
 
 		assertThat(Motivos.sinSesiones(regla)).isEqualTo(esperado).doesNotContain("carga");
 	}
+
+	@ParameterizedTest
+	@CsvSource(delimiter = '|', textBlock = """
+			1 | Repite 50 kg: te falta completar 10 repeticiones con 2 en reserva o menos en la serie de trabajo.
+			3 | Repite 50 kg: te falta completar 10 repeticiones con 2 en reserva o menos en las 3 series de trabajo.
+			""")
+	void repetirNombraLasSeriesPrevistas(int series, String esperado) {
+		ReglaEjercicio regla = new ReglaEjercicio(series, 6, 10, 2, new BigDecimal("2.5"), null);
+
+		assertThat(Motivos.de(Estado.ACUMULANDO, regla, new BigDecimal("50"), 6, 10, false, false))
+				.isEqualTo(esperado);
+	}
 }

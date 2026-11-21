@@ -5,8 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * La regla de la siguiente sesión (ADR 0008 §5): si en todas las series de trabajo completas
- * {@code repeticionesMax} con {@code rirObjetivo} o menos, la próxima vez +{@code incrementoKg}; si no, repite.
+ * La regla de la siguiente sesión (ADR 0008 §5): si haces al menos las {@code seriesPrevistas} y en todas tus
+ * series de trabajo completas {@code repeticionesMax} con {@code rirObjetivo} o menos, la próxima vez
+ * +{@code incrementoKg}; si no, repite.
  * Es la misma regla que viaja en el plan para que la app la aplique sin red.
  */
 public final class ReglaProgresion {
@@ -20,15 +21,19 @@ public final class ReglaProgresion {
 	}
 
 	/** Carga de la próxima vez a partir de las series de trabajo vigentes de la última sesión. */
-	public static Optional<BigDecimal> siguienteCarga(List<SerieTrabajo> series, int repeticionesMax,
-			int rirObjetivo, BigDecimal incrementoKg) {
-		boolean cumplida = cumplida(series, repeticionesMax, rirObjetivo);
+	public static Optional<BigDecimal> siguienteCarga(List<SerieTrabajo> series, int seriesPrevistas,
+			int repeticionesMax, int rirObjetivo, BigDecimal incrementoKg) {
+		boolean cumplida = cumplida(series, seriesPrevistas, repeticionesMax, rirObjetivo);
 		return cargaBase(series).map(base -> cumplida ? base.add(incrementoKg) : base);
 	}
 
-	/** Todas las series llegaron a {@code repeticionesMax} con {@code rirObjetivo} o menos (y hubo alguna). */
-	public static boolean cumplida(List<SerieTrabajo> series, int repeticionesMax, int rirObjetivo) {
-		return !series.isEmpty() && series.stream().allMatch(
+	/**
+	 * Hubo al menos {@code seriesPrevistas} (y alguna) y todas llegaron a {@code repeticionesMax} con
+	 * {@code rirObjetivo} o menos.
+	 */
+	public static boolean cumplida(List<SerieTrabajo> series, int seriesPrevistas, int repeticionesMax,
+			int rirObjetivo) {
+		return !series.isEmpty() && series.size() >= seriesPrevistas && series.stream().allMatch(
 				s -> s.repeticiones() >= repeticionesMax && s.rir() != null && s.rir() <= rirObjetivo);
 	}
 }

@@ -111,6 +111,21 @@ class RutinasApiTest extends SoporteLimitaciones {
 	}
 
 	@Test
+	void sinMaterialOConMaterialSinEjerciciosLoDiceYNoGuardaUnPlanVacio() throws Exception {
+		Cliente cliente = cuentaConSesion("Pixel");
+		Map<String, Object> sinMaterial = cuerpo(3, 60);
+		sinMaterial.put("material", List.of());
+		Map<String, Object> soloBanda = cuerpo(3, 60);
+		soloBanda.put("material", List.of("banda"));
+
+		enviarAutenticado(RUTA, cliente, sinMaterial).andExpect(status().isBadRequest());
+		enviarAutenticado(RUTA, cliente, soloBanda).andExpect(status().isUnprocessableContent())
+				.andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("material")));
+		assertThat(contar("SELECT COUNT(*) FROM plan_version p JOIN usuario u ON u.id = p.usuario_id "
+				+ "WHERE u.correo = ?", cliente.correo())).isZero();
+	}
+
+	@Test
 	void sinSesionDa401() throws Exception {
 		mvc.perform(post(RUTA).contentType(MediaType.APPLICATION_JSON)
 				.content(json.writeValueAsString(cuerpo(3, 60)))).andExpect(status().isUnauthorized());

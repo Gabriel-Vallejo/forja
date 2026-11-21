@@ -71,6 +71,11 @@ public class ServicioPlan {
 	public PlanGenerado guardar(UUID usuario, PlanRutina plan) {
 		long usuarioId = idDe(usuario);
 		List<EjercicioPlan> elegidos = plan.dias().stream().flatMap(d -> d.ejercicios().stream()).toList();
+		if (elegidos.isEmpty()) {
+			// Pasa con material que no tiene ejercicios curados (banda, fitball…) o si todo queda excluido.
+			throw ErrorNegocio.noProcesable("No hay ejercicios compatibles con tu material y tus exclusiones: "
+					+ "añade material o quita alguna exclusión.");
+		}
 		Map<String, FichaEjercicio> fichas = planes.fichas(elegidos.stream().map(EjercicioPlan::idExterno).distinct()
 				.toList());
 		UUID uuid = UUID.randomUUID();
