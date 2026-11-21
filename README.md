@@ -14,7 +14,7 @@ Te pregunta lo que te limita, mide tu movilidad y arma la rutina con un solver q
 - **IA explicable:** un LLM local solo explica las decisiones de las reglas; nunca escribe series.
 
 ## ◆ Lo que ya funciona (v0.1, en curso)
-- Cuenta con correo y contraseña (Argon2id, lista local de 46 000 contraseñas filtradas), dispositivos, recuperación, «Descargar mis datos» y borrado total; si borras la cuenta desde otro dispositivo, este borra lo que guarda de ella.
+- Cuenta con correo y contraseña (Argon2id, lista local de 46 000 contraseñas filtradas), verificación y recuperación por correo (Azure Communication Services, datos en Europa), dispositivos, «Descargar mis datos» y borrado total; si borras la cuenta desde otro dispositivo, este borra lo que guarda de ella.
 - Limitaciones con consentimiento aparte y cifradas, cribado de 7 preguntas y banderas rojas por reglas que bloquean el plan cuando toca.
 - Tres tests de movilidad que cambian variantes concretas del plan.
 - Rutina con CP-SAT: duración, topes por patrón y día, volumen por músculo, como mucho 2 días por ejercicio si hay alternativa, y «por qué este ejercicio» con su fuente y su nivel.
@@ -67,6 +67,14 @@ cd backend && ./mvnw spring-boot:run     # API en :8080 (necesita el .env y MySQ
 cd frontend && npm ci && npx expo start  # «a» abre Android con la build de desarrollo
 ```
 Tests: `./mvnw verify` (backend), `npm test` (app). Los caminos críticos de Maestro corren en un emulador en el CI (`.github/workflows/e2e.yml`); en local, ver [frontend/README.md](frontend/README.md).
+
+## ◆ Desplegar
+El backend corre en Azure (Container Apps, MySQL Flexible y Communication Services para el correo):
+```bash
+az login
+infra/azure/desplegar.sh   # crea lo que falte y sube la versión del commit actual
+```
+Detalles, costes y límites en [infra/README.md](infra/README.md). El APK firmado sale de `frontend/scripts/apk-release.sh`.
 
 ## Licencia
 [MIT](LICENSE)

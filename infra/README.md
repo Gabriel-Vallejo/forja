@@ -6,7 +6,7 @@ Despliegue del backend en Azure (Azure for Students).
 | Recurso | Para qué | Tamaño |
 |---|---|---|
 | Azure Database for MySQL Flexible | La base de datos (MySQL 8.4) | B1ms, 20 GB, copias 7 días |
-| Container Registry | La imagen del backend (se compila en Azure con `az acr build`) | Basic |
+| Container Registry | La imagen del backend (se compila en local con Docker: Azure for Students no permite `az acr build`) | Basic |
 | Container Apps | El backend con HTTPS | 0,5 vCPU, 1 GiB, de 0 a 1 réplica |
 | Communication Services Email | Correos de verificación y recuperación | Dominio gestionado por Azure, datos en Europa |
 
@@ -14,7 +14,7 @@ Todo en el grupo `forja`, región `spaincentral` (cámbiala con `REGION=…`).
 
 ## ◆ Desplegar
 ```bash
-az login                      # una vez
+az login                      # una vez (Docker necesita el plugin buildx)
 infra/azure/desplegar.sh      # crea lo que falte, sube la versión del commit actual e imprime la URL
 ```
 - Se puede repetir: las siguientes veces solo compila y sube la imagen nueva (~3 min).

@@ -58,10 +58,15 @@ fi
 existe az mysql flexible-server db show -g "$GRUPO" -s "$MYSQL" -d forja ||
 	az mysql flexible-server db create -g "$GRUPO" -s "$MYSQL" -d forja -o none
 
-echo "→ Registro de imágenes $REGISTRO y build $VERSION (se compila en Azure)"
+echo "→ Registro de imágenes $REGISTRO e imagen $VERSION (se compila aquí con Docker)"
 existe az acr show -n "$REGISTRO" || az acr create -g "$GRUPO" -n "$REGISTRO" -l "$REGION" --sku Basic --admin-enabled true -o none
-az acr build -r "$REGISTRO" -t "forja-backend:$VERSION" "$RAIZ/backend" -o none
 REGISTRO_CLAVE=$(az acr credential show -n "$REGISTRO" --query 'passwords[0].value' -o tsv)
+# Azure for Students no permite ACR Tasks (az acr build): la imagen se compila en local y se sube.
+# Con BuildKit y capas OCI: el constructor clásico de Docker mezcla capas OCI y Docker en el manifiesto y
+# Container Apps lo rechaza («unsupported MIME type for compression»).
+echo "$REGISTRO_CLAVE" | docker login "$REGISTRO.azurecr.io" -u "$REGISTRO" --password-stdin >/dev/null
+docker buildx build -q --provenance=false --sbom=false -t "$REGISTRO.azurecr.io/forja-backend:$VERSION" \
+	--output type=image,oci-mediatypes=true,push=true "$RAIZ/backend" >/dev/null
 
 echo "→ Correo $CORREO (dominio gestionado por Azure, datos en Europa)"
 existe az communication email show -g "$GRUPO" -n "$EMAIL" ||
