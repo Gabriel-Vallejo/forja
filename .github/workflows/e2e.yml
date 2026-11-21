@@ -44,6 +44,11 @@ jobs:
       MYSQL_PASSWORD: forja-e2e
       MAESTRO_VERSION: 2.12.1
     steps:
+      - name: Liberar disco
+        # La build de Android y la imagen del emulador no caben en el disco del runner tal como viene.
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /opt/hostedtoolcache/CodeQL
+          df -h /
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
@@ -103,6 +108,10 @@ jobs:
           # Solo en esta build de prueba: la app habla con el backend del runner por HTTP.
           sed -i 's/<application /<application android:usesCleartextTraffic="true" /' android/app/src/main/AndroidManifest.xml
           cd android && ./gradlew assembleRelease -PreactNativeArchitectures=x86_64 --no-daemon -q
+          # Solo hace falta el APK: lo demás de Gradle y node_modules ocupa varios GB.
+          cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/forja.apk"
+          cd .. && rm -rf android node_modules ~/.gradle/caches
+          df -h /
 
       - name: Activar KVM
         run: |
@@ -126,7 +135,7 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
           script: |
-            adb install frontend/android/app/build/outputs/apk/release/app-release.apk
+            adb install "$RUNNER_TEMP/forja.apk"
             maestro test -e METRO=no -e CORREO="$CORREO" -e CONTRASENA="$CONTRASENA" --format junit --output maestro.xml frontend/.maestro/
 
       - name: Guardar registros si falla
