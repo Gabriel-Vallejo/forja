@@ -27,6 +27,8 @@ public class ConfiguracionSeguridad {
 
 	private static final List<String> ORIGENES_TAURI = List.of("tauri://localhost", "http://tauri.localhost");
 	private static final long SEGUNDOS_CACHE_CORS = 3600;
+	private static final String CSP = "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; "
+			+ "form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
 	private static final String[] RUTAS_DOCUMENTACION = { "/v3/api-docs", "/v3/api-docs/**", "/swagger-ui.html",
 			"/swagger-ui/**" };
 
@@ -53,12 +55,16 @@ public class ConfiguracionSeguridad {
 				.httpBasic(AbstractHttpConfigurer::disable)
 				.formLogin(AbstractHttpConfigurer::disable)
 				.logout(AbstractHttpConfigurer::disable)
+				// Las páginas del enlace del correo solo cargan sus propios archivos; la API no sirve HTML.
+				.headers(h -> h.contentSecurityPolicy(c -> c.policyDirectives(CSP)))
 				.exceptionHandling(e -> e.authenticationEntryPoint(problemas).accessDeniedHandler(problemas))
 				.authorizeHttpRequests(a -> a
 						// Cerrar sesión necesita saber qué dispositivo cierra, y eso sale del token.
 						.requestMatchers(HttpMethod.POST, "/api/v1/auth/cerrar-sesion").authenticated()
 						.requestMatchers("/api/v1/auth/**", "/actuator/health", "/actuator/health/**", "/error")
 						.permitAll()
+						// Páginas del enlace del correo (verificar y restablecer): estáticas, el token va en el fragmento.
+						.requestMatchers(HttpMethod.GET, "/cuenta/*").permitAll()
 						// Documentación de la API: sin datos de usuarios; fuera del perfil dev, springdoc no la sirve.
 						.requestMatchers(HttpMethod.GET, RUTAS_DOCUMENTACION).permitAll()
 						.anyRequest().authenticated())

@@ -1,5 +1,5 @@
 # Entra con la cuenta de prueba: maestro test -e CORREO=… -e CONTRASENA=… (nunca en el repo).
-appId: com.anonymous.forja
+appId: io.github.gabrielvallejo.forja
 ---
 - tapOn:
     text: Correo

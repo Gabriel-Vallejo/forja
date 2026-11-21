@@ -54,6 +54,15 @@ class SeguridadHttpTest extends ApiCuentaSoporte {
 	}
 
 	@Test
+	void lasPaginasDelEnlaceDelCorreoSeVenSinTokenYSoloCarganLoSuyo() throws Exception {
+		for (String pagina : new String[] { "/cuenta/verificar.html", "/cuenta/restablecer.html" }) {
+			mvc.perform(get(pagina)).andExpect(status().isOk())
+					.andExpect(header().string("Content-Security-Policy",
+							org.hamcrest.Matchers.containsString("default-src 'none'; script-src 'self'")));
+		}
+	}
+
+	@Test
 	void elTokenDelLoginSirve() throws Exception {
 		Cliente cliente = cuentaConSesion("Pixel");
 

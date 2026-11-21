@@ -1,5 +1,5 @@
 # Camino crítico 1: entrar y ver la semana del plan.
-appId: com.anonymous.forja
+appId: io.github.gabrielvallejo.forja
 name: Entrar y ver tu semana
 ---
 - runFlow: comun/abrir.yaml

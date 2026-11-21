@@ -1,6 +1,6 @@
 # Abre la app sin datos. Con METRO=si (por defecto) carga el bundle de la build de desarrollo desde Metro
 # (adb reverse tcp:8081 tcp:8081); el CI pasa METRO=no porque usa una build release con el JS dentro.
-appId: com.anonymous.forja
+appId: io.github.gabrielvallejo.forja
 env:
   METRO: si
 ---

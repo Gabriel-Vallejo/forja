@@ -1,5 +1,5 @@
 # Camino crítico 4: Perfil → «Descargar mis datos» → Privacidad → descargar → hoja de compartir del sistema.
-appId: com.anonymous.forja
+appId: io.github.gabrielvallejo.forja
 name: Descargar mis datos
 ---
 - runFlow: comun/abrir.yaml

@@ -13,6 +13,11 @@ forja:
     exigir-verificacion: ${FORJA_CUENTA_EXIGIR_VERIFICACION:true}
   contrasenas-filtradas: ${FORJA_CONTRASENAS_FILTRADAS:}
   origen-web: ${FORJA_ORIGEN_WEB:}
+  # Correo transaccional (Azure Communication Services). Sin cadena de conexión no se envía nada.
+  correo:
+    cadena-conexion: ${FORJA_CORREO_CADENA_CONEXION:}
+    remitente: ${FORJA_CORREO_REMITENTE:}
+    url-enlaces: ${FORJA_CORREO_URL_ENLACES:}
   # Generador de la rutina con CP-SAT (ADR 0002). Los pesos, rangos y objetivos viven aquí, no en el código.
   rutina:
     pesos:

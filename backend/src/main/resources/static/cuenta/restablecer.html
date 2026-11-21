@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Contraseña nueva · Forja</title>
+  <link rel="stylesheet" href="cuenta.css">
+</head>
+<body>
+<main>
+  <h1>Elige una contraseña nueva</h1>
+  <form data-ruta="/api/v1/auth/restablecer">
+    <p>Al cambiarla se cierra la sesión en todos tus dispositivos.</p>
+    <label>Contraseña nueva
+      <input name="contrasena" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
+    </label>
+    <label>Repítela
+      <input name="repetida" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
+    </label>
+    <button type="submit">Cambiar la contraseña</button>
+  </form>
+  <p id="mensaje" role="alert"></p>
+  <p id="hecho" hidden>Contraseña cambiada. Vuelve a la app y entra con la nueva.</p>
+</main>
+<script src="cuenta.js"></script>
+</body>
+</html>

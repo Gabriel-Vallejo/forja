@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Verificar la cuenta · Forja</title>
+  <link rel="stylesheet" href="cuenta.css">
+</head>
+<body>
+<main>
+  <h1>Verifica tu cuenta</h1>
+  <form data-ruta="/api/v1/auth/verificar">
+    <p>Pulsa el botón para confirmar que este correo es tuyo.</p>
+    <button type="submit">Verificar mi cuenta</button>
+  </form>
+  <p id="mensaje" role="alert"></p>
+  <p id="hecho" hidden>Cuenta verificada. Vuelve a la app y entra con tu correo y tu contraseña.</p>
+</main>
+<script src="cuenta.js"></script>
+</body>
+</html>

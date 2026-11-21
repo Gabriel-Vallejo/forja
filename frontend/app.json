@@ -2,7 +2,7 @@
   "expo": {
     "name": "Forja",
     "slug": "forja",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -17,7 +17,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.forja"
+      "package": "io.github.gabrielvallejo.forja"
     },
     "web": {
       "favicon": "./assets/favicon.png"

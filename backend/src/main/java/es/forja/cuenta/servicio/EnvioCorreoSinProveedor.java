@@ -2,10 +2,8 @@ package es.forja.cuenta.servicio;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 /** Implementación por defecto: no envía nada y no deja en el log ni el correo ni el token. */
-@Component
 public class EnvioCorreoSinProveedor implements EnvioCorreo {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EnvioCorreoSinProveedor.class);

@@ -297,7 +297,7 @@ sequenceDiagram
 
 ### `infra/`
 - **VPS:** `docker compose -f infra/compose.prod.yml` con Caddy delante. El archivo aún no existe, y Caddy no tiene versión fijada todavía.
-- **Azure (v1.0, fase 5):** Container Apps para el backend y el `vision-service` de CPU, y Azure Database for MySQL, con IaC en Bicep o Terraform.
+- **Azure (desde la v0.1; IaC en la fase 5):** Container Apps para el backend y el `vision-service` de CPU, y Azure Database for MySQL, con IaC en Bicep o Terraform.
 
 ### `ops/`
 - **Hoy:** Prometheus solo se raspa a sí mismo, y Grafana tiene provisionada la fuente de datos.
@@ -590,7 +590,7 @@ Prefijo `/api/v1`. Es la tabla de CONTEXT §1.7 con los cambios de los ADR 0003,
   - `npx expo export -p web`;
   - el informe de JaCoCo.
 
-**Despliegue:** primero el VPS Hostinger con `infra/compose.prod.yml` y Caddy (HTTPS automático). En la v1.0, Azure con Container Apps y Azure Database for MySQL, con IaC. El worker de GPU sale siempre del portátil hacia la API pública y no abre puertos.
+**Despliegue:** desde la v0.1, Azure (Gabriel tiene Azure for Students): Container Apps para el backend (escala a cero, HTTPS del propio Azure, sin Caddy), Azure Database for MySQL Flexible (B1ms) y Azure Communication Services para el correo, con `infra/azure/desplegar.sh` (ver [infra/README.md](../infra/README.md)). La IaC con Bicep y la red privada llegan en la fase 5. El VPS de Hostinger queda para lo que no quepa en el crédito (Ollama y el OCR en CPU). El worker de GPU sale siempre del portátil hacia la API pública y no abre puertos.
 
 **Puertos locales** (todos atados a `127.0.0.1`):
 

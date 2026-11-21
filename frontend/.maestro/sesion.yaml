@@ -1,6 +1,6 @@
 # Camino crítico 3: empezar la sesión de hoy, apuntar una serie y terminar.
 # La serie va marcada como calentamiento para no mover la progresión de la cuenta de prueba.
-appId: com.anonymous.forja
+appId: io.github.gabrielvallejo.forja
 name: Registrar una serie
 ---
 - runFlow: comun/abrir.yaml
