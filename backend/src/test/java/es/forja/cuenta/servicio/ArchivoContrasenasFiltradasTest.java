@@ -17,9 +17,13 @@ class ArchivoContrasenasFiltradasTest {
 	Path carpeta;
 
 	@Test
-	void sinRutaLaListaEstaVaciaYNoRechazaNada() {
-		assertThat(new ArchivoContrasenasFiltradas("").contiene("password1234")).isFalse();
-		assertThat(new ArchivoContrasenasFiltradas(null).contiene("password1234")).isFalse();
+	void sinRutaUsaLaListaIncluidaDeContrasenasComunesDe12OMas() {
+		for (ArchivoContrasenasFiltradas lista : java.util.List.of(new ArchivoContrasenasFiltradas(""),
+				new ArchivoContrasenasFiltradas(null))) {
+			assertThat(lista.contiene("123qweasdzxc")).isTrue();
+			assertThat(lista.contiene("1Q2W3E4R5T6Y")).isTrue();
+			assertThat(lista.contiene("una-contrasena-larga-1")).isFalse();
+		}
 	}
 
 	@Test
