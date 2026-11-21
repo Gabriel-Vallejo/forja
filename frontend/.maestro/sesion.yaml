@@ -6,15 +6,22 @@ name: Registrar una serie
 - runFlow: comun/abrir.yaml
 - runFlow: comun/entrar.yaml
 - tapOn: Empezar sesión
+# En pantallas pequeñas «Guardar serie» queda más abajo: basta con que esté la fila de la serie 1.
 - extendedWaitUntil:
-    visible: Guardar serie.*
+    visible: "Peso, .*serie 1"
     timeout: 30000
 # El peso puede venir del plan o vacío («elige») si es la primera vez: se borra y se escribe siempre.
 - tapOn: "Peso, .*serie 1"
 - eraseText: 10
 - inputText: "20"
 - hideKeyboard
+- scrollUntilVisible:
+    element: Calentamiento
+    direction: DOWN
 - tapOn: Calentamiento
+- scrollUntilVisible:
+    element: Guardar serie.*
+    direction: DOWN
 - tapOn: Guardar serie.*
 - extendedWaitUntil:
     visible: .*hecha.*

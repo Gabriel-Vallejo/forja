@@ -78,7 +78,8 @@ export function Contador({ etiqueta, contexto, valor, alCambiar, paso, min, max,
 
 function crearEstilos(tema: Theme) {
   return StyleSheet.create({
-    contenedor: { gap: tema.space.s1, flex: 1 },
+    // Lo mínimo para que −, el campo y + no se monten: con menos sitio, el de al lado baja de línea.
+    contenedor: { gap: tema.space.s1, flex: 1, minWidth: tema.hit.min * 3 + tema.space.s1 * 2 },
     cabecera: { gap: tema.space.s05 },
     fila: { flexDirection: 'row', alignItems: 'center', gap: tema.space.s1 },
     paso: {

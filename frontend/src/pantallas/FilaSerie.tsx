@@ -207,7 +207,8 @@ function crearEstilos(tema: Theme) {
       borderColor: tema.color.onSurfaceVariant,
       backgroundColor: tema.color.surfaceHigh,
     },
-    dos: { flexDirection: 'row', gap: tema.space.s3 },
+    // En móviles de menos de ~400 dp de ancho, repeticiones y RIR no caben juntos: RIR baja a la línea de abajo.
+    dos: { flexDirection: 'row', flexWrap: 'wrap', gap: tema.space.s3 },
     opciones: opcionesFila(tema),
     dolor: { gap: tema.space.s2 },
     // Botón de confirmar: 72 dp, ancho completo, relleno primario (§5.3).
