@@ -33,12 +33,13 @@ public class ServicioRecuperacion {
 	private final PasswordEncoder codificador;
 	private final EnvioCorreo correo;
 	private final LimitadorIntentos limitador;
+	private final FallosLogin fallos;
 	private final TransactionTemplate transaccion;
 	private final Clock reloj;
 
 	public ServicioRecuperacion(UsuarioRepositorio usuarios, DispositivoRepositorio dispositivos,
 			TokenRefrescoRepositorio refrescos, ServicioTokensUnUso tokens, PoliticaContrasena politica,
-			PasswordEncoder codificador, EnvioCorreo correo, LimitadorIntentos limitador,
+			PasswordEncoder codificador, EnvioCorreo correo, LimitadorIntentos limitador, FallosLogin fallos,
 			TransactionTemplate transaccion, Clock reloj) {
 		this.usuarios = usuarios;
 		this.dispositivos = dispositivos;
@@ -48,6 +49,7 @@ public class ServicioRecuperacion {
 		this.codificador = codificador;
 		this.correo = correo;
 		this.limitador = limitador;
+		this.fallos = fallos;
 		this.transaccion = transaccion;
 		this.reloj = reloj;
 	}
@@ -75,14 +77,16 @@ public class ServicioRecuperacion {
 		politica.exigir(contrasenaNueva);
 		String hash = codificador.encode(contrasenaNueva);
 		Instant ahora = reloj.instant();
-		transaccion.executeWithoutResult(estado -> {
-			long usuarioId = tokens.consumir(token, TipoTokenUnUso.RECUPERACION);
-			tokens.gastarPendientes(usuarioId, TipoTokenUnUso.RECUPERACION);
-			usuarios.cambiarContrasena(usuarioId, hash);
+		long usuarioId = java.util.Objects.requireNonNull(transaccion.execute(estado -> {
+			long id = tokens.consumir(token, TipoTokenUnUso.RECUPERACION);
+			tokens.gastarPendientes(id, TipoTokenUnUso.RECUPERACION);
+			usuarios.cambiarContrasena(id, hash);
 			// Usar el enlace prueba que el correo es tuyo: quien registró tu correo antes que tú no te deja fuera.
-			usuarios.marcarVerificado(usuarioId);
-			refrescos.revocarDeUsuario(usuarioId, ahora);
-			dispositivos.revocarTodosDeUsuario(usuarioId, ahora);
-		});
+			usuarios.marcarVerificado(id);
+			refrescos.revocarDeUsuario(id, ahora);
+			dispositivos.revocarTodosDeUsuario(id, ahora);
+			return id;
+		}));
+		fallos.olvidar(usuarioId);
 	}
 }

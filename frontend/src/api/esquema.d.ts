@@ -292,6 +292,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/estandares": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["todas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/movilidad": {
         parameters: {
             query?: never;
@@ -1169,6 +1185,15 @@ export interface components {
             idExterno: string;
             nombre: string;
         };
+        TablaEstandar: {
+            kg: number[];
+            levantamiento: string;
+            /** Format: int32 */
+            muestra: number;
+            pesoDesdeKg: number;
+            pesoHastaKg: number | null;
+            sexo: string;
+        };
         Token: {
             token: string;
         };
@@ -1633,6 +1658,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    todas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TablaEstandar"][];
+                };
             };
         };
     };

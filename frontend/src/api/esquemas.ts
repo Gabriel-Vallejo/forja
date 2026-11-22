@@ -120,6 +120,18 @@ export const esquemaConsentimientos = z.array(
 ) satisfies z.ZodType<Lectura<Esquemas['RespuestaConsentimiento'][]>>;
 export type Consentimiento = z.infer<typeof esquemaConsentimientos>[number];
 
+/** Percentiles de fuerza de OpenPowerlifting (`GET /estandares`): datos públicos, el percentil se calcula aquí. */
+export const esquemaEstandares = z.array(
+  z.object({
+    levantamiento: z.enum(['sentadilla', 'banca', 'peso_muerto']),
+    sexo: z.enum(['hombre', 'mujer']),
+    pesoDesdeKg: z.number(),
+    pesoHastaKg: z.number().nullable(),
+    muestra: z.number().int(),
+    kg: z.array(z.number()).length(99),
+  }),
+) satisfies z.ZodType<Lectura<Esquemas['TablaEstandar'][]>>;
+
 /** Racha semanal y cifras del perfil (`GET /progreso/resumen`). */
 export const esquemaResumenProgreso = z.object({
   sesiones: z.number().int(),

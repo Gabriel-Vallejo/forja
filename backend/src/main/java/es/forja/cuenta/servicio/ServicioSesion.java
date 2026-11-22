@@ -36,6 +36,7 @@ public class ServicioSesion {
 	private final ServicioJwt jwt;
 	private final PasswordEncoder codificador;
 	private final LimitadorIntentos limitador;
+	private final FallosLogin fallos;
 	private final TransactionTemplate transaccion;
 	private final Clock reloj;
 	private final boolean exigirVerificacion;
@@ -44,7 +45,7 @@ public class ServicioSesion {
 
 	public ServicioSesion(UsuarioRepositorio usuarios, DispositivoRepositorio dispositivos,
 			TokenRefrescoRepositorio refrescos, ServicioJwt jwt, PasswordEncoder codificador,
-			LimitadorIntentos limitador, TransactionTemplate transaccion, Clock reloj,
+			LimitadorIntentos limitador, FallosLogin fallos, TransactionTemplate transaccion, Clock reloj,
 			@Value("${forja.cuenta.exigir-verificacion:true}") String exigirVerificacion) {
 		this.usuarios = usuarios;
 		this.dispositivos = dispositivos;
@@ -52,6 +53,7 @@ public class ServicioSesion {
 		this.jwt = jwt;
 		this.codificador = codificador;
 		this.limitador = limitador;
+		this.fallos = fallos;
 		this.transaccion = transaccion;
 		this.reloj = reloj;
 		// A prueba de fallos: solo un «false» explícito desactiva la exigencia; vacío o con erratas, se exige.
@@ -68,39 +70,22 @@ public class ServicioSesion {
 		limitador.exigir(ACCION, ip, direccion);
 		Usuario usuario = usuarios.porCorreo(direccion).orElse(null);
 		Instant ahora = reloj.instant();
-		// Sin cuenta o con la cuenta en espera se compara contra el hash señuelo: mismo tiempo y mismo 401,
+		// Sin cuenta o con este origen en espera se compara contra el hash señuelo: mismo tiempo y mismo 401,
 		// para que ni la respuesta ni la duración delaten qué correos existen o están bloqueados.
-		boolean comparable = usuario != null && !enEspera(usuario, ahora);
+		boolean comparable = usuario != null && !fallos.enEspera(usuario.id(), ip, ahora);
 		boolean coincide = codificador.matches(contrasena, comparable ? usuario.hashContrasena() : hashSenuelo);
 		if (!comparable) {
 			throw ErrorCuenta.noAutenticado(CREDENCIALES_MALAS);
 		}
 		if (!coincide) {
-			registrarFallo(usuario, ahora);
+			fallos.fallo(usuario.id(), ip, ahora);
 			throw ErrorCuenta.noAutenticado(CREDENCIALES_MALAS);
 		}
 		if (exigirVerificacion && !usuario.verificado()) {
 			throw ErrorCuenta.noAutenticado(CREDENCIALES_MALAS);
 		}
-		if (usuario.fallosSeguidos() > 0 || usuario.bloqueadoHasta() != null) {
-			usuarios.guardarFallos(usuario.id(), 0, null);
-		}
+		fallos.acierto(usuario.id(), ip);
 		return transaccion.execute(estado -> abrirSesion(usuario, datos, ahora));
-	}
-
-	private static boolean enEspera(Usuario usuario, Instant ahora) {
-		return usuario.bloqueadoHasta() != null && ahora.isBefore(usuario.bloqueadoHasta());
-	}
-
-	/** Suma el fallo de forma atómica y, si toca, fija la espera según el contador resultante. */
-	private void registrarFallo(Usuario usuario, Instant ahora) {
-		transaccion.executeWithoutResult(estado -> {
-			int fallos = usuarios.sumarFallo(usuario.id());
-			Duration espera = ReglasCuenta.esperaTrasFallos(fallos);
-			if (!espera.isZero()) {
-				usuarios.bloquearHasta(usuario.id(), ahora.plus(espera));
-			}
-		});
 	}
 
 	private Sesion abrirSesion(Usuario usuario, DatosDispositivo datos, Instant ahora) {

@@ -1775,6 +1775,34 @@
         "required" : [ "idExterno", "nombre" ],
         "type" : "object"
       },
+      "TablaEstandar" : {
+        "properties" : {
+          "kg" : {
+            "items" : {
+              "type" : "number"
+            },
+            "type" : "array"
+          },
+          "levantamiento" : {
+            "type" : "string"
+          },
+          "muestra" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "pesoDesdeKg" : {
+            "type" : "number"
+          },
+          "pesoHastaKg" : {
+            "type" : [ "number", "null" ]
+          },
+          "sexo" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "kg", "levantamiento", "muestra", "pesoDesdeKg", "pesoHastaKg", "sexo" ],
+        "type" : "object"
+      },
       "Token" : {
         "properties" : {
           "token" : {
@@ -2345,6 +2373,27 @@
           }
         },
         "tags" : [ "cuenta-controlador" ]
+      }
+    },
+    "/api/v1/estandares" : {
+      "get" : {
+        "operationId" : "todas",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/TablaEstandar"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "estandares-controlador" ]
       }
     },
     "/api/v1/movilidad" : {

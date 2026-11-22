@@ -74,27 +74,6 @@ export const ZONAS: readonly { nombre: string; clave: Grupo; partes: readonly Gr
   { nombre: 'Core', clave: 'abdomen', partes: ['abdomen'], desplazamiento: -40 },
 ];
 
-/** Ejercicios con estándar de la calculadora; `desplazamiento` encuadra la miniatura en el músculo. */
-export const EJERCICIOS_CALCULADORA: readonly {
-  nombre: string;
-  musculo: string;
-  grupo: Grupo;
-  desplazamiento: number;
-  desplazamientoGrande: number;
-}[] = [
-  { nombre: 'Press de banca con barra', musculo: 'Pecho · tríceps · hombro', grupo: 'pecho', desplazamiento: -14, desplazamientoGrande: -22 },
-  { nombre: 'Sentadilla con barra', musculo: 'Cuádriceps · glúteos', grupo: 'cuadriceps', desplazamiento: -60, desplazamientoGrande: -96 },
-  { nombre: 'Peso muerto convencional', musculo: 'Espalda baja · glúteos · isquios', grupo: 'cuadriceps', desplazamiento: -40, desplazamientoGrande: -64 },
-  { nombre: 'Dominadas', musculo: 'Dorsal · bíceps', grupo: 'brazos', desplazamiento: -14, desplazamientoGrande: -22 },
-  { nombre: 'Press militar con barra', musculo: 'Hombros · tríceps', grupo: 'hombros', desplazamiento: -14, desplazamientoGrande: -22 },
-  { nombre: 'Curl con barra EZ', musculo: 'Bíceps', grupo: 'brazos', desplazamiento: -14, desplazamientoGrande: -22 },
-];
-
-export const SERIE_INICIAL = { peso: 80.5, repeticiones: 8 } as const;
-
-/** Resultado del rango tras la calculadora: aún no sale de la curva real. */
-export const RESULTADO_RANGO: Rango & { percentil: number } = { tipo: 'acero', grado: 3, top: 31, percentil: 69 };
-
 export const PERFIL = {
   personaliza: [
     { etiqueta: 'Tema', valor: 'Oscuro' },

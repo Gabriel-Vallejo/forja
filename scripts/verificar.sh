@@ -20,7 +20,7 @@ paso "app (lint, tipos, tests y tipos del OpenAPI)"
 (cd frontend && npm run -s lint && npx tsc --noEmit && npx jest --silent && npm run -s api)
 git diff --exit-code -- frontend/src/api/esquema.d.ts
 
-for dir in database/catalogo vision-service; do
+for dir in database/catalogo database/estandares vision-service; do
 	[ -f "$dir/pyproject.toml" ] || continue # el CI también se salta las carpetas sin código todavía
 	paso "$dir"
 	# Un entorno virtual por carpeta, fuera del repo; uv lo crea la primera vez.

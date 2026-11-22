@@ -2,6 +2,10 @@
 
 ## [Sin publicar]
 
+## [0.1.4] - 2026-11-22
+- La calculadora da tu rango con datos reales: percentiles de sentadilla, banca y peso muerto por sexo y peso corporal, de OpenPowerlifting (dominio público; solo *raw*, mayores de 18, 45 grupos). La tabla se calcula en el móvil: tu peso y tus marcas no viajan para esto. Avisa del sesgo: quien compite levanta más que la media del gimnasio.
+- Seguridad: la espera tras 10 contraseñas falladas va por cuenta **y origen** (IP; /64 en IPv6). Antes, cualquiera que supiera tu correo podía dejarte sin entrar hasta 1 h.
+
 ## [0.1.3] - 2026-11-22
 - Consentimiento de medidas **v2**: cuánto y cómo se guarda y que retirarlo no anula lo hecho antes (art. 7.3 RGPD).
 - Si un consentimiento se dio con un texto anterior, al entrar la app enseña el nuevo y no deja seguir sin aceptarlo o retirarlo (y borrar). Sin conexión no bloquea nada.

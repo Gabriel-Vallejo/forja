@@ -60,12 +60,43 @@ describe('Escala', () => {
 });
 
 describe('Resultado del rango', () => {
-  test('enseña el rango, la serie y su e1RM', async () => {
-    await renderizar(<RangoDetalle ejercicio="Press de banca con barra" peso={80.5} repeticiones={8} />);
+  // Banca, hombre de 80 a 90 kg: percentiles 1-99 de 50 a 148 kg.
+  const banca80 = { levantamiento: 'banca', sexo: 'hombre', pesoDesdeKg: 80, pesoHastaKg: 90, muestra: 93455, kg: Array.from({ length: 99 }, (_, i) => 50 + i) } as const;
+  const conPerfil = (cambios = {}) =>
+    apiFalsa({
+      estandares: jest.fn().mockResolvedValue([banca80]),
+      perfilDatos: jest.fn().mockResolvedValue({ sexo: 'hombre' }),
+      tieneConsentimientoMedidas: jest.fn().mockResolvedValue(true),
+      medidas: jest.fn().mockResolvedValue({ pesoKg: 85 }),
+      ...cambios,
+    });
 
-    avisoDeEjemplo();
-    expect(screen.getByRole('header', { name: 'ACERO III' })).toBeOnTheScreen();
+  test('con sexo y peso, el rango sale de la tabla de OpenPowerlifting', async () => {
+    await renderizar(<RangoDetalle ejercicio="Press de banca con barra" levantamiento="banca" peso={80.5} repeticiones={8} />, conPerfil());
+
+    // e1RM 102 kg: 53 de los 99 cortes por debajo → top 47 % → Plata III.
+    expect(await screen.findByRole('header', { name: 'PLATA III' })).toBeOnTheScreen();
     expect(screen.getByText('80,5 kg × 8 reps · e1RM ≈ 102 kg')).toBeOnTheScreen();
+    expect(screen.getByText('TOP 47 %')).toBeOnTheScreen();
+    expect(screen.getByText(/Frente a 93.455 personas de tu sexo y tu peso .* Datos de OpenPowerlifting/)).toBeOnTheScreen();
+    expect(screen.queryByLabelText('Datos de ejemplo')).toBeNull();
+  });
+
+  test('sin sexo ni peso no se inventa un rango: pide completar el perfil', async () => {
+    await renderizar(<RangoDetalle ejercicio="Sentadilla con barra" levantamiento="sentadilla" peso={100} repeticiones={5} />, apiFalsa());
+
+    expect(await screen.findByText(/nos falta tu sexo y tu peso/)).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Completar mi perfil' }));
+    expect(mockRouter.push).toHaveBeenCalledWith('/perfil-datos');
+  });
+
+  test('sin tabla para su peso lo dice en vez de dar un rango', async () => {
+    await renderizar(
+      <RangoDetalle ejercicio="Press de banca con barra" levantamiento="banca" peso={80} repeticiones={5} />,
+      conPerfil({ medidas: jest.fn().mockResolvedValue({ pesoKg: 60 }) }),
+    );
+
+    expect(await screen.findByText(/No hay suficientes personas de tu sexo y tu peso/)).toBeOnTheScreen();
   });
 });
 
@@ -78,7 +109,6 @@ describe('Calculadora', () => {
   test('con 80,5 kg × 8 el e1RM de Epley es 102 kg', async () => {
     await elegirBanca();
 
-    avisoDeEjemplo();
     expect(screen.getByText('e1RM ≈ 102 kg · Epley')).toBeOnTheScreen();
   });
 
@@ -101,7 +131,7 @@ describe('Calculadora', () => {
 
     expect(mockRouter.push).toHaveBeenCalledWith({
       pathname: '/rango',
-      params: { ejercicio: 'Press de banca con barra', peso: '80.5', reps: '8' },
+      params: { ejercicio: 'Press de banca con barra', levantamiento: 'banca', peso: '80.5', reps: '8' },
     });
   });
 

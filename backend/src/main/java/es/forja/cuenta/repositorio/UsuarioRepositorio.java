@@ -17,13 +17,11 @@ import es.forja.cuenta.modelo.Usuario;
 public class UsuarioRepositorio {
 
 	private static final String COLUMNAS = """
-			id, uuid, correo, hash_contrasena, verificado, anio_nacimiento, mayor_de_edad, fallos_seguidos,
-			bloqueado_hasta""";
+			id, uuid, correo, hash_contrasena, verificado, anio_nacimiento, mayor_de_edad""";
 
 	private static final RowMapper<Usuario> FILA = (rs, n) -> new Usuario(rs.getLong("id"),
 			Conversiones.uuid(rs, "uuid"), rs.getString("correo"), rs.getString("hash_contrasena"),
-			rs.getBoolean("verificado"), rs.getInt("anio_nacimiento"), rs.getBoolean("mayor_de_edad"),
-			rs.getInt("fallos_seguidos"), Conversiones.instante(rs, "bloqueado_hasta"));
+			rs.getBoolean("verificado"), rs.getInt("anio_nacimiento"), rs.getBoolean("mayor_de_edad"));
 
 	private final JdbcClient jdbc;
 
@@ -65,36 +63,14 @@ public class UsuarioRepositorio {
 				.optional();
 	}
 
-	public void guardarFallos(long id, int fallosSeguidos, Instant bloqueadoHasta) {
-		jdbc.sql("UPDATE usuario SET fallos_seguidos = :fallos, bloqueado_hasta = :hasta WHERE id = :id")
-				.param("fallos", fallosSeguidos).param("hasta", Conversiones.aSql(bloqueadoHasta))
-				.param("id", id).update();
-	}
-
-	/**
-	 * Suma un fallo con un UPDATE atómico y devuelve el contador resultante. Hay que llamarlo dentro de una
-	 * transacción: el bloqueo de fila del UPDATE hace que la lectura siguiente vea todos los fallos.
-	 */
-	public int sumarFallo(long id) {
-		jdbc.sql("UPDATE usuario SET fallos_seguidos = fallos_seguidos + 1 WHERE id = :id").param("id", id).update();
-		return jdbc.sql("SELECT fallos_seguidos FROM usuario WHERE id = :id").param("id", id).query(Integer.class)
-				.single();
-	}
-
-	public void bloquearHasta(long id, Instant hasta) {
-		jdbc.sql("UPDATE usuario SET bloqueado_hasta = :hasta WHERE id = :id")
-				.param("hasta", Conversiones.aSql(hasta)).param("id", id).update();
-	}
-
 	public void marcarVerificado(long id) {
 		jdbc.sql("UPDATE usuario SET verificado = 1 WHERE id = :id").param("id", id).update();
 	}
 
-	/** Cambia la contraseña y levanta cualquier bloqueo por fallos. */
+	/** Cambia la contraseña; los fallos de login los olvida {@code FallosLogin}. */
 	public void cambiarContrasena(long id, String hashContrasena) {
-		jdbc.sql("""
-				UPDATE usuario SET hash_contrasena = :hash, fallos_seguidos = 0, bloqueado_hasta = NULL
-				WHERE id = :id""").param("hash", hashContrasena).param("id", id).update();
+		jdbc.sql("UPDATE usuario SET hash_contrasena = :hash WHERE id = :id").param("hash", hashContrasena)
+				.param("id", id).update();
 	}
 
 	public void borrar(long id) {

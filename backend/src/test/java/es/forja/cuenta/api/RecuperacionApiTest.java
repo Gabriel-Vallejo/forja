@@ -134,7 +134,7 @@ class RecuperacionApiTest extends ApiCuentaSoporte {
 
 		enviar(RESTABLECER, Map.of("token", token, "contrasenaNueva", NUEVA)).andExpect(status().isNoContent());
 
-		assertThat(contar("SELECT fallos_seguidos FROM usuario WHERE correo = ?", correo)).isZero();
+		// Desde el mismo origen que falló 10 veces: cambiar la contraseña olvida los fallos.
 		enviar("/api/v1/auth/login", cuerpoLogin(correo, NUEVA, "P", null)).andExpect(status().isOk());
 	}
 

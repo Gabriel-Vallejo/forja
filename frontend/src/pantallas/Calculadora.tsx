@@ -2,7 +2,6 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { AvisoEjemplo } from '../componentes/AvisoEjemplo';
 import { Boton } from '../componentes/Boton';
 import { BotonIcono } from '../componentes/BotonIcono';
 import { Cuerpo } from '../componentes/Cuerpo';
@@ -12,7 +11,7 @@ import { Icono } from '../componentes/Icono';
 import { Pantalla } from '../componentes/Pantalla';
 import { Regla } from '../componentes/Regla';
 import { Texto } from '../componentes/Texto';
-import { EJERCICIOS_CALCULADORA, SERIE_INICIAL } from '../datos/ejemplo';
+import { EJERCICIOS_CON_ESTANDAR, SERIE_INICIAL } from '../rango/ejercicios';
 import { e1rmEpley, kgConComa } from '../rango/e1rm';
 import { type Theme, useTheme } from '../theme';
 
@@ -51,7 +50,7 @@ export function Calculadora() {
   const [elegido, setElegido] = useState<number | null>(null);
   const [peso, setPeso] = useState<number>(SERIE_INICIAL.peso);
   const [reps, setReps] = useState<number>(SERIE_INICIAL.repeticiones);
-  const actual = elegido === null ? undefined : EJERCICIOS_CALCULADORA[elegido];
+  const actual = elegido === null ? undefined : EJERCICIOS_CON_ESTANDAR[elegido];
 
   return (
     <Pantalla hueco="s2" fija={actual !== undefined}>
@@ -63,7 +62,6 @@ export function Calculadora() {
         </View>
         <View style={estilos.hueco} />
       </View>
-      <AvisoEjemplo />
       {actual ? (
         <View style={estilos.serie}>
           <Texto estilo="subtitulo" encabezado>Dinos tu mejor serie</Texto>
@@ -81,16 +79,16 @@ export function Calculadora() {
             <Boton
               etiqueta="Obtener mi rango"
               grande
-              onPress={() => router.push({ pathname: '/rango', params: { ejercicio: actual.nombre, peso: String(peso), reps: String(reps) } })}
+              onPress={() => router.push({ pathname: '/rango', params: { ejercicio: actual.nombre, levantamiento: actual.levantamiento, peso: String(peso), reps: String(reps) } })}
             />
           </View>
         </View>
       ) : (
         <>
           <Texto estilo="pantalla" encabezado>Elige un ejercicio y dinos tu mejor serie</Texto>
-          <Texto estilo="texto" tono="secundario">En 20 segundos tienes tu rango estimado.</Texto>
+          <Texto estilo="texto" tono="secundario">En 20 segundos tienes tu rango estimado frente a quienes compiten en powerlifting.</Texto>
           <View accessibilityRole="list">
-            {EJERCICIOS_CALCULADORA.map((e, i) => (
+            {EJERCICIOS_CON_ESTANDAR.map((e, i) => (
               <Pressable
                 key={e.nombre}
                 accessibilityRole="button"

@@ -131,6 +131,7 @@ export function apiFalsa(cambios: Partial<ApiForja> = {}): jest.Mocked<ApiForja>
     alBorrarseLaCuenta: jest.fn().mockReturnValue(() => undefined),
     dolorRepetido: jest.fn().mockResolvedValue([]),
     resumenProgreso: jest.fn().mockResolvedValue(resumenDePrueba()),
+    estandares: jest.fn().mockResolvedValue([]),
     ...cambios,
   } as jest.Mocked<ApiForja>;
 }

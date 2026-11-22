@@ -45,7 +45,7 @@ class PrivacidadTest {
 	@Test
 	void ningunDtoNiEntidadImprimeSusSecretos() {
 		String todo = String.join(" ",
-				new Usuario(1, UUID.randomUUID(), CORREO, "$argon2id$hash", false, 1998, true, 0, null).toString(),
+				new Usuario(1, UUID.randomUUID(), CORREO, "$argon2id$hash", false, 1998, true).toString(),
 				new Sesion(TOKEN, TOKEN, Instant.now(), UUID.randomUUID()).toString(),
 				new Solicitudes.Registro(CORREO, CONTRASENA, LocalDate.of(1998, 4, 12)).toString(),
 				new Solicitudes.Login(CORREO, CONTRASENA, null, "P", Plataforma.MOVIL).toString(),

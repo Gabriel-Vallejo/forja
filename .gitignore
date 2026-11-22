@@ -24,3 +24,6 @@ database/catalogo/.cache/
 
 # uv lo crea al pasar scripts/verificar.sh; el CI instala con pip
 uv.lock
+# Volcado de OpenPowerlifting (database/estandares/descargar.py): 171 MB, no se sube
+database/estandares/.cache/
+.coverage

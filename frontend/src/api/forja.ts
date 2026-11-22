@@ -1,3 +1,4 @@
+import type { TablaEstandar } from '../rango/estandares';
 import type { AlmacenTokens } from '../sesion/almacenTokens';
 import type { ClienteApi } from './cliente';
 import { ErrorApi, RESPUESTA_INESPERADA } from './errores';
@@ -8,6 +9,7 @@ import {
   type DolorRepetido,
   esquemaDolorRepetido,
   type ResumenProgreso,
+  esquemaEstandares,
   esquemaResumenProgreso,
   type EfectoEjercicio,
   type EstadoBloqueo,
@@ -90,6 +92,8 @@ export interface ApiForja {
   dolorRepetido(): Promise<DolorRepetido[]>;
   /** Racha y cifras del perfil, con los días en la zona horaria de este móvil. */
   resumenProgreso(): Promise<ResumenProgreso>;
+  /** Tablas de percentiles de OpenPowerlifting: públicas, el percentil se calcula en el móvil. */
+  estandares(): Promise<TablaEstandar[]>;
   /** Sin ajustes, usa los guardados del perfil (o los de por defecto del backend). */
   generarPlan(ajustes?: AjustesEntreno): Promise<void>;
   /** Días, minutos y material del plan; sin guardar, los de por defecto con `porDefecto: true`. */
@@ -225,6 +229,7 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
         throw e;
       }
     },
+    estandares: () => cliente.pedir({ ruta: '/api/v1/estandares', esquema: esquemaEstandares }),
     dolorRepetido: () => cliente.pedir({ ruta: '/api/v1/sesiones/dolor-repetido', esquema: esquemaDolorRepetido }),
     resumenProgreso: () =>
       cliente.pedir({

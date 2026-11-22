@@ -21,11 +21,11 @@
 | Fase | Contenido | Entregable | Horas aprox. **[estimación]** |
 |---|---|---|---|
 | 0. Validación y diseño ✅ | Competencia probada a mano, datos y licencias, citas verificadas, ADR 0001-0006, base del repo con CI. | Doc de competencia en `docs/` + repo con CI vacío en verde | 15 |
-| 1. Entreno MVP | Catálogo de ejercicios etiquetado (atributos de restricción y escalera de sustitución), perfil manual, entrada de limitaciones con botones y preguntas guiadas, tests de movilidad, CP-SAT con su «por qué», registro sin conexión con dolor 0-10 y progresión doble, cuenta y dispositivos, consentimiento y borrado. Sin fotos ni LLM. | **v0.1** + post 1 («mi app me arma la rutina con un solver») | 60 |
+| 1. Entreno MVP ✅ | Catálogo de ejercicios etiquetado (atributos de restricción y escalera de sustitución), perfil manual, entrada de limitaciones con botones y preguntas guiadas, tests de movilidad, CP-SAT con su «por qué», registro sin conexión con dolor 0-10 y progresión doble, cuenta y dispositivos, consentimiento y borrado. Sin fotos ni LLM. | **v0.1** + post 1 («mi app me arma la rutina con un solver») | 60 |
 | 2. Cuerpo y estándares | LLM de entrada (extracción del texto libre, con su eval), MediaPipe en tramos, eval con cinta, percentiles de OpenPowerlifting, mapa muscular, LLM que explica. | **v0.2** + post 2 (el mapa y el error medido) | 40 |
 | 3. Dieta | Catálogo, programación lineal, precios por foto, avisos, recetas. | **v0.3** + post 3 («180 g de proteína por 3,40 €») | 40 |
 | 4. Suplementos | OCR + normalización, lista de sustancias del BOE + sinónimos, ingesta de CELAD y AESAN, ficha de riesgo, push. | **v0.4** + post 4 (el pre-entreno escaneado) | 35 |
-| 5. Producción | Azure + IaC, observabilidad, ZAP, versión de PC (Tauri), 20 usuarios del gimnasio, Play en prueba cerrada. | **v1.0** + post de cierre con métricas de uso | 20 + 8-10 (PC) |
+| 5. Producción | IaC (Bicep) y red privada en Azure (el despliegue ya está desde la v0.1), observabilidad, ZAP, versión de PC (Tauri), 20 usuarios del gimnasio, Play en prueba cerrada. | **v1.0** + post de cierre con métricas de uso | 20 + 8-10 (PC) |
 
 Cada fase es una versión publicable: si el tiempo se acaba, la v0.2 ya es un proyecto completo. Horas reales en el vault.
 
