@@ -23,7 +23,7 @@ const conMarcas = () =>
       { idExterno: 'Barbell_Bench_Press_-_Medium_Grip', nombre: 'Press de banca con barra', grupos: ['pecho'], pesoKg: 80.5, repeticiones: 8, e1rmKg: 102, levantamiento: 'banca' },
       { idExterno: 'Cable_Crossover', nombre: 'Aperturas en polea', grupos: ['pecho'], pesoKg: 15, repeticiones: 15, e1rmKg: 22, levantamiento: null },
     ]),
-    estandares: jest.fn().mockResolvedValue([{ levantamiento: 'banca', sexo: 'hombre', pesoDesdeKg: 80, pesoHastaKg: 90, muestra: 93455, kg: Array.from({ length: 99 }, (_, i) => 50 + i) }]),
+    estandares: jest.fn().mockResolvedValue([{ levantamiento: 'banca', metrica: 'kg_1rm', sexo: 'hombre', pesoDesdeKg: 80, pesoHastaKg: 90, muestra: 93455, kg: Array.from({ length: 99 }, (_, i) => 50 + i) }]),
     perfilDatos: jest.fn().mockResolvedValue({ sexo: 'hombre' }),
     tieneConsentimientoMedidas: jest.fn().mockResolvedValue(true),
     medidas: jest.fn().mockResolvedValue({ pesoKg: 85 }),
@@ -33,7 +33,7 @@ describe('Progreso', () => {
   test('una cuenta nueva sale sin rango, sin datos de ejemplo y sin ejercicios en el panel', async () => {
     await renderizar(<Progreso />);
 
-    expect(await screen.findByRole('button', { name: /^Aún sin rango Forja\. Registra sentadilla, banca o peso muerto/ })).toBeOnTheScreen();
+    expect(await screen.findByRole('button', { name: /^Aún sin rango Forja\. Registra sentadilla, banca, peso muerto, dominadas o fondos/ })).toBeOnTheScreen();
     expect(screen.queryByLabelText('Datos de ejemplo')).toBeNull();
     expect(screen.getByRole('header', { name: 'Pecho' })).toBeOnTheScreen();
     expect(screen.getByText(/Aún no has registrado ejercicios de este músculo/)).toBeOnTheScreen();
@@ -92,7 +92,7 @@ describe('Escala', () => {
 
 describe('Resultado del rango', () => {
   // Banca, hombre de 80 a 90 kg: percentiles 1-99 de 50 a 148 kg.
-  const banca80 = { levantamiento: 'banca', sexo: 'hombre', pesoDesdeKg: 80, pesoHastaKg: 90, muestra: 93455, kg: Array.from({ length: 99 }, (_, i) => 50 + i) } as const;
+  const banca80 = { levantamiento: 'banca', metrica: 'kg_1rm', sexo: 'hombre', pesoDesdeKg: 80, pesoHastaKg: 90, muestra: 93455, kg: Array.from({ length: 99 }, (_, i) => 50 + i) } as const;
   const conPerfil = (cambios = {}) =>
     apiFalsa({
       estandares: jest.fn().mockResolvedValue([banca80]),

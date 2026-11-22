@@ -208,7 +208,7 @@ public class SesionRepositorio implements HistorialSesiones {
 
 	/** Todo el historial del ejercicio. shortcut: sin tope; si un usuario acumula años de sesiones, limitar a los últimos meses. */
 	/** Cada sesión con alguna serie de trabajo vigente: cuándo se hizo y sus kg (peso × repeticiones). */
-	/** Una serie de trabajo con carga del usuario, para buscar su mejor marca en cada ejercicio. */
+	/** Una serie de trabajo del usuario (también sin lastre), para buscar su mejor marca en cada ejercicio. */
 	public record SerieConCarga(String idExterno, String nombre, BigDecimal pesoKg, int repeticiones) {
 	}
 
@@ -216,7 +216,7 @@ public class SesionRepositorio implements HistorialSesiones {
 		return jdbc.sql("""
 				SELECT e.id_externo, COALESCE(e.nombre_es, e.nombre_original) AS nombre, s.peso_kg, s.repeticiones
 				FROM sesion x JOIN serie_vigente s ON s.sesion_uuid = x.uuid JOIN ejercicio e ON e.id = s.ejercicio_id
-				WHERE x.usuario_id = :usuario AND s.calentamiento = FALSE AND s.peso_kg > 0 AND s.repeticiones > 0""")
+				WHERE x.usuario_id = :usuario AND s.calentamiento = FALSE AND s.peso_kg >= 0 AND s.repeticiones > 0""")
 				.param("usuario", usuarioId)
 				.query((rs, n) -> new SerieConCarga(rs.getString("id_externo"), rs.getString("nombre"),
 						rs.getBigDecimal("peso_kg"), rs.getInt("repeticiones")))

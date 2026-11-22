@@ -1,4 +1,5 @@
-"""Percentiles de sentadilla, banca y peso muerto por sexo y franja de peso, desde el CSV de OpenPowerlifting.
+"""Percentiles de fuerza por sexo y franja de peso: sentadilla, banca y peso muerto desde OpenPowerlifting, y
+dominada y fondo con lastre desde OpenStreetlifting (datos CC0; ver docs/investigacion/estandares-fuerza.md).
 
 Genera la semilla SQL `R__estandares_fuerza.sql` del backend (RF-30, ADR 0005). Criterios:
 
@@ -7,6 +8,10 @@ Genera la semilla SQL `R__estandares_fuerza.sql` del backend (RF-30, ADR 0005). 
 - De cada persona, su mejor marca válida en cada levantamiento, con el peso corporal de ese día.
 - Percentiles 1-99 de cada grupo (sexo, levantamiento, franja de peso); los grupos con menos de
   `MUESTRA_MINIMA` personas no se publican.
+
+OpenStreetlifting: el mejor lastre de cada atleta que compitió (kg añadidos, no la carga total). Entran también los
+pesos corporales «recovered»: el proyecto los despeja de la puntuación RIS publicada, que es una fórmula exacta del peso
+y el total, así que no son una estimación.
 
 Sesgo: son levantadores de competición, así que los percentiles quedan por encima de la población que entrena.
 La app lo dice junto al rango (ADR 0005 §6).
@@ -31,6 +36,11 @@ MUESTRA_MINIMA = 200
 
 LEVANTAMIENTOS = {"sentadilla": "Best3SquatKg", "banca": "Best3BenchKg", "peso_muerto": "Best3DeadliftKg"}
 SEXOS = {"M": "hombre", "F": "mujer"}
+LASTRE = {"dominada_lastre": "BestPullUpKg", "fondo_lastre": "BestDipsKg"}
+
+
+def metrica(levantamiento: str) -> str:
+    return "kg_lastre" if levantamiento in LASTRE else "kg_1rm"
 # Límites inferiores de cada franja de peso corporal (kg); la última no tiene techo.
 FRANJAS: dict[str, tuple[float, ...]] = {
     "hombre": (0, 60, 70, 80, 90, 100, 110, 125),
@@ -90,6 +100,26 @@ def mejores_marcas(filas: Iterable[dict[str, str]]) -> dict[tuple[str, str, str]
     return mejores
 
 
+def mejores_lastres(filas: Iterable[dict[str, str]]) -> dict[tuple[str, str, str], tuple[float, float]]:
+    """El mejor lastre de cada atleta de OpenStreetlifting que compitió: {(atleta, sexo, levantamiento): (kg, peso)}."""
+    mejores: dict[tuple[str, str, str], tuple[float, float]] = {}
+    for fila in filas:
+        sexo = SEXOS.get(fila.get("Sex", ""))
+        peso = _numero(fila.get("BodyweightKg", ""))
+        if sexo is None or fila.get("Status") != "competed" or peso is None or peso <= 0:
+            continue
+        atleta = "|".join(fila.get(c, "") for c in ("FirstName", "LastName", "Disambiguation"))
+        for levantamiento, columna in LASTRE.items():
+            kg = _numero(fila.get(columna, ""))
+            if kg is None or kg <= 0:
+                continue
+            clave = (atleta, sexo, levantamiento)
+            previo = mejores.get(clave)
+            if previo is None or kg > previo[0]:
+                mejores[clave] = (kg, peso)
+    return mejores
+
+
 def estandares(mejores: dict[tuple[str, str, str], tuple[float, float]]) -> list[Estandar]:
     grupos: dict[Grupo, list[float]] = {}
     for (_, sexo, levantamiento), (kg, peso) in mejores.items():
@@ -111,7 +141,10 @@ def sql(lista: list[Estandar], procedencia: dict[str, str]) -> str:
         "-- Fuente: OpenPowerlifting (https://www.openpowerlifting.org), datos de dominio público.\n"
         f"-- Volcado: {procedencia.get('url', '?')} ({procedencia.get('last_modified', '?')}), "
         f"sha256 {procedencia.get('sha256', '?')}.\n"
-        "-- Raw, mayores de 18, mejor marca de cada persona; percentiles 1-99 por sexo y franja de peso.\n"
+        "-- Y OpenStreetlifting (https://openstreetlifting.org), datos CC0, "
+        f"commit {procedencia.get('osl_commit', '?')}.\n"
+        "-- OPL: raw, mayores de 18, mejor marca de cada persona. OSL: mejor lastre de cada atleta que compitió.\n"
+        "-- Percentiles 1-99 por sexo y franja de peso.\n"
         "DELETE FROM estandar_fuerza;\n"
     )
     filas = []
@@ -120,11 +153,14 @@ def sql(lista: list[Estandar], procedencia: dict[str, str]) -> str:
         hasta = "NULL" if g.hasta_kg is None else f"{g.hasta_kg:.1f}"
         for percentil, kg in enumerate(e.percentiles, start=1):
             filas.append(
-                f"('{g.levantamiento}','{g.sexo}',{g.desde_kg:.1f},{hasta},{percentil},{kg:.1f},{e.muestra})"
+                f"('{g.levantamiento}','{metrica(g.levantamiento)}','{g.sexo}',{g.desde_kg:.1f},{hasta},{percentil},"
+                f"{kg:.1f},{e.muestra})"
             )
     insert = (
-        "INSERT INTO estandar_fuerza (levantamiento, sexo, peso_desde_kg, peso_hasta_kg, percentil, kg, muestra) "
-        "VALUES\n" + ",\n".join(filas) + ";\n"
+        "INSERT INTO estandar_fuerza "
+        "(levantamiento, metrica, sexo, peso_desde_kg, peso_hasta_kg, percentil, kg, muestra) VALUES\n"
+        + ",\n".join(filas)
+        + ";\n"
     )
     return cabecera + insert
 
@@ -136,9 +172,32 @@ def leer_zip(ruta: Path) -> Iterator[dict[str, str]]:
             yield from csv.DictReader(io.TextIOWrapper(binario, encoding="utf-8", newline=""))
 
 
+def leer_osl(raiz: Path) -> Iterator[dict[str, str]]:
+    for ruta in sorted(raiz.glob("backend/data/competitions/**/entries.csv")):
+        with ruta.open(encoding="utf-8", newline="") as f:
+            yield from csv.DictReader(f)
+
+
+def commit_de(repo: Path) -> str:
+    """El commit del clon de OpenStreetlifting, leído de .git sin lanzar git."""
+    cabeza = (repo / ".git/HEAD").read_text(encoding="utf-8").strip()
+    if not cabeza.startswith("ref: "):
+        return cabeza
+    referencia = repo / ".git" / cabeza.removeprefix("ref: ")
+    if referencia.exists():
+        return referencia.read_text(encoding="utf-8").strip()
+    for linea in (repo / ".git/packed-refs").read_text(encoding="utf-8").splitlines():
+        if linea.endswith(" " + cabeza.removeprefix("ref: ")):
+            return linea.split()[0]
+    return "?"
+
+
 def main() -> None:  # pragma: no cover
     procedencia = json.loads((CACHE / "procedencia.json").read_text(encoding="utf-8"))
+    osl = CACHE / "openstreetlifting"
+    procedencia["osl_commit"] = commit_de(osl)
     lista = estandares(mejores_marcas(leer_zip(CACHE / "openpowerlifting-latest.zip")))
+    lista += estandares(mejores_lastres(leer_osl(osl)))
     SALIDA.write_text(sql(lista, procedencia), encoding="utf-8")
     for e in lista:
         g = e.grupo

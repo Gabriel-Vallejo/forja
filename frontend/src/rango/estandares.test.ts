@@ -3,6 +3,7 @@ import { estimar, percentilDe, rangoDeTop, type TablaEstandar, tablaPara } from 
 const cortes = Array.from({ length: 99 }, (_, i) => 50 + i);
 const tabla = (cambios: Partial<TablaEstandar> = {}): TablaEstandar => ({
   levantamiento: 'banca',
+  metrica: 'kg_1rm',
   sexo: 'hombre',
   pesoDesdeKg: 80,
   pesoHastaKg: 90,

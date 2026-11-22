@@ -1214,6 +1214,7 @@ export interface components {
         TablaEstandar: {
             kg: number[];
             levantamiento: string;
+            metrica: string;
             /** Format: int32 */
             muestra: number;
             pesoDesdeKg: number;

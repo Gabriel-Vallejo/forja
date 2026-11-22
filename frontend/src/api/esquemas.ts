@@ -123,7 +123,8 @@ export type Consentimiento = z.infer<typeof esquemaConsentimientos>[number];
 /** Percentiles de fuerza de OpenPowerlifting (`GET /estandares`): datos públicos, el percentil se calcula aquí. */
 export const esquemaEstandares = z.array(
   z.object({
-    levantamiento: z.enum(['sentadilla', 'banca', 'peso_muerto']),
+    levantamiento: z.enum(['sentadilla', 'banca', 'peso_muerto', 'dominada_lastre', 'fondo_lastre']),
+    metrica: z.enum(['kg_1rm', 'kg_lastre']),
     sexo: z.enum(['hombre', 'mujer']),
     pesoDesdeKg: z.number(),
     pesoHastaKg: z.number().nullable(),
@@ -141,7 +142,7 @@ export const esquemaMarcas = z.array(
     pesoKg: z.number(),
     repeticiones: z.number().int(),
     e1rmKg: z.number(),
-    levantamiento: z.enum(['sentadilla', 'banca', 'peso_muerto']).nullable(),
+    levantamiento: z.enum(['sentadilla', 'banca', 'peso_muerto', 'dominada_lastre', 'fondo_lastre']).nullable(),
   }),
 ) satisfies z.ZodType<Lectura<Esquemas['MarcaEjercicio'][]>>;
 

@@ -1817,6 +1817,9 @@
           "levantamiento" : {
             "type" : "string"
           },
+          "metrica" : {
+            "type" : "string"
+          },
           "muestra" : {
             "format" : "int32",
             "type" : "integer"
@@ -1831,7 +1834,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "kg", "levantamiento", "muestra", "pesoDesdeKg", "pesoHastaKg", "sexo" ],
+        "required" : [ "kg", "levantamiento", "metrica", "muestra", "pesoDesdeKg", "pesoHastaKg", "sexo" ],
         "type" : "object"
       },
       "Token" : {

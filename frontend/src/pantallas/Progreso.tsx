@@ -55,8 +55,8 @@ function Panel({ grupo, musculos }: { grupo: Grupo; musculos: Rangos['musculos']
   const paleta = tema.rango[mus.tipo];
   const top = mus.top === null ? 'Sin datos todavía' : `Top ${mus.top} % · estimación`;
   const nota = mus.ejercicios.length === 0
-    ? 'Aún no has registrado ejercicios de este músculo. Solo la sentadilla, la banca y el peso muerto con barra tienen estándar (OpenPowerlifting).'
-    : 'El rango del músculo sale de su mejor ejercicio con estándar: la sentadilla, la banca y el peso muerto con barra. El resto suma volumen, no rango.';
+    ? 'Aún no has registrado ejercicios de este músculo. Tienen estándar la sentadilla, la banca y el peso muerto con barra (OpenPowerlifting), y las dominadas y los fondos (OpenStreetlifting).'
+    : 'El rango del músculo sale de su mejor ejercicio con estándar: sentadilla, banca y peso muerto con barra, dominadas y fondos (con su lastre). Son estándares de quien compite: el listón es alto. El resto suma volumen, no rango.';
 
   return (
     <View accessibilityLiveRegion="polite" accessibilityLabel={`Rango de ${mus.nombre}`} style={[estilos.panel, { borderTopColor: paleta.base }]}>
@@ -101,7 +101,7 @@ export function Progreso() {
   const colores = Object.fromEntries(GRUPOS.map((g) => [g, tema.rango[musculos[g].tipo].base])) as ColoresCuerpo;
   const sinRango = faltaPerfil
     ? 'Completa tu sexo y tu peso en el perfil para compararte'
-    : 'Registra sentadilla, banca o peso muerto con barra, o usa la calculadora';
+    : 'Registra sentadilla, banca, peso muerto, dominadas o fondos, o usa la calculadora';
 
   return (
     <Pantalla bordes={['top']} hueco="s35">

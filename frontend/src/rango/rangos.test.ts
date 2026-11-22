@@ -3,7 +3,7 @@ import { calcularRangos, type Marca } from './rangos';
 
 const cortes = Array.from({ length: 99 }, (_, i) => 50 + i);
 const tabla = (levantamiento: TablaEstandar['levantamiento']): TablaEstandar => ({
-  levantamiento, sexo: 'hombre', pesoDesdeKg: 80, pesoHastaKg: 90, muestra: 1000, kg: cortes,
+  levantamiento, metrica: 'kg_1rm', sexo: 'hombre', pesoDesdeKg: 80, pesoHastaKg: 90, muestra: 1000, kg: cortes,
 });
 const TABLAS = [tabla('banca'), tabla('sentadilla'), tabla('peso_muerto')];
 const marca = (cambios: Partial<Marca>): Marca => ({
@@ -53,5 +53,22 @@ describe('calcularRangos', () => {
     expect(calcularRangos(marcas, TABLAS, 'no_indica', 85)).toMatchObject({ global: null, faltaPerfil: true });
     expect(calcularRangos(marcas, TABLAS, 'hombre', null)).toMatchObject({ global: null, faltaPerfil: true });
     expect(calcularRangos([marca({})], TABLAS, undefined, null).faltaPerfil).toBe(false);
+  });
+
+  test('en dominadas y fondos la serie dice el lastre, o el peso corporal si no hay', () => {
+    const tablas = [{ ...TABLAS[0]!, levantamiento: 'dominada_lastre' as const, metrica: 'kg_lastre' as const }];
+    const r = calcularRangos(
+      [
+        marca({ nombre: 'Dominadas', grupos: ['dorsal'], levantamiento: 'dominada_lastre', pesoKg: 20, repeticiones: 5, e1rmKg: 80 }),
+        marca({ nombre: 'Fondos', grupos: ['triceps'], levantamiento: 'fondo_lastre', pesoKg: 0, repeticiones: 12, e1rmKg: 32 }),
+      ],
+      tablas, 'hombre', 85,
+    );
+
+    expect(r.musculos.dorsal.ejercicios[0]?.serie).toBe('+20,0 kg × 5');
+    expect(r.musculos.dorsal.tipo).not.toBe('sin');
+    expect(r.musculos.triceps.ejercicios[0]?.serie).toBe('peso corporal × 12');
+    // Sin tabla de fondos para su peso: sale sin rango.
+    expect(r.musculos.triceps.tipo).toBe('sin');
   });
 });

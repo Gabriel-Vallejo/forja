@@ -81,6 +81,22 @@ class ProgresoApiTest extends SoporteSesiones {
 	}
 
 	@Test
+	void enLasDominadasConPesoCorporalLaMarcaEsElLastreEquivalente() throws Exception {
+		Cliente cliente = cuentaConSesion("Pixel");
+		darConsentimiento(cliente, "medidas_salud").andExpect(status().isOk());
+		actualizar("/api/v1/perfil/medidas", cliente, java.util.Map.of("pesoKg", 80)).andExpect(status().isOk());
+		String plan = generarPlan(cliente);
+		guardarSesion(cliente, UUID.randomUUID(), sesion(plan, reloj.instant().minus(Duration.ofHours(2)), List.of(
+				serie(UUID.randomUUID(), "Pullups", 1, "0", 12, 1), // 80 × 42 / 30 − 80 = 32
+				serie(UUID.randomUUID(), "Pullups", 2, "20", 5, 1)))) // 100 × 35 / 30 − 80 = 36,67
+				.andExpect(status().isOk());
+
+		consultar("/api/v1/progreso/marcas", cliente).andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].levantamiento").value("dominada_lastre"))
+				.andExpect(jsonPath("$[0].pesoKg").value(20)).andExpect(jsonPath("$[0].e1rmKg").value(36.67));
+	}
+
+	@Test
 	void unaZonaQueNoExisteDa400() throws Exception {
 		consultar(RUTA + "?zona=Marte/Olimpo", cuentaConSesion("Pixel")).andExpect(status().isBadRequest());
 	}

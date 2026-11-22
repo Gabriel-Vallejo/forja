@@ -13,6 +13,7 @@ Forja necesita cinco catálogos que no puede inventar: ejercicios, estándares d
 |---|---|---|---|---|
 | Ejercicios | **free-exercise-db** | Unlicense | wger (CC-BY-SA por ejercicio) | Script de carga a `ejercicio*` + etiquetado biomecánico propio |
 | Estándares de fuerza | **OpenPowerlifting**, solo el CSV de `meet-data/` | Dominio público (el código es AGPLv3: no se copia) | — | Percentiles calculados fuera de línea → `estandar_fuerza` |
+| Estándares de dominada y fondo con lastre (*enmienda 2026-11-22*) | **OpenStreetlifting**, solo `backend/data/` en un commit fijo | CC0 1.0 (el código es AGPLv3: no se copia) | — | Percentiles del lastre añadido → `estandar_fuerza` con `metrica = kg_lastre`; ver [la investigación](../investigacion/estandares-fuerza.md) |
 | Alimentos y nutrición | **Open Food Facts** | Base de datos ODbL, contenidos DbCL, imágenes CC BY-SA | Etiqueta nutricional por foto (OCR) | Por código de barras, a demanda, con caché en `nutricion_100g` |
 | Precios | **mercaapi autoalojado** (MIT, no oficial) | MIT (el código); los datos son de Mercadona | Precios aportados por usuarios con foto del lineal | Detrás de la interfaz `FuentePrecios` |
 | Sustancias prohibidas | **Lista española del BOE** (BOE-A-2025-25042 para 2026), **no** la web de la AMA | Resolución pública (art. 13 LPI, interpretación propia) | — | Carga anual a `sustancia_prohibida` + `version_lista` |

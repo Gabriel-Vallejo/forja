@@ -17,13 +17,14 @@ public class EstandaresRepositorio {
 	/**
 	 * Un grupo con sus 99 percentiles, del 1 al 99 en orden.
 	 *
+	 * @param metrica {@code kg_1rm} (carga total) o {@code kg_lastre} (kg añadidos al peso corporal)
 	 * @param pesoHastaKg {@code null} en la última franja, sin techo
 	 */
-	public record TablaEstandar(String levantamiento, String sexo, BigDecimal pesoDesdeKg, @Nullable BigDecimal pesoHastaKg,
-			int muestra, List<BigDecimal> kg) {
+	public record TablaEstandar(String levantamiento, String metrica, String sexo, BigDecimal pesoDesdeKg,
+			@Nullable BigDecimal pesoHastaKg, int muestra, List<BigDecimal> kg) {
 	}
 
-	private record Fila(String levantamiento, String sexo, BigDecimal pesoDesdeKg, @Nullable BigDecimal pesoHastaKg,
+	private record Fila(String levantamiento, String metrica, String sexo, BigDecimal pesoDesdeKg, @Nullable BigDecimal pesoHastaKg,
 			int muestra, BigDecimal kg) {
 	}
 
@@ -35,9 +36,9 @@ public class EstandaresRepositorio {
 
 	public List<TablaEstandar> todas() {
 		List<Fila> filas = jdbc.sql("""
-				SELECT levantamiento, sexo, peso_desde_kg, peso_hasta_kg, muestra, kg FROM estandar_fuerza
+				SELECT levantamiento, metrica, sexo, peso_desde_kg, peso_hasta_kg, muestra, kg FROM estandar_fuerza
 				ORDER BY levantamiento, sexo, peso_desde_kg, percentil""")
-				.query((rs, n) -> new Fila(rs.getString("levantamiento"), rs.getString("sexo"),
+				.query((rs, n) -> new Fila(rs.getString("levantamiento"), rs.getString("metrica"), rs.getString("sexo"),
 						rs.getBigDecimal("peso_desde_kg"), rs.getBigDecimal("peso_hasta_kg"), rs.getInt("muestra"),
 						rs.getBigDecimal("kg")))
 				.list();
@@ -46,7 +47,7 @@ public class EstandaresRepositorio {
 				f -> List.of(f.levantamiento(), f.sexo(), f.pesoDesdeKg()), LinkedHashMap::new, Collectors.toList()));
 		return grupos.values().stream().map(g -> {
 			Fila f = g.getFirst();
-			return new TablaEstandar(f.levantamiento(), f.sexo(), f.pesoDesdeKg(), f.pesoHastaKg(), f.muestra(),
+			return new TablaEstandar(f.levantamiento(), f.metrica(), f.sexo(), f.pesoDesdeKg(), f.pesoHastaKg(), f.muestra(),
 					g.stream().map(Fila::kg).toList());
 		}).toList();
 	}

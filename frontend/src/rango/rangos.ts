@@ -38,6 +38,14 @@ export const NOMBRES_GRUPO: Record<Grupo, string> = {
 
 const esGrupo = (g: string): g is Grupo => (GRUPOS as readonly string[]).includes(g);
 
+/** «80,5 kg × 8»; en dominadas y fondos, el lastre: «+20,0 kg × 5» o «peso corporal × 12». */
+function serieDe(m: Marca): string {
+  if (m.levantamiento === 'dominada_lastre' || m.levantamiento === 'fondo_lastre') {
+    return m.pesoKg > 0 ? `+${kgConComa(m.pesoKg)} kg × ${m.repeticiones}` : `peso corporal × ${m.repeticiones}`;
+  }
+  return `${kgConComa(m.pesoKg)} kg × ${m.repeticiones}`;
+}
+
 export function calcularRangos(
   marcas: readonly Marca[],
   tablas: readonly TablaEstandar[],
@@ -57,7 +65,7 @@ export function calcularRangos(
       const suyas = conRango.filter(({ m }) => m.grupos.filter(esGrupo).includes(g));
       const ejercicios: MarcaEjercicio[] = suyas.map(({ m, e }) => ({
         nombre: m.nombre,
-        serie: `${kgConComa(m.pesoKg)} kg × ${m.repeticiones}`,
+        serie: serieDe(m),
         tipo: (e ? e.tipo : 'sin') as RangoMusculo,
         grado: e ? e.grado : 1,
       }));

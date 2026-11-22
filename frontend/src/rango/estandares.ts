@@ -3,12 +3,14 @@
 import type { Grado } from '../componentes/Emblema';
 import { type Nivel, NIVELES_DE_ARRIBA_ABAJO, TOP_FORJADO, TOPS } from '../datos/ejemplo';
 
-export const LEVANTAMIENTOS = ['sentadilla', 'banca', 'peso_muerto'] as const;
+export const LEVANTAMIENTOS = ['sentadilla', 'banca', 'peso_muerto', 'dominada_lastre', 'fondo_lastre'] as const;
 export type Levantamiento = (typeof LEVANTAMIENTOS)[number];
 export type SexoEstandar = 'hombre' | 'mujer';
 
 export interface TablaEstandar {
   levantamiento: Levantamiento;
+  /** `kg_lastre`: dominada y fondo (OpenStreetlifting), kg añadidos al peso corporal; `kg_1rm`: carga total. */
+  metrica: 'kg_1rm' | 'kg_lastre';
   sexo: SexoEstandar;
   pesoDesdeKg: number;
   /** `null` en la franja de más peso, que no tiene techo. */

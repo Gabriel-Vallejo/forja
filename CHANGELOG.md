@@ -2,6 +2,10 @@
 
 ## [Sin publicar]
 
+## [0.1.6] - 2026-11-22
+- Las dominadas y los fondos dan rango: percentiles del lastre de OpenStreetlifting (datos CC0; competidores, sobre todo europeos), por sexo y peso corporal. Tu marca es el lastre equivalente con tu peso: Epley sobre peso corporal + lastre, menos el peso, así que también cuentan las series sin lastre.
+- Investigación de estándares para más ejercicios en `docs/investigacion/`.
+
 ## [0.1.5] - 2026-11-22
 - Progreso, Perfil y la escala ya no enseñan un rango de ejemplo: una cuenta nueva sale **sin rango** y sin ejercicios. El rango global y el mapa salen de tu mejor serie real en cada ejercicio (`GET /progreso/marcas`); solo la sentadilla, la banca y el peso muerto con barra dan rango, el resto sale «sin estándar».
 - Seguridad: el barrido de los límites de login corre como mucho cada 10 s y tiene techo de memoria.

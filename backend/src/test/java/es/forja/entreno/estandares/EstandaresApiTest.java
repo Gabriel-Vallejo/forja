@@ -17,7 +17,7 @@ import tools.jackson.databind.JsonNode;
 class EstandaresApiTest extends ApiCuentaSoporte {
 
 	@Test
-	void devuelveLos45GruposCon99PercentilesQueCrecen() throws Exception {
+	void devuelveLos57GruposCon99PercentilesQueCrecen() throws Exception {
 		Cliente cliente = cuentaConSesion("Pixel");
 
 		String cuerpo = mvc.perform(get("/api/v1/estandares").header("Authorization", cliente.cabecera()))
@@ -25,7 +25,8 @@ class EstandaresApiTest extends ApiCuentaSoporte {
 				.andReturn().getResponse().getContentAsString();
 		JsonNode tablas = json.readTree(cuerpo);
 
-		assertThat(tablas.size()).isEqualTo(45);
+		// 45 de OpenPowerlifting y 12 de OpenStreetlifting (dominada y fondo con lastre).
+		assertThat(tablas.size()).isEqualTo(57);
 		for (JsonNode tabla : tablas) {
 			List<Double> kg = new ArrayList<>();
 			tabla.get("kg").forEach(n -> kg.add(n.asDouble()));
@@ -36,6 +37,9 @@ class EstandaresApiTest extends ApiCuentaSoporte {
 				&& t.get("sexo").asString().equals("hombre") && t.get("pesoDesdeKg").asDouble() == 80.0)
 				.findFirst().orElseThrow();
 		assertThat(banca.get("pesoHastaKg").asDouble()).isEqualTo(90.0);
+		assertThat(banca.get("metrica").asString()).isEqualTo("kg_1rm");
+		assertThat(tablas.valueStream().filter(t -> t.get("levantamiento").asString().endsWith("_lastre")))
+				.hasSize(12).allSatisfy(t -> assertThat(t.get("metrica").asString()).isEqualTo("kg_lastre"));
 	}
 
 	@Test

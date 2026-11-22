@@ -17,6 +17,8 @@ Cuatro investigaciones en paralelo, una por cada tipo de fuente del encargo: (1)
 | **Baremos de puntos, no percentiles** | Dominadas y flexiones con el peso corporal | Marines de EE. UU. (MCO 6100.13A), ejército de EE. UU. (AFT 2025), Orden DEF/15/2026 | Dominio público / BOE reutilizable | **No como rango**: son umbrales de aprobado. Como mucho, «equivale a X puntos del baremo militar» |
 | **Sin estándar** | Prensa, peso muerto rumano, hip thrust, remo con barra, jalón, extensiones, elevaciones, fondos y dominadas sin lastre, elevación de piernas colgado | — | — | No hay fuente que aguante. La prensa además depende de la máquina |
 
+**Hecho (2026-11-22, v0.1.6):** dominada y fondo con lastre integrados desde OpenStreetlifting (commit `f64f0cd`): 12 grupos, hombres de 60-100 kg y mujeres de 50-70 kg.
+
 **Recomendación:** hacer ahora la **dominada y el fondo con lastre** con OpenStreetlifting, que es el mismo camino que ya funciona con OpenPowerlifting. Después, la **plancha** cuando la app registre tiempo, y la **sentadilla frontal** como estimación a partir de la sentadilla. El resto se queda «sin estándar» hasta que aparezca algo mejor.
 
 **Una vía abierta (lo tiene que pedir Gabriel):** la API de FitnessVolt dice ser CC BY 4.0 y da percentiles con muestras enormes (por ejemplo, press militar de hombres de 83 kg con n = 115 964) de press militar, press inclinado, remo Pendlay, dominadas y sentadilla frontal. Pero atribuye los datos a Symmetric Strength, cuyos términos prohíben recolectarlos en bloque. Hasta que FitnessVolt confirme por escrito que puede licenciarlos, **solo para comparar**.

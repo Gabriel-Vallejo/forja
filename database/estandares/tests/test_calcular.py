@@ -2,7 +2,7 @@ import zipfile
 from pathlib import Path
 
 import calcular
-from calcular import Estandar, Grupo, estandares, franja, mejores_marcas, sql
+from calcular import Estandar, Grupo, estandares, franja, mejores_lastres, mejores_marcas, metrica, sql
 
 CABECERA = ["Name", "Sex", "Equipment", "Age", "BodyweightKg", "Best3SquatKg", "Best3BenchKg", "Best3DeadliftKg"]
 
@@ -65,8 +65,8 @@ def test_el_sql_borra_lo_anterior_y_pone_null_en_la_franja_sin_techo() -> None:
     texto = sql(lista, {"url": "u", "last_modified": "ayer", "sha256": "abc"})
 
     assert texto.count("DELETE FROM estandar_fuerza;") == 1
-    assert "('peso_muerto','hombre',125.0,NULL,1,1.0,300)" in texto
-    assert "('peso_muerto','hombre',125.0,NULL,99,99.0,300);" in texto
+    assert "('peso_muerto','kg_1rm','hombre',125.0,NULL,1,1.0,300)" in texto
+    assert "('peso_muerto','kg_1rm','hombre',125.0,NULL,99,99.0,300);" in texto
     assert "sha256 abc" in texto
 
 
@@ -79,3 +79,58 @@ def test_lee_el_csv_dentro_del_zip(tmp_path: Path) -> None:
     filas = list(calcular.leer_zip(ruta))
 
     assert filas == [fila("Ana", sexo="F", peso="63", sentadilla="110", banca="62.5", muerto="140")]
+
+
+def osl(nombre: str, sexo: str = "M", estado: str = "competed", peso: str = "75", dominada: str = "60",
+        fondo: str = "90", desambiguacion: str = "") -> dict[str, str]:
+    return {"FirstName": nombre, "LastName": "X", "Disambiguation": desambiguacion, "Sex": sexo, "Status": estado,
+            "BodyweightKg": peso, "BestPullUpKg": dominada, "BestDipsKg": fondo}
+
+
+def test_openstreetlifting_solo_cuenta_quien_compitio_con_lastre_y_guarda_su_mejor_marca() -> None:
+    mejores = mejores_lastres([
+        osl("Ana", sexo="F", peso="58", dominada="25", fondo="40"),
+        osl("Ana", sexo="F", peso="59", dominada="30", fondo="35"),
+        osl("Descalificado", estado="disqualified"),
+        osl("Sin peso", peso=""),
+        osl("Sin lastre", dominada="0", fondo=""),
+        osl("Mixto", sexo="Mx"),
+    ])
+
+    assert mejores[("Ana|X|", "mujer", "dominada_lastre")] == (30.0, 59.0)
+    assert mejores[("Ana|X|", "mujer", "fondo_lastre")] == (40.0, 58.0)
+    assert {a for a, _, _ in mejores} == {"Ana|X|"}
+
+
+def test_dos_atletas_con_el_mismo_nombre_se_separan_por_la_desambiguacion() -> None:
+    mejores = mejores_lastres([osl("Leo", desambiguacion="1"), osl("Leo", desambiguacion="2")])
+
+    assert len([k for k in mejores if k[2] == "dominada_lastre"]) == 2
+
+
+def test_la_metrica_del_lastre_es_kg_añadidos() -> None:
+    assert metrica("dominada_lastre") == "kg_lastre"
+    assert metrica("fondo_lastre") == "kg_lastre"
+    assert metrica("banca") == "kg_1rm"
+
+
+def test_lee_los_entries_de_todas_las_competiciones(tmp_path: Path) -> None:
+    carpeta = tmp_path / "backend/data/competitions/fed/2026/open"
+    carpeta.mkdir(parents=True)
+    (carpeta / "entries.csv").write_text("FirstName,Sex\nAna,F\n", encoding="utf-8")
+
+    assert list(calcular.leer_osl(tmp_path)) == [{"FirstName": "Ana", "Sex": "F"}]
+
+
+def test_lee_el_commit_del_clon_sin_lanzar_git(tmp_path: Path) -> None:
+    (tmp_path / ".git/refs/heads").mkdir(parents=True)
+    (tmp_path / ".git/HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
+    (tmp_path / ".git/refs/heads/main").write_text("abc123\n", encoding="utf-8")
+    assert calcular.commit_de(tmp_path) == "abc123"
+
+    (tmp_path / ".git/refs/heads/main").unlink()
+    (tmp_path / ".git/packed-refs").write_text("# pack\ndef456 refs/heads/main\n", encoding="utf-8")
+    assert calcular.commit_de(tmp_path) == "def456"
+
+    (tmp_path / ".git/HEAD").write_text("0123abcd\n", encoding="utf-8")
+    assert calcular.commit_de(tmp_path) == "0123abcd"
