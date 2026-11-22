@@ -1,5 +1,5 @@
 # Camino crítico 2: Mi plan → ejercicio → «Una serie más» → vista previa. Se descarta: no cambia la cuenta.
-# «Una serie más» y no «menos»: el primer ejercicio puede estar ya en el mínimo de 2 series (y eso da un aviso).
+# Primero «Una serie más»: el primer ejercicio puede estar ya en el mínimo de 2 series (y «menos» daría un aviso).
 appId: io.github.gabrielvallejo.forja
 name: Vista previa de un ajuste
 ---
@@ -18,8 +18,18 @@ name: Vista previa de un ajuste
     direction: DOWN
 - tapOn: Una serie más
 - extendedWaitUntil:
-    visible: .*Aún no se ha guardado nada.*
+    visible: "(.*Aún no se ha guardado nada.*|Aviso)"
     timeout: 30000
+# Si la serie de más no cabe en el tiempo de la sesión, la app lo avisa (es lo correcto) y la vista previa se prueba
+# con «una serie menos». Depende del plan de la cuenta, que cambia con los días.
+- runFlow:
+    when:
+      visible: Aviso
+    commands:
+      - tapOn: Una serie menos
+      - extendedWaitUntil:
+          visible: .*Aún no se ha guardado nada.*
+          timeout: 30000
 - assertVisible: Aplicar
 - tapOn: Descartar
 # La ficha puede ser larga (depende del ejercicio del día): se busca bajando, no se da por visible.
