@@ -22,4 +22,7 @@ name: Vista previa de un ajuste
     timeout: 30000
 - assertVisible: Aplicar
 - tapOn: Descartar
-- assertVisible: Ajustar este ejercicio
+# La ficha puede ser larga (depende del ejercicio del día): se busca bajando, no se da por visible.
+- scrollUntilVisible:
+    element: Ajustar este ejercicio
+    direction: DOWN

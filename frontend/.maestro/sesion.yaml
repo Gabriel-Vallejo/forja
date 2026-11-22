@@ -5,23 +5,34 @@ name: Registrar una serie
 ---
 - runFlow: comun/abrir.yaml
 - runFlow: comun/entrar.yaml
-- tapOn: Empezar sesión
+# «Continuar» si una ejecución anterior se cortó a mitad de sesión.
+- tapOn: "(Empezar|Continuar) sesión"
 # En pantallas pequeñas «Guardar serie» queda más abajo: basta con que esté la fila de la serie 1.
+# «Lastre» si el primer ejercicio del día es de peso corporal (fondos, dominadas).
 - extendedWaitUntil:
-    visible: "Peso, .*serie 1"
+    visible: "(Peso|Lastre), .*serie 1"
     timeout: 30000
 # El peso puede venir del plan o vacío («elige») si es la primera vez: se borra y se escribe siempre.
-- tapOn: "Peso, .*serie 1"
+- tapOn: "(Peso|Lastre), .*serie 1"
 - eraseText: 10
 - inputText: "20"
-- hideKeyboard
+# La tecla ✓ del teclado numérico lo cierra. Sin hideKeyboard: a veces deja el teclado abierto tapando «Guardar
+# serie», y si ya está cerrado hace «atrás» y saca de la sesión.
+- pressKey: Enter
 - scrollUntilVisible:
     element: Calentamiento
     direction: DOWN
 - tapOn: Calentamiento
-- scrollUntilVisible:
-    element: Guardar serie.*
-    direction: DOWN
+# Tras la ✓ el campo de la carga sigue enfocado y en Android se queda el gesto vertical: scrollUntilVisible desliza
+# desde el centro (encima de los campos) y no se mueve. Se desliza por el margen, como haría una persona.
+- repeat:
+    while:
+      notVisible: Guardar serie.*
+    times: 8
+    commands:
+      - swipe:
+          start: 3%, 75%
+          end: 3%, 35%
 - tapOn: Guardar serie.*
 # Al guardar arranca el descanso, fijo abajo: se ve en cualquier tamaño de pantalla (la fila «hecha» puede quedar arriba).
 - extendedWaitUntil:
