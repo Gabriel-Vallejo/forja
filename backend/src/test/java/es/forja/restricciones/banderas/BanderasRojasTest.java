@@ -92,14 +92,21 @@ class BanderasRojasTest {
 
 	@Test
 	void perdidaDeFuerzaSolaEsProfesionalEnDias() {
-		assertThat(evaluar(new R().fuerza())).singleElement()
-				.satisfies(b -> assertThat(b.nivel()).isEqualTo(Nivel.PROFESIONAL_EN_DIAS));
+		// Solo lo nuevo o lo que va a más: un déficit crónico ya valorado no es una bandera (decisión 2026-11-22).
+		assertThat(evaluar(new R().fuerza())).singleElement().satisfies(b -> {
+			assertThat(b.nivel()).isEqualTo(Nivel.PROFESIONAL_EN_DIAS);
+			assertThat(b.motivo()).contains("nueva o que va a más");
+			assertThat(b.guia()).contains("NICE NG59");
+		});
 	}
 
 	@Test
 	void hormigueoSoloEsProfesionalEnDias() {
-		assertThat(evaluar(new R().hormigueo())).singleElement()
-				.satisfies(b -> assertThat(b.nivel()).isEqualTo(Nivel.PROFESIONAL_EN_DIAS));
+		assertThat(evaluar(new R().hormigueo())).singleElement().satisfies(b -> {
+			assertThat(b.nivel()).isEqualTo(Nivel.PROFESIONAL_EN_DIAS);
+			assertThat(b.motivo()).contains("nuevos o que van a más");
+			assertThat(b.guia()).contains("NICE NG59");
+		});
 	}
 
 	@Test

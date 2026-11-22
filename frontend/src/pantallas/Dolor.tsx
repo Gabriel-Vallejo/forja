@@ -26,7 +26,7 @@ type Senales = Partial<Record<ClaveSenal, boolean>>;
 const SENALES: readonly { clave: ClaveSenal; texto: string }[] = [
   { clave: 'dolorEnReposo', texto: '¿Te duele aunque estés en reposo, sin moverte?' },
   { clave: 'dolorNocturnoQueDespierta', texto: '¿Te despierta el dolor por la noche?' },
-  { clave: 'hormigueoOEntumecimiento', texto: '¿Notas hormigueo o la zona dormida?' },
+  { clave: 'hormigueoOEntumecimiento', texto: '¿Notas hormigueo o una zona dormida, de forma nueva o que va a más?' },
   { clave: 'perdidaDeFuerza', texto: '¿Has notado una pérdida de fuerza nueva, o que va a más, en un brazo o una pierna?' },
   {
     clave: 'perdidaControlEsfinteresOAnestesiaSillaDeMontar',

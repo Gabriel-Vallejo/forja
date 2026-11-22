@@ -9,6 +9,7 @@ import es.forja.restricciones.modelo.Region;
  * Respuestas estructuradas de las preguntas guiadas (ADR 0007). Dato de salud (ADR 0004).
  *
  * @param dolorPorZona dolor actual de 0 a 10 por región; la región que falte cuenta como 0
+ * @param hormigueoOEntumecimiento hormigueo o falta de sensibilidad nuevos o que van a más; uno crónico ya valorado no cuenta
  * @param perdidaDeFuerza debilidad nueva o que va a más; una crónica ya valorada por un profesional no cuenta
  */
 public record RespuestasGuiadas(

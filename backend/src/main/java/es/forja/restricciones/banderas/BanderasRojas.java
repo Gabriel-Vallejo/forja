@@ -53,19 +53,20 @@ public class BanderasRojas {
 
 	private static void agregarNeurologicas(RespuestasGuiadas r, List<BanderaRoja> banderas) {
 		if (r.perdidaDeFuerza() && r.hormigueoOEntumecimiento()) {
-			// Propuesta propia: la pregunta solo recoge la debilidad nueva o que va a más (una crónica ya valorada,
-			// como una hipotonía conocida, no cuenta), y con hormigueo se trata como déficit neurológico: urgencias.
+			// Propuesta propia: las dos preguntas solo recogen lo nuevo o lo que va a más (un déficit crónico ya valorado,
+			// como una hipotonía o una neuropatía conocidas, no cuenta; NICE NG59 1.1.1 pide pensar en otros
+			// diagnósticos ante síntomas nuevos o que cambian). Juntas se tratan como déficit neurológico: urgencias.
 			banderas.add(new BanderaRoja(URGENCIAS_HOY,
 					"Notas una pérdida de fuerza nueva o que va a más, y hormigueo o falta de sensibilidad: no entrenes y acude hoy a urgencias.",
 					IFOMPT_COLUMNA + " (propuesta propia para la combinación)"));
 		} else if (r.perdidaDeFuerza()) {
 			banderas.add(new BanderaRoja(PROFESIONAL_EN_DIAS,
 					"Notas una pérdida de fuerza nueva o que va a más en un brazo o una pierna: consulta con un profesional sanitario en los próximos días antes de entrenar.",
-					IFOMPT_COLUMNA));
+					IFOMPT_COLUMNA + "; " + NICE_ESPALDA));
 		} else if (r.hormigueoOEntumecimiento()) {
 			banderas.add(new BanderaRoja(PROFESIONAL_EN_DIAS,
-					"Notas hormigueo o falta de sensibilidad: consulta con un profesional sanitario en los próximos días antes de entrenar.",
-					IFOMPT_COLUMNA));
+					"Notas hormigueo o falta de sensibilidad nuevos o que van a más: consulta con un profesional sanitario en los próximos días antes de entrenar.",
+					IFOMPT_COLUMNA + "; " + NICE_ESPALDA));
 		}
 	}
 
