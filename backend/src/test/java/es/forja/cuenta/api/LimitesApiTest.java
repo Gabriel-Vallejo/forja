@@ -43,6 +43,19 @@ class LimitesApiTest extends ApiCuentaSoporte {
 	}
 
 	@Test
+	void elLoginLimitaPorCorreoAunqueCambieLaIp() throws Exception {
+		// El freno por cuenta que cubre todos los orígenes: la espera de FallosLogin va por origen, este no.
+		String correo = crearCuenta();
+		for (int i = 0; i < LimitadorIntentos.INTENTOS_POR_CORREO; i++) {
+			enviarDesde(ip + "." + i, LOGIN, cuerpoLogin(correo, "contrasena-mala-" + i + "xx", "P", null))
+					.andExpect(status().isUnauthorized());
+		}
+
+		enviarDesde(ip + ".99", LOGIN, cuerpoLogin(correo, CONTRASENA, "P", null))
+				.andExpect(status().isTooManyRequests()).andExpect(header().exists("Retry-After"));
+	}
+
+	@Test
 	void laRecuperacionLimitaPorCorreoAunqueCambieLaIp() throws Exception {
 		String correo = correoNuevo();
 		for (int i = 0; i < LimitadorIntentos.INTENTOS_POR_CORREO; i++) {

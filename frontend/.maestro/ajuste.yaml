@@ -26,6 +26,10 @@ name: Vista previa de un ajuste
     when:
       visible: Aviso
     commands:
+      # El aviso sale debajo y deja «Una serie menos» por encima de la pantalla.
+      - scrollUntilVisible:
+          element: Una serie menos
+          direction: UP
       - tapOn: Una serie menos
       - extendedWaitUntil:
           visible: .*Aún no se ha guardado nada.*

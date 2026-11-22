@@ -13,8 +13,8 @@ import io.github.bucket4j.ConsumptionProbe;
  * Límite de intentos por IP y por correo en login, registro y recuperación (ADR 0009 §6).
  *
  * <p>shortcut: los contadores viven en memoria de esta instancia (se pierden al reiniciar y no se comparten
- * entre réplicas) y, si el mapa pasa de {@link #MAXIMO_DE_CLAVES}, se vacía entero; con varias instancias
- * habría que mover Bucket4j a Redis.
+ * entre réplicas); si el mapa pasa de {@link #MAXIMO_DE_CLAVES}, se descartan los cubos que ya se han vuelto a
+ * llenar (nunca uno a medias, que dejaría saltarse el límite llenando el mapa). Con varias instancias, a Redis.
  */
 @Component
 public class LimitadorIntentos {
@@ -25,7 +25,15 @@ public class LimitadorIntentos {
 	public static final Duration VENTANA_POR_CORREO = Duration.ofMinutes(15);
 	static final int MAXIMO_DE_CLAVES = 100_000;
 
-	private final ConcurrentHashMap<String, Bucket> cubos = new ConcurrentHashMap<>();
+	/** El cubo y su capacidad: hace falta para saber si ya se ha vuelto a llenar al desalojar. */
+	private record Cubo(Bucket cubo, long capacidad) {
+
+		boolean lleno() {
+			return cubo.getAvailableTokens() >= capacidad;
+		}
+	}
+
+	private final ConcurrentHashMap<String, Cubo> cubos = new ConcurrentHashMap<>();
 
 	/** Gasta un intento de esta acción para la IP y para el correo; lanza 429 si alguno se agotó. */
 	public void exigir(String accion, String ip, String correo) {
@@ -43,13 +51,17 @@ public class LimitadorIntentos {
 		gastar("clave|" + accion + "|" + clave, capacidad, ventana);
 	}
 
+	int tamano() {
+		return cubos.size();
+	}
+
 	private void gastar(String clave, int capacidad, Duration ventana) {
 		if (cubos.size() > MAXIMO_DE_CLAVES) {
-			cubos.clear();
+			cubos.values().removeIf(Cubo::lleno);
 		}
-		Bucket cubo = cubos.computeIfAbsent(clave, k -> Bucket.builder()
+		Bucket cubo = cubos.computeIfAbsent(clave, k -> new Cubo(Bucket.builder()
 				.addLimit(Bandwidth.builder().capacity(capacidad).refillIntervally(capacidad, ventana).build())
-				.build());
+				.build(), capacidad)).cubo();
 		ConsumptionProbe prueba = cubo.tryConsumeAndReturnRemaining(1);
 		if (!prueba.isConsumed()) {
 			throw ErrorCuenta.demasiadasPeticiones(Duration.ofNanos(prueba.getNanosToWaitForRefill()));

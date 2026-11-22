@@ -35,6 +35,20 @@ class FallosLoginTest {
 	}
 
 	@Test
+	void conElMapaLlenoSoloSeDescartanLosOrigenesSinEsperaYLaActivaSigue() {
+		FallosLogin fallos = new FallosLogin(3);
+		for (int i = 0; i < 10; i++) {
+			fallos.fallo(1, "203.0.113.7", AHORA);
+		}
+		for (int i = 0; i < 4; i++) {
+			fallos.fallo(100 + i, "198.51.100." + i, AHORA);
+		}
+
+		assertThat(fallos.enEspera(1, "203.0.113.7", AHORA)).isTrue();
+		assertThat(fallos.tamano()).isLessThanOrEqualTo(3);
+	}
+
+	@Test
 	void olvidarBorraLosFallosDeLaCuentaDesdeCualquierOrigen() {
 		FallosLogin fallos = new FallosLogin();
 		fallos.fallo(1, "203.0.113.7", AHORA);
