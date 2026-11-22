@@ -21,3 +21,6 @@ vault
 
 # Caché de la descarga de free-exercise-db (database/catalogo/descargar.py)
 database/catalogo/.cache/
+
+# uv lo crea al pasar scripts/verificar.sh; el CI instala con pip
+uv.lock
