@@ -109,7 +109,7 @@ describe('Perfil manual: medidas', () => {
 
     await fireEvent.press(await screen.findByRole('button', { name: 'Acepto' }));
 
-    expect(api.darConsentimientoMedidas).toHaveBeenCalledWith('v1');
+    expect(api.darConsentimientoMedidas).toHaveBeenCalledWith('v2');
     expect(await screen.findByLabelText('Altura (cm)')).toBeOnTheScreen();
   });
 

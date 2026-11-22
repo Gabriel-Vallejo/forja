@@ -51,6 +51,36 @@ class ConsentimientosApiTest extends SoporteLimitaciones {
 	}
 
 	@Test
+	void elDeMedidasVaPorLaV2YConElTextoViejoNoVale() throws Exception {
+		Cliente cliente = cuentaConSesion("Pixel");
+
+		enviarAutenticado(RUTA_CONSENTIMIENTOS, cliente, Map.of("tipo", "medidas_salud", "versionTexto", "v1"))
+				.andExpect(status().isConflict());
+		darConsentimiento(cliente, "medidas_salud").andExpect(status().isOk())
+				.andExpect(jsonPath("$.versionTexto").value("v2"));
+	}
+
+	@Test
+	void unoDadoConElTextoAnteriorSigueVivoSeListaConSuVersionYRenovarloNoBorraNada() throws Exception {
+		Cliente cliente = cuentaConSesion("Pixel");
+		darConsentimiento(cliente, "medidas_salud").andExpect(status().isOk());
+		actualizar("/api/v1/movilidad", cliente, Map.of("tobillo", "medio", "cadera", "bueno", "hombro", "limitado"))
+				.andExpect(status().isOk());
+		// Como si se hubiera dado antes de cambiar el texto.
+		jdbc.sql("UPDATE consentimiento c JOIN usuario u ON u.id = c.usuario_id SET c.version_texto = 'v1' "
+				+ "WHERE u.correo = ? AND c.tipo = 'medidas_salud'").param(cliente.correo()).update();
+
+		consultar(RUTA_CONSENTIMIENTOS, cliente).andExpect(jsonPath("$[0].versionTexto").value("v1"));
+		consultar("/api/v1/movilidad", cliente).andExpect(status().isOk());
+
+		darConsentimiento(cliente, "medidas_salud").andExpect(status().isOk());
+
+		consultar(RUTA_CONSENTIMIENTOS, cliente).andExpect(jsonPath("$", hasSize(1)))
+				.andExpect(jsonPath("$[0].versionTexto").value("v2"));
+		consultar("/api/v1/movilidad", cliente).andExpect(jsonPath("$.tobillo.tramo").value("medio"));
+	}
+
+	@Test
 	void darloDosVecesEsIdempotente() throws Exception {
 		Cliente cliente = cuentaConSesion("Pixel");
 

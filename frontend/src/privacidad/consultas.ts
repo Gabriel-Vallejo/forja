@@ -11,9 +11,9 @@ import { guardarJson } from './archivo';
 import { esTipoConocido } from './catalogo';
 import { CLAVE_CONSENTIMIENTOS, CLAVE_DISPOSITIVOS } from './claves';
 
-export function useConsentimientos() {
+export function useConsentimientos(habilitada = true) {
   const { api } = useSesion();
-  return useQuery({ queryKey: CLAVE_CONSENTIMIENTOS, queryFn: () => api.consentimientos() });
+  return useQuery({ queryKey: CLAVE_CONSENTIMIENTOS, queryFn: () => api.consentimientos(), enabled: habilitada });
 }
 
 export function useDispositivos() {

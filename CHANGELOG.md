@@ -2,6 +2,10 @@
 
 ## [Sin publicar]
 
+## [0.1.3] - 2026-11-22
+- Consentimiento de medidas **v2**: cuánto y cómo se guarda y que retirarlo no anula lo hecho antes (art. 7.3 RGPD).
+- Si un consentimiento se dio con un texto anterior, al entrar la app enseña el nuevo y no deja seguir sin aceptarlo o retirarlo (y borrar). Sin conexión no bloquea nada.
+
 ## [0.1.2] - 2026-11-22
 - La pregunta de hormigueo del cuestionario de dolor también pide lo nuevo o lo que va a más, como la de fuerza: una neuropatía crónica ya valorada no bloquea el plan. Las dos banderas citan además NICE NG59 (1.1.1).
 - [docs/revision-fisio.md](docs/revision-fisio.md): las banderas rojas, el cribado, los umbrales de dolor y los tests de movilidad, listos para que los revise un fisioterapeuta.

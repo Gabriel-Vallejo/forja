@@ -47,7 +47,7 @@ Lo que se mide (los resultados estarán en `eval/`):
 - Coste de la cesta frente a una cesta manual
 
 ## ◆ Descargar
-- **v0.1.2:** [APK para Android](https://github.com/Gabriel-Vallejo/forja/releases/latest/download/forja-0.1.2.apk) (habla con el backend en Azure). Mientras el repo sea privado, solo se descarga con acceso.
+- **v0.1.3:** [APK para Android](https://github.com/Gabriel-Vallejo/forja/releases/latest/download/forja-0.1.3.apk) (habla con el backend en Azure). Mientras el repo sea privado, solo se descarga con acceso.
 - Con la v1.0, también la versión de PC.
 
 ## ◆ Arrancar

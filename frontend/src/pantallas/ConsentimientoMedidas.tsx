@@ -8,16 +8,18 @@ import { Boton } from '../componentes/Boton';
 import { Confirmacion } from '../componentes/Confirmacion';
 import { Texto } from '../componentes/Texto';
 import { useDarConsentimientoMedidas, useRetirarConsentimientoMedidas } from '../movilidad/consultas';
+import { VERSIONES_VIGENTES } from '../privacidad/versiones';
 import { type Theme, useTheme } from '../theme';
 
 /**
  * Versión del texto del consentimiento de medidas de salud. El backend solo acepta la vigente
  * (`TipoConsentimiento.versionVigente`): si el texto cambia, se sube allí y aquí a la vez.
  */
-export const VERSION_TEXTO_MEDIDAS = 'v1';
+export const VERSION_TEXTO_MEDIDAS = VERSIONES_VIGENTES.medidas_salud;
 
-// PROVISIONAL: texto pendiente de revisión por asesoría legal antes de abrir el repo (RF-45, ADR 0004).
-const PUNTOS = [
+// v2 (2026-11-22): añade cómo y cuánto se guarda y que retirarlo no anula lo hecho antes (art. 7.3 RGPD), como el de
+// limitaciones v2. Los tramos de movilidad no van cifrados (solo las medidas): el texto no lo promete.
+export const PUNTOS_MEDIDAS = [
   {
     titulo: 'Qué se guarda',
     texto:
@@ -28,11 +30,16 @@ const PUNTOS = [
     texto:
       'Para elegir variantes de ejercicios al generar tu plan, por ejemplo la sentadilla goblet en vez de con barra, y para estimar tu % de grasa con la fórmula de la US Navy.',
   },
+  {
+    titulo: 'Cómo se guarda',
+    texto:
+      'Ligado a tu cuenta, hasta que lo retires o borres la cuenta. Las medidas del cuerpo van cifradas. No sale en los registros técnicos (logs) ni se comparte con nadie.',
+  },
   { titulo: 'Si no lo das', texto: 'La app sigue funcionando: tu plan se arma sin tener en cuenta la movilidad ni las medidas.' },
   {
     titulo: 'Si te arrepientes',
     texto:
-      'Retirarlo es igual de fácil, en las pantallas donde lo diste, y borra los tests y las medidas guardados. Es el consentimiento de medidas de salud.',
+      'Retirarlo es igual de fácil, en las pantallas donde lo diste, y borra los tests y las medidas guardados. Lo hecho antes de retirarlo sigue siendo válido. Es el consentimiento de medidas de salud.',
   },
 ] as const;
 
@@ -49,7 +56,7 @@ export function PideConsentimientoMedidas({ titulo }: PropsPide) {
   return (
     <>
       <Texto estilo="heading" encabezado>{titulo}</Texto>
-      {PUNTOS.map((p) => (
+      {PUNTOS_MEDIDAS.map((p) => (
         <View key={p.titulo} style={estilos.punto}>
           <Texto peso="700">{p.titulo}</Texto>
           <Texto tono="secundario">{p.texto}</Texto>

@@ -8,6 +8,7 @@ import { Boton } from '../componentes/Boton';
 import { Texto } from '../componentes/Texto';
 import { CLAVE_CONSENTIMIENTO, CLAVE_RESTRICCIONES } from '../limitaciones/consultas';
 import { CLAVE_CONSENTIMIENTOS } from '../privacidad/claves';
+import { VERSIONES_VIGENTES } from '../privacidad/versiones';
 import { FINALIDAD } from '../limitaciones/textos';
 import { useSesion } from '../sesion/sesion';
 import { type Theme, useTheme } from '../theme';
@@ -16,11 +17,11 @@ import { type Theme, useTheme } from '../theme';
  * Versión del texto de abajo. El backend solo acepta la vigente (`TipoConsentimiento.versionVigente`): si el
  * texto cambia, se sube allí y aquí a la vez.
  */
-export const VERSION_TEXTO = 'v2';
+export const VERSION_TEXTO = VERSIONES_VIGENTES.limitaciones;
 
 // v2 (2026-11-21): revisión preliminar (docs/legal/revision-consentimiento.md), no de una asesoría; sigue pendiente de
 // que la revise una antes de abrir el repo (RF-45, ADR 0004).
-const PUNTOS = [
+export const PUNTOS_LIMITACIONES = [
   {
     titulo: 'Qué se guarda',
     texto:
@@ -61,7 +62,7 @@ export function ConsentimientoLimitaciones() {
     <>
       <Texto estilo="heading" encabezado>Tus limitaciones, solo si tú quieres</Texto>
       <Texto>{FINALIDAD}</Texto>
-      {PUNTOS.map((p) => (
+      {PUNTOS_LIMITACIONES.map((p) => (
         <View key={p.titulo} style={estilos.punto}>
           <Texto peso="700">{p.titulo}</Texto>
           <Texto tono="secundario">{p.texto}</Texto>

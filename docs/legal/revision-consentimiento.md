@@ -16,9 +16,9 @@
 | 3 | «No sale en registros» era ambiguo (¿el registro de series?). | Transparencia, art. 12 | Arreglado: «registros técnicos (logs)» |
 | 4 | Faltaba cuánto tiempo se guarda. | art. 13.2.a | Arreglado: «hasta que lo retires o borres la cuenta» |
 | 5 | Falta la información del art. 13 que va fuera de la pantalla: responsable y contacto, base jurídica de cada tratamiento, encargados (hosting, correo), transferencias fuera de la UE, derechos y cómo ejercerlos, reclamación ante la AEPD. | art. 13 | **Pendiente**: política de privacidad (borrador abajo) |
-| 6 | Los consentimientos dados con la v1 siguen valiendo tras pasar a v2. Sin usuarios reales no importa; con ellos, un cambio sustancial obliga a pedirlo otra vez. | art. 7.1 (poder demostrarlo) | **Pendiente** antes de tener usuarios (shortcut en `TipoConsentimiento`) |
+| 6 | Los consentimientos dados con la v1 siguen valiendo tras pasar a v2. Sin usuarios reales no importa; con ellos, un cambio sustancial obliga a pedirlo otra vez. | art. 7.1 (poder demostrarlo) | Arreglado (2026-11-22): al entrar, la app enseña el texto nuevo y no deja seguir sin aceptarlo o retirarlo (que borra). El backend respeta el antiguo mientras tanto, para que el plan no pierda las limitaciones sin avisar |
 | 7 | Edad mínima 18 años: por encima de los 14 de la LOPDGDD. | LOPDGDD art. 7 | Correcto |
-| 8 | Medidas de salud: dice qué, para qué, que es opcional y cómo retirarlo. Falta la conservación y el art. 7.3. | arts. 7.3 y 13 | **Pendiente** (versión v2 de medidas) |
+| 8 | Medidas de salud: dice qué, para qué, que es opcional y cómo retirarlo. Falta la conservación y el art. 7.3. | arts. 7.3 y 13 | Arreglado en medidas **v2**: cuánto y cómo se guarda (las medidas, cifradas; los tramos de movilidad no) y art. 7.3 |
 
 ## Borrador de política de privacidad (lo que falta del art. 13)
 Rellenar lo marcado con `[…]` antes de publicar:
