@@ -2,6 +2,10 @@
 
 ## [Sin publicar]
 
+## [0.1.5] - 2026-11-22
+- Progreso, Perfil y la escala ya no enseñan un rango de ejemplo: una cuenta nueva sale **sin rango** y sin ejercicios. El rango global y el mapa salen de tu mejor serie real en cada ejercicio (`GET /progreso/marcas`); solo la sentadilla, la banca y el peso muerto con barra dan rango, el resto sale «sin estándar».
+- Seguridad: el barrido de los límites de login corre como mucho cada 10 s y tiene techo de memoria.
+
 ## [0.1.4] - 2026-11-22
 - La calculadora da tu rango con datos reales: percentiles de sentadilla, banca y peso muerto por sexo y peso corporal, de OpenPowerlifting (dominio público; solo *raw*, mayores de 18, 45 grupos). La tabla se calcula en el móvil: tu peso y tus marcas no viajan para esto. Avisa del sesgo: quien compite levanta más que la media del gimnasio.
 - Seguridad: la espera tras 10 contraseñas falladas va por cuenta **y origen** (IP; /64 en IPv6). Antes, cualquiera que supiera tu correo podía dejarte sin entrar hasta 1 h.

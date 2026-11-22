@@ -1,12 +1,12 @@
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { AvisoEjemplo } from '../componentes/AvisoEjemplo';
 import { BotonIcono } from '../componentes/BotonIcono';
 import { Emblema, type Grado, type TipoRango } from '../componentes/Emblema';
 import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
-import { NIVELES_DE_ARRIBA_ABAJO, RANGO_GLOBAL } from '../datos/ejemplo';
+import { NIVELES_DE_ARRIBA_ABAJO } from '../datos/ejemplo';
+import { useRangos } from '../rango/consultas';
 import { nombreRango, topDe } from '../rango/rango';
 import { type Theme, useTheme } from '../theme';
 
@@ -24,6 +24,7 @@ export function Escala() {
   const router = useRouter();
   const tema = useTheme();
   const estilos = crearEstilos(tema);
+  const global = useRangos().global;
 
   return (
     <Pantalla hueco="s1" fondo={tema.color.surface}>
@@ -37,12 +38,9 @@ export function Escala() {
       <Texto estilo="nota" tono="secundario" centrado>
         {'Como el metal en la forja: cuanto más arriba, más caliente.\nPercentil estimado entre quienes compiten en powerlifting.'}
       </Texto>
-      <View style={estilos.aviso}>
-        <AvisoEjemplo />
-      </View>
       <View accessibilityRole="list" style={estilos.lista}>
         {ESCALONES.map(({ tipo, grado }) => {
-          const yo = tipo === RANGO_GLOBAL.tipo && grado === RANGO_GLOBAL.grado;
+          const yo = global !== null && tipo === global.tipo && (tipo === 'forjado' || grado === global.grado);
           const top = topDe(tipo === 'forjado' ? 'forjado' : tipo, grado);
           const nombre = nombreRango(tipo, grado);
           return (
@@ -72,7 +70,6 @@ function crearEstilos(tema: Theme) {
     arriba: { alignItems: 'center', minHeight: tema.hit.icono, justifyContent: 'center' },
     asa: { width: tema.hit.icono, height: tema.space.s1, borderRadius: tema.radius.xs, backgroundColor: tema.color.outline },
     cerrar: { position: 'absolute', right: 0, top: 0 },
-    aviso: { alignItems: 'center', paddingVertical: tema.space.s2 },
     lista: { gap: tema.space.s05 },
     fila: {
       flexDirection: 'row',

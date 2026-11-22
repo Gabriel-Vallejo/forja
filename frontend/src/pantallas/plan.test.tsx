@@ -289,10 +289,10 @@ describe('Perfil', () => {
     await waitFor(() => expect(api.cerrarSesion).toHaveBeenCalledTimes(1));
   });
 
-  test('avisa de que el rango y las cifras son de ejemplo', async () => {
+  test('una cuenta nueva sale sin rango', async () => {
     await renderizar(<Perfil />);
 
-    expect(screen.getByLabelText('Datos de ejemplo')).toBeOnTheScreen();
-    expect(screen.getByText('ACERO II · top 26 %')).toBeOnTheScreen();
+    expect(await screen.findByText('Sin rango todavía')).toBeOnTheScreen();
+    expect(screen.queryByText(/ACERO/)).toBeNull();
   });
 });

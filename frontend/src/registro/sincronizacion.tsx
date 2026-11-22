@@ -5,6 +5,7 @@ import { AppState } from 'react-native';
 import type { PlanActual } from '../api/esquemas';
 import { CLAVE_PLAN_ACTUAL } from '../plan/plan';
 import { CLAVE_RESUMEN_PROGRESO } from '../progreso/resumen';
+import { CLAVE_MARCAS } from '../rango/consultas';
 import { useSesion } from '../sesion/sesion';
 import type { AlmacenRegistro } from './almacen';
 import { type Contadores, crearOutbox, type Outbox } from './outbox';
@@ -118,6 +119,7 @@ export function ProveedorSincronizacion({ abrirAlmacen, escucharRed, children }:
           if (resultado.confirmadas > 0) {
             void consultas.invalidateQueries({ queryKey: CLAVE_PLAN_ACTUAL });
             void consultas.invalidateQueries({ queryKey: CLAVE_RESUMEN_PROGRESO });
+            void consultas.invalidateQueries({ queryKey: CLAVE_MARCAS });
           }
           // Si el proveedor ya no está, un envío que acaba tarde no deja un reintento colgado.
           if (resultado.proximoIntento !== null && dentroRef.current && !desmontado.current) {

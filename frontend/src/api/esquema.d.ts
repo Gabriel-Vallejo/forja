@@ -468,6 +468,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/progreso/marcas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["marcas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/progreso/resumen": {
         parameters: {
             query?: never;
@@ -803,6 +819,16 @@ export interface components {
             nombreDispositivo: string;
             /** @enum {string} */
             plataforma: "movil" | "pc";
+        };
+        MarcaEjercicio: {
+            e1rmKg: number;
+            grupos: string[];
+            idExterno: string;
+            levantamiento: string | null;
+            nombre: string;
+            pesoKg: number;
+            /** Format: int32 */
+            repeticiones: number;
         };
         MedidasCuerpo: {
             /** Format: double */
@@ -2010,6 +2036,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ProgresionEjercicio"];
+                };
+            };
+        };
+    };
+    marcas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MarcaEjercicio"][];
                 };
             };
         };

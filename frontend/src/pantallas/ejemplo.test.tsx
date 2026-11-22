@@ -16,25 +16,51 @@ jest.mock('expo-router', () => ({ useRouter: () => mockRouter }));
 
 beforeEach(() => jest.clearAllMocks());
 
-const avisoDeEjemplo = () => expect(screen.getAllByLabelText('Datos de ejemplo').length).toBeGreaterThan(0);
+// Una cuenta con banca y aperturas, hombre de 85 kg: banca 102 kg de e1RM → top 47 %, Plata III.
+const conMarcas = () =>
+  apiFalsa({
+    marcas: jest.fn().mockResolvedValue([
+      { idExterno: 'Barbell_Bench_Press_-_Medium_Grip', nombre: 'Press de banca con barra', grupos: ['pecho'], pesoKg: 80.5, repeticiones: 8, e1rmKg: 102, levantamiento: 'banca' },
+      { idExterno: 'Cable_Crossover', nombre: 'Aperturas en polea', grupos: ['pecho'], pesoKg: 15, repeticiones: 15, e1rmKg: 22, levantamiento: null },
+    ]),
+    estandares: jest.fn().mockResolvedValue([{ levantamiento: 'banca', sexo: 'hombre', pesoDesdeKg: 80, pesoHastaKg: 90, muestra: 93455, kg: Array.from({ length: 99 }, (_, i) => 50 + i) }]),
+    perfilDatos: jest.fn().mockResolvedValue({ sexo: 'hombre' }),
+    tieneConsentimientoMedidas: jest.fn().mockResolvedValue(true),
+    medidas: jest.fn().mockResolvedValue({ pesoKg: 85 }),
+  });
 
 describe('Progreso', () => {
-  test('rango global, aviso de ejemplo y panel del músculo tocado', async () => {
+  test('una cuenta nueva sale sin rango, sin datos de ejemplo y sin ejercicios en el panel', async () => {
     await renderizar(<Progreso />);
 
-    avisoDeEjemplo();
-    expect(screen.getByRole('button', { name: 'Tu rango Forja: Acero II, top 26 %. Ver la escala' })).toBeOnTheScreen();
+    expect(await screen.findByRole('button', { name: /^Aún sin rango Forja\. Registra sentadilla, banca o peso muerto/ })).toBeOnTheScreen();
+    expect(screen.queryByLabelText('Datos de ejemplo')).toBeNull();
     expect(screen.getByRole('header', { name: 'Pecho' })).toBeOnTheScreen();
-    await fireEvent.press(screen.getAllByTestId('grupo-cuadriceps-frente')[0]!);
+    expect(screen.getByText(/Aún no has registrado ejercicios de este músculo/)).toBeOnTheScreen();
+  });
 
+  test('con marcas reales: rango global y del músculo; lo que no tiene estándar sale sin rango', async () => {
+    await renderizar(<Progreso />, conMarcas());
+
+    expect(await screen.findByRole('button', { name: 'Tu rango Forja: Plata III, top 47 %. Ver la escala' })).toBeOnTheScreen();
+    expect(screen.getByText('Press de banca con barra')).toBeOnTheScreen();
+    expect(screen.getByText('80,5 kg × 8')).toBeOnTheScreen();
+    expect(screen.getByText('Aperturas en polea')).toBeOnTheScreen();
+    expect(screen.getByText('Sin estándar')).toBeOnTheScreen();
+    await fireEvent.press(screen.getAllByTestId('grupo-cuadriceps-frente')[0]!);
     expect(screen.getByRole('header', { name: 'Cuádriceps' })).toBeOnTheScreen();
-    expect(screen.getByText('Sentadilla con barra')).toBeOnTheScreen();
+  });
+
+  test('con marcas de banca pero sin peso, pide completar el perfil', async () => {
+    await renderizar(<Progreso />, apiFalsa({ marcas: conMarcas().marcas }));
+
+    expect(await screen.findByRole('button', { name: /^Aún sin rango Forja\. Completa tu sexo y tu peso/ })).toBeOnTheScreen();
   });
 
   test('una fila de «Por zona» abre su músculo en el panel', async () => {
     await renderizar(<Progreso />);
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Core: BRONCE II' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Core: SIN RANGO' }));
 
     expect(screen.getByRole('header', { name: 'Abdomen' })).toBeOnTheScreen();
   });
@@ -42,20 +68,25 @@ describe('Progreso', () => {
   test('la tarjeta del rango abre la escala', async () => {
     await renderizar(<Progreso />);
 
-    await fireEvent.press(screen.getByRole('button', { name: /^Tu rango Forja/ }));
+    await fireEvent.press(await screen.findByRole('button', { name: /rango Forja/ }));
 
     expect(mockRouter.push).toHaveBeenCalledWith('/escala');
   });
 });
 
 describe('Escala', () => {
-  test('25 escalones con el tuyo marcado', async () => {
+  test('25 escalones; sin rango no marca ninguno como tuyo', async () => {
     await renderizar(<Escala />);
 
-    avisoDeEjemplo();
     expect(screen.getByLabelText('Forjado, top 1 %')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Acero II, top 26 %, tu rango')).toBeOnTheScreen();
+    expect(screen.queryByLabelText(/tu rango$/)).toBeNull();
     expect(screen.getAllByLabelText(/^Emblema /)).toHaveLength(25);
+  });
+
+  test('con marcas reales marca el tuyo', async () => {
+    await renderizar(<Escala />, conMarcas());
+
+    expect(await screen.findByLabelText('Plata III, top 50 %, tu rango')).toBeOnTheScreen();
   });
 });
 

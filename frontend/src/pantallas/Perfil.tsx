@@ -10,7 +10,8 @@ import { Emblema } from '../componentes/Emblema';
 import { Icono } from '../componentes/Icono';
 import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
-import { PERFIL, RANGO_GLOBAL } from '../datos/ejemplo';
+import { PERFIL } from '../datos/ejemplo';
+import { useRangos } from '../rango/consultas';
 import { formatoCarga, useResumenProgreso } from '../progreso/resumen';
 import { mensajeDeError } from '../api/errores';
 import { useResumenLimitaciones } from '../limitaciones/consultas';
@@ -88,7 +89,7 @@ export function Perfil() {
   const estilos = crearEstilos(tema);
   const { salir } = useSesion();
   const cierre = useMutation({ mutationFn: salir });
-  const g = RANGO_GLOBAL;
+  const g = useRangos().global;
   const limitaciones = useResumenLimitaciones();
   const movilidad = useResumenMovilidad();
   const ajustes = usePerfilEntreno();
@@ -144,10 +145,12 @@ export function Perfil() {
       />
       <View style={estilos.tarjeta}>
         <View style={estilos.fila}>
-          <Emblema tipo={g.tipo} grado={g.grado} tam={EMBLEMA} />
+          <Emblema tipo={g ? g.tipo : 'hierro'} grado={g ? g.grado : 1} tam={EMBLEMA} />
           <View style={estilos.textos}>
             <Texto estilo="pantalla" encabezado>Tu perfil</Texto>
-            <Texto estilo="texto" peso="700" color={tema.rango.acero.texto}>{`${nombreRangoMayusculas(g.tipo, g.grado)} · top ${g.top} %`}</Texto>
+            <Texto estilo="texto" peso="700" color={g ? tema.rango[g.tipo].texto : tema.color.onSurfaceVariant}>
+              {g ? `${nombreRangoMayusculas(g.tipo, g.grado)} · top ${g.top} %` : 'Sin rango todavía'}
+            </Texto>
             <Texto estilo="mini" tono="secundario">{datos.data ? resumenPerfil(datos.data) : textoSinAjustes(datos.isError)}</Texto>
           </View>
         </View>

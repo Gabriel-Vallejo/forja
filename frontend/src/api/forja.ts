@@ -1,4 +1,5 @@
 import type { TablaEstandar } from '../rango/estandares';
+import type { Marca } from '../rango/rangos';
 import type { AlmacenTokens } from '../sesion/almacenTokens';
 import type { ClienteApi } from './cliente';
 import { ErrorApi, RESPUESTA_INESPERADA } from './errores';
@@ -10,6 +11,7 @@ import {
   esquemaDolorRepetido,
   type ResumenProgreso,
   esquemaEstandares,
+  esquemaMarcas,
   esquemaResumenProgreso,
   type EfectoEjercicio,
   type EstadoBloqueo,
@@ -94,6 +96,8 @@ export interface ApiForja {
   resumenProgreso(): Promise<ResumenProgreso>;
   /** Tablas de percentiles de OpenPowerlifting: públicas, el percentil se calcula en el móvil. */
   estandares(): Promise<TablaEstandar[]>;
+  /** La mejor serie de cada ejercicio hecho; vacía en una cuenta nueva. */
+  marcas(): Promise<Marca[]>;
   /** Sin ajustes, usa los guardados del perfil (o los de por defecto del backend). */
   generarPlan(ajustes?: AjustesEntreno): Promise<void>;
   /** Días, minutos y material del plan; sin guardar, los de por defecto con `porDefecto: true`. */
@@ -230,6 +234,7 @@ export function crearApiForja(cliente: ClienteApi, almacen: AlmacenTokens, dispo
       }
     },
     estandares: () => cliente.pedir({ ruta: '/api/v1/estandares', esquema: esquemaEstandares }),
+    marcas: () => cliente.pedir({ ruta: '/api/v1/progreso/marcas', esquema: esquemaMarcas }),
     dolorRepetido: () => cliente.pedir({ ruta: '/api/v1/sesiones/dolor-repetido', esquema: esquemaDolorRepetido }),
     resumenProgreso: () =>
       cliente.pedir({

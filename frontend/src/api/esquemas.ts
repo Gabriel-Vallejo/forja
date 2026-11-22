@@ -132,6 +132,19 @@ export const esquemaEstandares = z.array(
   }),
 ) satisfies z.ZodType<Lectura<Esquemas['TablaEstandar'][]>>;
 
+/** La mejor serie de cada ejercicio hecho (`GET /progreso/marcas`): de ahí salen el rango global y el mapa. */
+export const esquemaMarcas = z.array(
+  z.object({
+    idExterno: z.string(),
+    nombre: z.string(),
+    grupos: z.array(z.string()),
+    pesoKg: z.number(),
+    repeticiones: z.number().int(),
+    e1rmKg: z.number(),
+    levantamiento: z.enum(['sentadilla', 'banca', 'peso_muerto']).nullable(),
+  }),
+) satisfies z.ZodType<Lectura<Esquemas['MarcaEjercicio'][]>>;
+
 /** Racha semanal y cifras del perfil (`GET /progreso/resumen`). */
 export const esquemaResumenProgreso = z.object({
   sesiones: z.number().int(),

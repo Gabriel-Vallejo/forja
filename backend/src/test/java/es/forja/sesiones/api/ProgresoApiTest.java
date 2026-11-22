@@ -50,6 +50,37 @@ class ProgresoApiTest extends SoporteSesiones {
 	}
 
 	@Test
+	void unaCuentaNuevaNoTieneMarcas() throws Exception {
+		consultar("/api/v1/progreso/marcas", cuentaConSesion("Pixel")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(0));
+	}
+
+	@Test
+	void lasMarcasSonLaMejorSeriePorE1rmSinCalentamientoNiPesoCorporalNiLoDeOtros() throws Exception {
+		Cliente cliente = cuentaConSesion("Pixel");
+		String plan = generarPlan(cliente);
+		String banca = "Barbell_Bench_Press_-_Medium_Grip";
+		var cuando = reloj.instant().minus(Duration.ofHours(2));
+		guardarSesion(cliente, UUID.randomUUID(), sesion(plan, cuando, List.of(
+				serie(UUID.randomUUID(), banca, 1, "80", 8, 2), // e1RM 101,33
+				serie(UUID.randomUUID(), banca, 2, "90", 3, 1), // e1RM 99
+				serie(UUID.randomUUID(), banca, 3, "60", 20, 0), // más de 12 repeticiones: no cuenta
+				con(serie(UUID.randomUUID(), banca, 4, "120", 1, 0), "calentamiento", true))))
+				.andExpect(status().isOk());
+		Cliente otro = cuentaConSesion("Otro");
+		guardarSesion(otro, UUID.randomUUID(), sesion(generarPlan(otro), cuando,
+				List.of(serie(UUID.randomUUID(), banca, 1, "150", 5, 2)))).andExpect(status().isOk());
+
+		consultar("/api/v1/progreso/marcas", cliente).andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].idExterno").value(banca))
+				.andExpect(jsonPath("$[0].levantamiento").value("banca"))
+				.andExpect(jsonPath("$[0].pesoKg").value(80)).andExpect(jsonPath("$[0].repeticiones").value(8))
+				.andExpect(jsonPath("$[0].e1rmKg").value(101.33))
+				.andExpect(jsonPath("$[0].grupos[0]").value("pecho"));
+	}
+
+	@Test
 	void unaZonaQueNoExisteDa400() throws Exception {
 		consultar(RUTA + "?zona=Marte/Olimpo", cuentaConSesion("Pixel")).andExpect(status().isBadRequest());
 	}

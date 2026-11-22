@@ -597,6 +597,37 @@
         "required" : [ "contrasena", "correo", "nombreDispositivo", "plataforma" ],
         "type" : "object"
       },
+      "MarcaEjercicio" : {
+        "properties" : {
+          "e1rmKg" : {
+            "type" : "number"
+          },
+          "grupos" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "idExterno" : {
+            "type" : "string"
+          },
+          "levantamiento" : {
+            "type" : [ "string", "null" ]
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "pesoKg" : {
+            "type" : "number"
+          },
+          "repeticiones" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "e1rmKg", "grupos", "idExterno", "levantamiento", "nombre", "pesoKg", "repeticiones" ],
+        "type" : "object"
+      },
       "MedidasCuerpo" : {
         "properties" : {
           "alturaCm" : {
@@ -2748,6 +2779,27 @@
           }
         },
         "tags" : [ "progresion-controlador" ]
+      }
+    },
+    "/api/v1/progreso/marcas" : {
+      "get" : {
+        "operationId" : "marcas",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/MarcaEjercicio"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "progreso-controlador" ]
       }
     },
     "/api/v1/progreso/resumen" : {

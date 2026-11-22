@@ -11,9 +11,11 @@ import type { ColoresCuerpo } from '../componentes/FiguraCuerpo';
 import { FilaRango } from '../componentes/FilaRango';
 import { Pantalla } from '../componentes/Pantalla';
 import { Texto } from '../componentes/Texto';
-import { MUSCULOS, NIVELES_DE_ARRIBA_ABAJO, RANGO_GLOBAL, TOPS, ZONAS } from '../datos/ejemplo';
+import { NIVELES_DE_ARRIBA_ABAJO, ZONAS } from '../datos/ejemplo';
 import { useResumenProgreso } from '../progreso/resumen';
+import { useRangos } from '../rango/consultas';
 import { nombreRango, nombreRangoMayusculas, tipoEmblema } from '../rango/rango';
+import type { Rangos } from '../rango/rangos';
 import { type Theme, useTheme } from '../theme';
 
 const ANCHO_CUERPO = 262;
@@ -45,16 +47,16 @@ function Pestanas() {
   );
 }
 
-function Panel({ grupo }: { grupo: Grupo }) {
+function Panel({ grupo, musculos }: { grupo: Grupo; musculos: Rangos['musculos'] }) {
   const router = useRouter();
   const tema = useTheme();
   const estilos = crearEstilos(tema);
-  const mus = MUSCULOS[grupo];
+  const mus = musculos[grupo];
   const paleta = tema.rango[mus.tipo];
-  const top = mus.tipo === 'sin' ? 'Sin datos todavía' : `Top ${TOPS[mus.tipo][mus.grado - 1]} % · estimación`;
+  const top = mus.top === null ? 'Sin datos todavía' : `Top ${mus.top} % · estimación`;
   const nota = mus.ejercicios.length === 0
-    ? 'Registra peso muerto o hiperextensiones para tener rango aquí.'
-    : 'El rango del músculo sale de su mejor ejercicio con estándar. Los aislamientos sin estándar suman volumen, no rango.';
+    ? 'Aún no has registrado ejercicios de este músculo. Solo la sentadilla, la banca y el peso muerto con barra tienen estándar (OpenPowerlifting).'
+    : 'El rango del músculo sale de su mejor ejercicio con estándar: la sentadilla, la banca y el peso muerto con barra. El resto suma volumen, no rango.';
 
   return (
     <View accessibilityLiveRegion="polite" accessibilityLabel={`Rango de ${mus.nombre}`} style={[estilos.panel, { borderTopColor: paleta.base }]}>
@@ -95,25 +97,30 @@ export function Progreso() {
   const tema = useTheme();
   const estilos = crearEstilos(tema);
   const [sel, setSel] = useState<Grupo>('pecho');
-  const colores = Object.fromEntries(GRUPOS.map((g) => [g, tema.rango[MUSCULOS[g].tipo].base])) as ColoresCuerpo;
-  const global = RANGO_GLOBAL;
+  const { global, musculos, faltaPerfil } = useRangos();
+  const colores = Object.fromEntries(GRUPOS.map((g) => [g, tema.rango[musculos[g].tipo].base])) as ColoresCuerpo;
+  const sinRango = faltaPerfil
+    ? 'Completa tu sexo y tu peso en el perfil para compararte'
+    : 'Registra sentadilla, banca o peso muerto con barra, o usa la calculadora';
 
   return (
     <Pantalla bordes={['top']} hueco="s35">
-      <Cabecera racha={resumen.data?.semanasDeRacha} ejemplo alPulsarRacha={() => router.push('/racha')} />
+      <Cabecera racha={resumen.data?.semanasDeRacha} alPulsarRacha={() => router.push('/racha')} />
       <Pestanas />
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`Tu rango Forja: ${nombreRango(global.tipo, global.grado)}, top ${global.top} %. Ver la escala`}
+        accessibilityLabel={global ? `Tu rango Forja: ${nombreRango(global.tipo, global.grado)}, top ${global.top} %. Ver la escala` : `Aún sin rango Forja. ${sinRango}. Ver la escala`}
         onPress={() => router.push('/escala')}
         style={estilos.global}
       >
         <View style={estilos.globalTextos}>
           <Texto estilo="etiquetaEstrecha" tono="secundario">Rango Forja · ver escala ›</Texto>
-          <Texto estilo="rangoMedio" color={tema.destaque.titulo}>{nombreRangoMayusculas(global.tipo, global.grado)}</Texto>
-          <Texto estilo="nota" color={tema.rango.acero.texto}>{`Estás en el top ${global.top} % · estimación`}</Texto>
+          <Texto estilo="rangoMedio" color={tema.destaque.titulo}>{global ? nombreRangoMayusculas(global.tipo, global.grado) : 'SIN RANGO'}</Texto>
+          <Texto estilo="nota" color={global ? tema.rango[global.tipo].texto : tema.color.onSurfaceVariant}>
+            {global ? `Estás en el top ${global.top} % · estimación` : sinRango}
+          </Texto>
         </View>
-        <Emblema tipo={global.tipo} grado={global.grado} tam={EMBLEMA_GLOBAL} />
+        {global ? <Emblema tipo={global.tipo} grado={global.grado} tam={EMBLEMA_GLOBAL} /> : null}
       </Pressable>
       <View style={estilos.mapa}>
         <Texto estilo="nota" tono="secundario">Toca un músculo · arrastra para girar</Texto>
@@ -127,7 +134,7 @@ export function Progreso() {
           ))}
         </View>
       </View>
-      <Panel grupo={sel} />
+      <Panel grupo={sel} musculos={musculos} />
       <View style={estilos.entre}>
         <Texto estilo="seccion" encabezado>Por zona</Texto>
         <Pressable accessibilityRole="link" onPress={() => router.push('/escala')} style={estilos.enlace}>
@@ -136,9 +143,9 @@ export function Progreso() {
       </View>
       <View accessibilityRole="list" style={estilos.zonas}>
         {ZONAS.map((z) => {
-          const mus = MUSCULOS[z.clave];
+          const mus = musculos[z.clave];
           const paleta = tema.rango[mus.tipo];
-          const musculos = Object.fromEntries(
+          const pintados = Object.fromEntries(
             GRUPOS.map((g) => [g, z.partes.includes(g) ? paleta.base : tema.cuerpo.neutro]),
           ) as ColoresCuerpo;
           return (
@@ -147,7 +154,7 @@ export function Progreso() {
               nombre={z.nombre}
               rango={nombreRangoMayusculas(mus.tipo, mus.grado)}
               colores={paleta}
-              musculos={musculos}
+              musculos={pintados}
               desplazamiento={z.desplazamiento}
               alPulsar={() => setSel(z.clave)}
             />

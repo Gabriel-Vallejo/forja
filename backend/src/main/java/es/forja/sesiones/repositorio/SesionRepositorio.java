@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -207,6 +208,35 @@ public class SesionRepositorio implements HistorialSesiones {
 
 	/** Todo el historial del ejercicio. shortcut: sin tope; si un usuario acumula años de sesiones, limitar a los últimos meses. */
 	/** Cada sesión con alguna serie de trabajo vigente: cuándo se hizo y sus kg (peso × repeticiones). */
+	/** Una serie de trabajo con carga del usuario, para buscar su mejor marca en cada ejercicio. */
+	public record SerieConCarga(String idExterno, String nombre, BigDecimal pesoKg, int repeticiones) {
+	}
+
+	public List<SerieConCarga> seriesConCarga(long usuarioId) {
+		return jdbc.sql("""
+				SELECT e.id_externo, COALESCE(e.nombre_es, e.nombre_original) AS nombre, s.peso_kg, s.repeticiones
+				FROM sesion x JOIN serie_vigente s ON s.sesion_uuid = x.uuid JOIN ejercicio e ON e.id = s.ejercicio_id
+				WHERE x.usuario_id = :usuario AND s.calentamiento = FALSE AND s.peso_kg > 0 AND s.repeticiones > 0""")
+				.param("usuario", usuarioId)
+				.query((rs, n) -> new SerieConCarga(rs.getString("id_externo"), rs.getString("nombre"),
+						rs.getBigDecimal("peso_kg"), rs.getInt("repeticiones")))
+				.list();
+	}
+
+	/** Códigos de catálogo de los músculos primarios de cada ejercicio. */
+	public Map<String, List<String>> musculosPrimarios(Collection<String> idsExternos) {
+		if (idsExternos.isEmpty()) {
+			return Map.of();
+		}
+		return jdbc.sql("""
+				SELECT e.id_externo, m.codigo FROM ejercicio e
+				JOIN ejercicio_musculo em ON em.ejercicio_id = e.id JOIN musculo m ON m.id = em.musculo_id
+				WHERE em.rol = 'primario' AND e.id_externo IN (:ids)""").param("ids", idsExternos)
+				.query((rs, n) -> Map.entry(rs.getString("id_externo"), rs.getString("codigo"))).list().stream()
+				.collect(Collectors.groupingBy(Map.Entry::getKey,
+						Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
+	}
+
 	public List<SesionHechaFila> sesionesHechas(long usuarioId) {
 		return jdbc.sql("""
 				SELECT x.realizada_en, SUM(s.peso_kg * s.repeticiones) AS kg

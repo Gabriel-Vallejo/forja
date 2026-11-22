@@ -1,5 +1,5 @@
-// shortcut: datos de ejemplo del boceto (rangos por percentil y «Personaliza»); en la v0.2 se sustituyen por la API.
-// La racha y las cifras del perfil ya son reales (`GET /progreso/resumen`).
+// Tipos y escala de los rangos, y lo que aún es de ejemplo del boceto («Personaliza» del perfil). El rango global y el
+// mapa ya salen de las marcas reales (`src/rango/rangos.ts`); la racha y las cifras, de `GET /progreso/resumen`.
 // Cada pantalla que los usa enseña la pastilla «Datos de ejemplo». Nada de aquí es de una persona real.
 import type { Grupo } from '../componentes/cuerpoTrazados';
 import type { Grado, TipoRango } from '../componentes/Emblema';
@@ -30,8 +30,6 @@ export const NIVELES_DE_ARRIBA_ABAJO: readonly Nivel[] = [
   'diamante', 'obsidiana', 'titanio', 'acero', 'oro', 'plata', 'bronce', 'hierro',
 ];
 
-export const RANGO_GLOBAL: Rango = { tipo: 'acero', grado: 2, top: 26 };
-
 export interface MarcaEjercicio {
   nombre: string;
   serie: string;
@@ -45,25 +43,6 @@ export interface RangoDeMusculo {
   grado: Grado;
   ejercicios: readonly MarcaEjercicio[];
 }
-
-const m = (nombre: string, serie: string, tipo: RangoMusculo, grado: Grado = 1): MarcaEjercicio => ({ nombre, serie, tipo, grado });
-
-export const MUSCULOS: Record<Grupo, RangoDeMusculo> = {
-  pecho: { nombre: 'Pecho', tipo: 'acero', grado: 3, ejercicios: [m('Press de banca con barra', '80,5 kg × 8', 'acero', 3), m('Press inclinado con mancuernas', '2 × 28 kg × 10', 'oro', 3), m('Fondos con lastre', '+10 kg × 8', 'acero', 1), m('Aperturas en polea', '15 kg × 15', 'sin')] },
-  hombros: { nombre: 'Hombros', tipo: 'oro', grado: 2, ejercicios: [m('Press militar con barra', '50 kg × 6', 'oro', 2), m('Elevaciones laterales', '12 kg × 15', 'sin')] },
-  brazos: { nombre: 'Bíceps', tipo: 'titanio', grado: 1, ejercicios: [m('Curl con barra EZ', '45 kg × 8', 'titanio', 1), m('Curl inclinado con mancuernas', '2 × 14 kg × 10', 'acero', 3)] },
-  triceps: { nombre: 'Tríceps', tipo: 'titanio', grado: 2, ejercicios: [m('Press francés con barra EZ', '40 kg × 10', 'titanio', 2), m('Extensión en polea por encima', '30 kg × 12', 'acero', 2)] },
-  antebrazos: { nombre: 'Antebrazos', tipo: 'plata', grado: 3, ejercicios: [m('Curl de muñeca con barra', '35 kg × 15', 'plata', 3)] },
-  abdomen: { nombre: 'Abdomen', tipo: 'bronce', grado: 2, ejercicios: [m('Rueda abdominal', '12 reps', 'bronce', 2), m('Elevación de piernas colgado', '10 reps', 'bronce', 1)] },
-  cuadriceps: { nombre: 'Cuádriceps', tipo: 'acero', grado: 2, ejercicios: [m('Sentadilla con barra', '120 kg × 5', 'acero', 2), m('Prensa de piernas', '220 kg × 10', 'oro', 3), m('Sentadilla hack', '140 kg × 8', 'acero', 1)] },
-  aductores: { nombre: 'Aductores', tipo: 'plata', grado: 1, ejercicios: [m('Aducción en máquina', '60 kg × 12', 'plata', 1)] },
-  gemelos: { nombre: 'Gemelos', tipo: 'hierro', grado: 3, ejercicios: [m('Talones de pie en máquina', '80 kg × 12', 'hierro', 3)] },
-  trapecio: { nombre: 'Trapecio', tipo: 'oro', grado: 3, ejercicios: [m('Encogimientos con mancuernas', '2 × 40 kg × 12', 'oro', 3)] },
-  dorsal: { nombre: 'Dorsal', tipo: 'obsidiana', grado: 1, ejercicios: [m('Dominadas con lastre', '+20 kg × 6', 'obsidiana', 1), m('Jalón al pecho', '80 kg × 10', 'titanio', 3)] },
-  lumbar: { nombre: 'Espalda baja', tipo: 'sin', grado: 1, ejercicios: [] },
-  gluteos: { nombre: 'Glúteos', tipo: 'acero', grado: 1, ejercicios: [m('Hip thrust con barra', '140 kg × 8', 'acero', 1)] },
-  isquios: { nombre: 'Isquiotibiales', tipo: 'bronce', grado: 3, ejercicios: [m('Curl femoral sentado', '50 kg × 12', 'bronce', 3), m('Peso muerto rumano', '90 kg × 8', 'oro', 1)] },
-};
 
 /** Filas de «Por zona»: qué grupo da el rango, qué se pinta en la miniatura y cuánto se sube el torso. */
 export const ZONAS: readonly { nombre: string; clave: Grupo; partes: readonly Grupo[]; desplazamiento: number }[] = [

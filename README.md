@@ -20,7 +20,7 @@ Te pregunta lo que te limita, mide tu movilidad y arma la rutina con un solver q
 - Rutina con CP-SAT: duración, topes por patrón y día, volumen por músculo, como mucho 2 días por ejercicio si hay alternativa, y «por qué este ejercicio» con su fuente y su nivel.
 - Ajustes con vista previa (una serie más o menos, reemplazar, no recomendar, variedad, enfocar) y material de tu gimnasio.
 - Registro de series sin conexión: RPE, dolor (con aviso desde 7), deshacer, progresión doble con deload y aviso si un ejercicio te duele en 2 de sus 3 últimas sesiones.
-- Racha semanal y cifras del perfil con tus sesiones. La calculadora da tu rango en sentadilla, banca y peso muerto con los percentiles de OpenPowerlifting; el rango global y el mapa muscular aún son de ejemplo (fase 2).
+- Racha semanal y cifras del perfil con tus sesiones. Rango global y mapa por músculo con tus marcas reales y los percentiles de OpenPowerlifting en sentadilla, banca y peso muerto (también en la calculadora); una cuenta nueva sale sin rango.
 
 ## ◆ Stack
 - **Backend:** Java 21 · Spring Boot 4 · JPA · Flyway · MySQL 8.4 LTS
@@ -47,7 +47,7 @@ Lo que se mide (los resultados estarán en `eval/`):
 - Coste de la cesta frente a una cesta manual
 
 ## ◆ Descargar
-- **v0.1.4:** [APK para Android](https://github.com/Gabriel-Vallejo/forja/releases/latest/download/forja-0.1.4.apk) (habla con el backend en Azure). Mientras el repo sea privado, solo se descarga con acceso.
+- **v0.1.5:** [APK para Android](https://github.com/Gabriel-Vallejo/forja/releases/latest/download/forja-0.1.5.apk) (habla con el backend en Azure). Mientras el repo sea privado, solo se descarga con acceso.
 - Con la v1.0, también la versión de PC.
 
 ## ◆ Arrancar
