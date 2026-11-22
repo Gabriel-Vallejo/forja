@@ -30,13 +30,19 @@ public class FallosLogin {
 
 	private final ConcurrentHashMap<String, Estado> estados = new ConcurrentHashMap<>();
 	private final int maximo;
+	private final Barrido barrido;
 
 	public FallosLogin() {
 		this(MAXIMO_DE_CLAVES);
 	}
 
 	FallosLogin(int maximo) {
+		this(maximo, new Barrido());
+	}
+
+	FallosLogin(int maximo, Barrido barrido) {
 		this.maximo = maximo;
+		this.barrido = barrido;
 	}
 
 	public boolean enEspera(long usuario, String ip, Instant ahora) {
@@ -46,11 +52,9 @@ public class FallosLogin {
 
 	/** Suma el fallo de forma atómica y, si toca, fija la espera según el contador resultante. */
 	public void fallo(long usuario, String ip, Instant ahora) {
-		if (estados.size() > maximo) {
-			// Solo se descartan los orígenes sin espera en curso: vaciarlo entero dejaría a quien llena el mapa a
-			// propósito borrar las esperas activas. Las que quedan están acotadas por los límites de LimitadorIntentos.
-			estados.values().removeIf(e -> e.hasta() == null || !ahora.isBefore(e.hasta()));
-		}
+		// Solo se descartan los orígenes sin espera en curso: vaciarlo entero dejaría a quien llena el mapa a propósito
+		// borrar las esperas activas. Las que quedan están acotadas por los límites de LimitadorIntentos.
+		barrido.siToca(estados, maximo, e -> e.hasta() == null || !ahora.isBefore(e.hasta()));
 		estados.compute(clave(usuario, ip), (k, e) -> {
 			int fallos = (e == null ? 0 : e.fallos()) + 1;
 			Duration espera = ReglasCuenta.esperaTrasFallos(fallos);
