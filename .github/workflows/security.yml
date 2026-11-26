@@ -3,7 +3,7 @@ name: Seguridad
 on:
   push:
     branches: [main]
-    # Cambios solo de documentación no gastan minutos (el plan gratis de repos privados tiene 2000 al mes).
+    # Cambios solo de documentación no lanzan el escaneo.
     paths-ignore:
       - '**.md'
       - 'docs/**'
@@ -33,8 +33,6 @@ jobs:
 
   trivy:
     runs-on: ubuntu-latest
-    env:
-      EVENTO: ${{ github.event_name }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -43,17 +41,14 @@ jobs:
         run: |
           cp .env.example .env
           sed -i -E 's/^([A-Za-z_][A-Za-z0-9_]*)=$/\1=ficticio/' .env
-      # En push y PR informa; en el programado y el manual, bloquea.
+      # Solo informa: son imágenes de terceros para desarrollo local y aun en su último parche traen HIGH que solo
+      # arregla su autor (Go viejo en gosu, mysqlsh, etc.; 2026-11-26). Las versiones las sube Dependabot.
       - name: Trivy sobre las imágenes del compose
         run: |
-          CODIGO=0
-          if [ "$EVENTO" = schedule ] || [ "$EVENTO" = workflow_dispatch ]; then CODIGO=1; fi
-          fallo=0
           while read -r imagen; do
             docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache aquasec/trivy:0.76.2 \
-              image --severity HIGH,CRITICAL --ignore-unfixed --exit-code "$CODIGO" "$imagen" || fallo=1
+              image --severity HIGH,CRITICAL --ignore-unfixed "$imagen"
           done < <(docker compose --profile dev --profile gpu --profile obs config --images)
-          exit "$fallo"
       - name: Trivy sobre el repo (secretos y configuración)
         run: >
           docker run --rm -v "$PWD":/repo -w /repo aquasec/trivy:0.76.2
