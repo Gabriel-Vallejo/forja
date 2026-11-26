@@ -2,7 +2,7 @@
 
 # Investigación 4: relaciones medidas entre ejercicios
 
-Parte del encargo `/home/imtrucha/Proyectos/forja/docs/investigacion/estandares-fuerza-encargo.md`, tipo de fuente 4. Fecha: 2026-11-22.
+Parte del encargo [estandares-fuerza-encargo.md](../estandares-fuerza-encargo.md), tipo de fuente 4. Fecha: 2026-11-22.
 
 **Cómo leer esto**
 

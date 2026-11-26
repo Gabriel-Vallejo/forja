@@ -1,6 +1,6 @@
 # Revisión del texto de consentimiento (preliminar)
 
-> **No es asesoría legal.** Es una revisión hecha al desarrollar Forja (2026-11-21) contra el RGPD y la LOPDGDD, para llegar a la asesoría con el trabajo hecho. Antes de abrir el repo o publicar la app, la revisa una asesoría ([ADR 0004](../adr/0004-privacidad-fotos-y-datos-de-salud.md), RF-45).
+> **No es asesoría legal.** Es una revisión hecha al desarrollar Forja (2026-11-21) contra el RGPD y la LOPDGDD, para llegar a la asesoría con el trabajo hecho. Una asesoría dio por buenos el consentimiento v2 y la política el 2026-11-21 ([ADR 0004](../adr/0004-privacidad-fotos-y-datos-de-salud.md), RF-45); la línea de encargados se rellenó después y está pendiente de pasársela.
 
 ## Qué se revisó
 - Consentimiento de **limitaciones** (`frontend/src/pantallas/ConsentimientoLimitaciones.tsx`), base del art. 9.2.a RGPD para datos de salud.

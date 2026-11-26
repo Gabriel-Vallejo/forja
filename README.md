@@ -2,12 +2,14 @@
 
 Entrena, come y suplementa según tu cuerpo.
 
-> 🚧 **En desarrollo** · repo privado hasta la v1.0 · **v0.1** publicada (el entreno) · siguiente: fase **2**
+> 🚧 **En desarrollo** · **v0.1** publicada (el entreno) · siguiente: fase **2** (visión, LLM de entrada y explicador)
 
 Te pregunta lo que te limita, mide tu movilidad y arma la rutina con un solver que te explica cada ejercicio con su fuente. Además, la cesta de proteína más barata del súper y un escáner de riesgo de tus suplementos.
 
 ## ◆ Qué hace
-- **Entreno:** entrada guiada de limitaciones (lesiones, dolor, discapacidad) con IA que solo transcribe, tests de movilidad, estándares de fuerza con OpenPowerlifting y rutina generada con CP-SAT que explica cada ejercicio con su fuente y su nivel de evidencia. Las proporciones por foto solo desempatan ([ADR 0007](docs/adr/0007-motor-de-seleccion-de-ejercicios.md)). Forja elige ejercicios compatibles con las limitaciones que tú indicas; no es una herramienta sanitaria.
+El plan completo. La v0.1 cubre el entreno (ver la sección siguiente); dieta, suplementos y visión llegan en las próximas fases.
+
+- **Entreno:** entrada guiada de limitaciones (lesiones, dolor, discapacidad) con IA que solo transcribe, tests de movilidad, estándares de fuerza con OpenPowerlifting y rutina generada con CP-SAT que explica cada ejercicio con su fuente y su nivel de evidencia. Las proporciones por foto solo desempatan ([ADR 0007](docs/adr/0007-motor-de-seleccion-de-ejercicios.md)). Forja elige ejercicios compatibles con las limitaciones que tú indicas; no es una herramienta sanitaria. Las reglas por palancas (proporciones del cuerpo) son heurísticas de entrenadores, no ciencia, y la app las marca con el nivel H.
 - **Dieta (ProteEuro):** cesta semanal que cumple tu proteína y tu tope de carbohidratos al menor coste (programación lineal con precios de Mercadona).
 - **Suplementos:** OCR de la etiqueta y riesgo por ingredientes frente a la lista de sustancias prohibidas del BOE y las alertas de la CELAD/AESAN.
 - **Registro de series** sin conexión, con progresión doble y deload automáticos.
@@ -47,7 +49,7 @@ Lo que se mide (los resultados estarán en `eval/`):
 - Coste de la cesta frente a una cesta manual
 
 ## ◆ Descargar
-- **v0.1.6:** [APK para Android](https://github.com/Gabriel-Vallejo/forja/releases/latest/download/forja-0.1.6.apk) (habla con el backend en Azure). Mientras el repo sea privado, solo se descarga con acceso.
+- **v0.1.6:** [APK para Android](https://github.com/Gabriel-Vallejo/forja/releases/latest/download/forja-0.1.6.apk) (habla con el backend en Azure). Para instalarlo, permite «instalar apps de origen desconocido».
 - Con la v1.0, también la versión de PC.
 
 ## ◆ Arrancar
@@ -76,6 +78,19 @@ az login
 infra/azure/desplegar.sh   # crea lo que falte y sube la versión del commit actual
 ```
 Detalles, costes y límites en [infra/README.md](infra/README.md). El APK firmado sale de `frontend/scripts/apk-release.sh`.
+
+## ◆ Datos y licencias
+| Fuente | Licencia | Uso en Forja |
+|---|---|---|
+| [OpenPowerlifting](https://www.openpowerlifting.org) (CSV) | Dominio público | Percentiles de sentadilla, banca y peso muerto. Solo los datos; su código (AGPLv3) no se usa |
+| [OpenStreetlifting](https://www.openstreetlifting.org) (datos) | CC0 1.0 | Percentiles de dominadas y fondos con lastre, solo agregados |
+| [free-exercise-db](https://github.com/yuhonas/free-exercise-db) | Unlicense | Catálogo de ejercicios, fijado a un commit con su SHA-256 |
+| Strand et al. 2014 (PMC4096102) | CC BY | Normas de plancha por sexo, con cita |
+| [SecLists](https://github.com/danielmiessler/SecLists) (contraseñas filtradas) | MIT | Lista local para rechazar contraseñas filtradas |
+| Lista de sustancias prohibidas (BOE-A-2025-25042) | Resolución pública | Escáner de suplementos (fase siguiente) |
+| [Open Food Facts](https://world.openfoodfacts.org) | ODbL / DbCL | Dieta (fase siguiente), «© Open Food Facts contributors» |
+
+Las citas científicas de cada regla están en [docs/referencias.md](docs/referencias.md) y la app las enlaza con su DOI.
 
 ## Licencia
 [MIT](LICENSE)

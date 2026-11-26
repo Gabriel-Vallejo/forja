@@ -2,7 +2,7 @@
 
 # Investigación 2 · Datos normativos de 1RM en ciencia (ejercicios fuera de SBD)
 
-Parte del encargo [estandares-fuerza-encargo.md](/home/imtrucha/Proyectos/forja/docs/investigacion/estandares-fuerza-encargo.md), tipo de fuente 2 (y las relaciones medidas entre ejercicios del tipo 4 que salieron por el camino). Fecha: 2026-11-22.
+Parte del encargo [estandares-fuerza-encargo.md](../estandares-fuerza-encargo.md), tipo de fuente 2 (y las relaciones medidas entre ejercicios del tipo 4 que salieron por el camino). Fecha: 2026-11-22.
 
 ## Cómo se buscó
 

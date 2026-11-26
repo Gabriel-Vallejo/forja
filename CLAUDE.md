@@ -13,7 +13,7 @@ Antes de ejecutar una tarea, evalúa su dificultad y selecciona el modelo adecua
 
 
 ## 1. Al empezar cada sesión
-1. `git pull --rebase --autostash` y `git -C vault pull --rebase --autostash`. Si falta `vault/`: `git clone git@github.com:Gabriel-Vallejo/forja-vault.git vault`.
+1. `git pull --rebase --autostash` y `git -C vault pull --rebase --autostash`. Si falta `vault/`, clónalo (la URL está en la memoria del proyecto o pídesela a Gabriel).
 2. Lee `vault/Inicio.md` (estado y siguiente paso), la sección **Ahora** de `vault/Pendiente.md` y las 3 últimas entradas de `vault/Log.md` (`grep "^## \[" vault/Log.md | tail -3`).
 3. `CONTEXT.md` es el índice: producto en `docs/PRD.md`, arquitectura en `docs/arquitectura.md`, diseño en `docs/design-system.md`, decisiones en `docs/adr/` y fases y riesgos en el propio `CONTEXT.md`. Léelos cuando la tarea toque diseño.
 4. Si la tarea no está en `Pendiente.md`, añádela antes de empezar.
@@ -51,7 +51,7 @@ Hardware: portátil con RTX 5070 (~8 GB de VRAM) para el worker de GPU; VPS sin 
 - Textos (app, README, posts): voz del kit de marca: directo, de tú, con cifras y sin frases de plantilla de IA.
 
 ## 6. El vault (`vault/`)
-Vault de Obsidian para organizar el proyecto (en Obsidian: «Abrir carpeta como vault» → `vault/`). **Es privado y no forma parte de la app:** vive en su propio repo privado (`Gabriel-Vallejo/forja-vault`) y este repo lo ignora en `.gitignore`. Nunca lo añadas aquí ni copies su contenido al código, al README ni a los commits. Lo mantienes tú; si Gabriel escribe en una nota, respeta su texto.
+Vault de Obsidian para organizar el proyecto (en Obsidian: «Abrir carpeta como vault» → `vault/`). **Es privado y no forma parte de la app:** vive en su propio repo privado y este repo lo ignora en `.gitignore`. Nunca lo añadas aquí ni copies su contenido al código, al README ni a los commits. Lo mantienes tú; si Gabriel escribe en una nota, respeta su texto.
 
 | Nota | Para qué | Cuándo se toca |
 |---|---|---|
@@ -90,4 +90,4 @@ Al terminar solo se publica **la app**, como Style & Scent Engine: el código de
 El historial de este repo está limpio de `vault/` (purgado el 2026-11-15). Si alguna vez se cuela, hay que reescribir el historial antes de publicar, con el visto bueno de Gabriel. El resto de pasos, en la checklist de `vault/Producción.md`.
 
 ## 9. Contexto de Gabriel
-Perfil, gustos y kit de marca completos en su vault de la carrera (`~/Truchilla/20_Contexto/`). Léelos si una decisión depende de ellos; **no escribas allí** desde este proyecto.
+Perfil, gustos y kit de marca completos en su vault de la carrera (ruta en su CLAUDE.md global). Léelos si una decisión depende de ellos; **no escribas allí** desde este proyecto.

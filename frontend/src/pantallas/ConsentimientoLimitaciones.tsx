@@ -19,8 +19,8 @@ import { type Theme, useTheme } from '../theme';
  */
 export const VERSION_TEXTO = VERSIONES_VIGENTES.limitaciones;
 
-// v2 (2026-11-21): revisión preliminar (docs/legal/revision-consentimiento.md), no de una asesoría; sigue pendiente de
-// que la revise una antes de abrir el repo (RF-45, ADR 0004).
+// v2 (2026-11-21): revisión preliminar (docs/legal/revision-consentimiento.md); una asesoría la dio por buena el
+// mismo día (RF-45, ADR 0004).
 export const PUNTOS_LIMITACIONES = [
   {
     titulo: 'Qué se guarda',

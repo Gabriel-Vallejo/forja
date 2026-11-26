@@ -16,7 +16,7 @@
 # El APK se publica como GitHub Release, no en el repo (~80 MB por versión)
 *.apk
 
-# Vault de Obsidian: repo privado aparte (forja-vault), nunca en este
+# Vault de Obsidian: repo privado aparte, nunca en este
 vault
 
 # Caché de la descarga de free-exercise-db (database/catalogo/descargar.py)
