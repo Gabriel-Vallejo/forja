@@ -2,6 +2,10 @@
 
 ## [Sin publicar]
 
+## [0.1.7] - 2026-11-26
+- Política de privacidad pública ([docs/legal/privacidad.md](docs/legal/privacidad.md)) con responsable, datos, bases jurídicas, encargados y derechos, enlazada desde la pantalla de registro y el README.
+- El repo pasa a ser público. Trivy bloquea sobre la imagen del backend.
+
 ## [0.1.6] - 2026-11-22
 - Las dominadas y los fondos dan rango: percentiles del lastre de OpenStreetlifting (datos CC0; competidores, sobre todo europeos), por sexo y peso corporal. Tu marca es el lastre equivalente con tu peso: Epley sobre peso corporal + lastre, menos el peso, así que también cuentan las series sin lastre.
 - Investigación de estándares para más ejercicios en `docs/investigacion/`.

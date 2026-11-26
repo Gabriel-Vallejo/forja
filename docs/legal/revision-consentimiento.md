@@ -21,10 +21,10 @@
 | 8 | Medidas de salud: dice qué, para qué, que es opcional y cómo retirarlo. Falta la conservación y el art. 7.3. | arts. 7.3 y 13 | Arreglado en medidas **v2**: cuánto y cómo se guarda (las medidas, cifradas; los tramos de movilidad no) y art. 7.3 |
 
 ## Borrador de política de privacidad (lo que falta del art. 13)
-Rellenar lo marcado con `[…]` antes de publicar:
-- **Responsable:** `[nombre y NIF]`, `[correo de contacto]`.
+Publicada el 2026-11-26 en [privacidad.md](privacidad.md), enlazada desde el registro de la app (v0.1.7) y el README. Borrador original:
+- **Responsable:** Gabriel Vallejo García (NIF 70921460V), gabrivallejo@hotmail.com.
 - **Qué y para qué:** cuenta (correo, año de nacimiento) para darte acceso; limitaciones, dolor y nivel de aviso, solo con tu consentimiento, para elegir ejercicios compatibles; movilidad y medidas, con su consentimiento, para elegir variantes y estimar el % de grasa; sesiones registradas para la progresión y tu racha.
 - **Base jurídica:** contrato (art. 6.1.b) para la cuenta y el registro de sesiones; consentimiento explícito (art. 9.2.a) para los datos de salud.
 - **Conservación:** mientras tengas cuenta; los datos de salud, hasta que retires su consentimiento. Al borrar la cuenta se borra todo (solo quedan, hasta que caducan, los hashes de los tokens de sesión, sin nada que te identifique).
 - **Encargados:** Microsoft Ireland Operations Ltd. (Azure) para el hosting, la base de datos y el correo transaccional; los datos se guardan en la UE (región España Central y Azure Communication Services con ubicación «Europe»). Transferencias fuera de la UE: Microsoft puede dar soporte desde fuera; se apoya en el Marco de Privacidad de Datos UE-EE. UU. y en cláusulas contractuales tipo `[propuesta: confirmarlo con la asesoría]`.
-- **Derechos:** acceso y portabilidad («Descargar mis datos»), rectificación (en la app), supresión (borrar cuenta), retirar cada consentimiento en su pantalla, oposición y limitación escribiendo a `[correo]`. Puedes reclamar ante la AEPD (aepd.es).
+- **Derechos:** acceso y portabilidad («Descargar mis datos»), rectificación (en la app), supresión (borrar cuenta), retirar cada consentimiento en su pantalla, oposición y limitación escribiendo a gabrivallejo@hotmail.com. Puedes reclamar ante la AEPD (aepd.es).

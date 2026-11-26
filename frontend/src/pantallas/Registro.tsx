@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { Linking } from 'react-native';
 
 import { mensajeDeError } from '../api/errores';
 import { Aviso } from '../componentes/Aviso';
@@ -16,6 +17,8 @@ import {
   LONGITUD_MINIMA_CONTRASENA,
   validarRegistro,
 } from '../sesion/validarRegistro';
+
+const URL_POLITICA = 'https://github.com/Gabriel-Vallejo/forja/blob/main/docs/legal/privacidad.md';
 
 const VACIO: DatosRegistro = { correo: '', contrasena: '', fechaNacimiento: '' };
 
@@ -68,6 +71,11 @@ export function Registro() {
         ayuda="Solo la usamos para comprobar que tienes 18 años o más, y guardamos el año."
       />
       {alta.isError ? <Aviso tipo="error" mensaje={mensajeDeError(alta.error)} /> : null}
+      <Boton
+        variante="texto"
+        etiqueta="Política de privacidad"
+        onPress={() => void Linking.openURL(URL_POLITICA).catch(() => undefined)}
+      />
       <Boton etiqueta="Crear cuenta" etiquetaCargando="Creando…" cargando={alta.isPending} onPress={crearCuenta} />
       <Boton variante="texto" etiqueta="Ya tengo cuenta" onPress={() => router.replace('/entrar')} />
     </Pantalla>

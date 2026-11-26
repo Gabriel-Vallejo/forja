@@ -1,4 +1,5 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { Linking } from 'react-native';
 
 import { ErrorApi } from '../api/errores';
 import { apiFalsa } from '../pruebas/dobles';
@@ -75,6 +76,17 @@ describe('Registro', () => {
     await rellenar('doce-caracteres', '2000-01-31');
 
     expect(await screen.findByText('El correo no es válido.')).toBeOnTheScreen();
+  });
+
+  test('enlaza la política de privacidad antes de crear la cuenta', async () => {
+    const abrir = jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined);
+    await renderizar(<Registro />, apiFalsa());
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Política de privacidad' }));
+
+    expect(abrir).toHaveBeenCalledWith(
+      'https://github.com/Gabriel-Vallejo/forja/blob/main/docs/legal/privacidad.md',
+    );
   });
 });
 

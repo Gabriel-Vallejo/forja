@@ -49,7 +49,7 @@ Lo que se mide (los resultados estarán en `eval/`):
 - Coste de la cesta frente a una cesta manual
 
 ## ◆ Descargar
-- **v0.1.6:** [APK para Android](https://github.com/Gabriel-Vallejo/forja/releases/latest/download/forja-0.1.6.apk) (habla con el backend en Azure). Para instalarlo, permite «instalar apps de origen desconocido».
+- **v0.1.7:** [APK para Android](https://github.com/Gabriel-Vallejo/forja/releases/latest/download/forja-0.1.7.apk) (habla con el backend en Azure). Para instalarlo, permite «instalar apps de origen desconocido».
 - Con la v1.0, también la versión de PC.
 
 ## ◆ Arrancar
@@ -91,6 +91,9 @@ Detalles, costes y límites en [infra/README.md](infra/README.md). El APK firmad
 | [Open Food Facts](https://world.openfoodfacts.org) | ODbL / DbCL | Dieta (fase siguiente), «© Open Food Facts contributors» |
 
 Las citas científicas de cada regla están en [docs/referencias.md](docs/referencias.md) y la app las enlaza con su DOI.
+
+## ◆ Privacidad
+Qué datos guarda Forja, para qué y cómo borrarlos: [política de privacidad](docs/legal/privacidad.md). Las fotos no se guardan nunca y los datos de salud van cifrados y con consentimiento aparte.
 
 ## Licencia
 [MIT](LICENSE)
