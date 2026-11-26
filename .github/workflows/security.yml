@@ -49,6 +49,12 @@ jobs:
             docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache aquasec/trivy:0.76.2 \
               image --severity HIGH,CRITICAL --ignore-unfixed "$imagen"
           done < <(docker compose --profile dev --profile gpu --profile obs config --images)
+      # La imagen propia es la que va a Azure: aquí sí bloquea.
+      - name: Trivy sobre la imagen del backend
+        run: |
+          docker build -q -t forja-backend:ci backend
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache aquasec/trivy:0.76.2 \
+            image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 forja-backend:ci
       - name: Trivy sobre el repo (secretos y configuración)
         run: >
           docker run --rm -v "$PWD":/repo -w /repo aquasec/trivy:0.76.2
